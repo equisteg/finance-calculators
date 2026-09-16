@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Finealth</string>
+    <string name="title_activity_main">Finealth</string>
+    <string name="package_name">com.tezech.finealth</string>
+    <string name="custom_url_scheme">com.tezech.finealth</string>
+</resources>
