@@ -1,1009 +1,1161 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import {
-  useCurrency,
-  INDIAN_CITIES,
-  ALL_50_US_STATES,
-} from "./context/CurrencyContext";
-import AdSenseBanner from "../components/AdSenseBanner";
+import Image from "next/image";
+import SplashSequence from "@/components/SplashSequence";
 
-export default function Home() {
-  const {
-    baseCurrency,
-    setBaseCurrency,
-    selectedUsState,
-    setSelectedUsState,
-    selectedIndianCity,
-    setSelectedIndianCity,
-    activeProfile,
-    lastUpdated,
-    isSyncing,
-    manualRefresh,
-  } = useCurrency();
+export type Category = "wealth" | "income" | "debts" | "macro";
 
-  // Region-specific tool catalog
-  const regionalTools = useMemo(() => {
-    switch (baseCurrency) {
-      case "USD":
-        return [
-          { id: "mortgage_us", label: "30-Yr Mortgage & PITI" },
-          { id: "retirement_us", label: "401(k) & Roth IRA" },
-          { id: "paycheck_us", label: "Federal + State Paycheck" },
-          { id: "salestax_us", label: "State & Local Sales Tax" },
-        ];
-      case "GBP":
-        return [
-          { id: "mortgage_uk", label: "Repayment Mortgage" },
-          { id: "isa_uk", label: "Cash & Stocks ISA" },
-          { id: "paye_uk", label: "PAYE Tax & NI" },
-          { id: "sdlt_uk", label: "Stamp Duty (SDLT)" },
-        ];
-      case "EUR":
-        return [
-          { id: "euribor_loan", label: "Euribor Variable Mortgage" },
-          { id: "savings_eu", label: "Compound Growth Modeler" },
-          { id: "vat_eu", label: "EU Harmonized VAT" },
-        ];
-      case "INR":
-      default:
-        return [
-          { id: "emi_in", label: "Loan EMI & Amortization" },
-          { id: "sip_in", label: "Mutual Fund SIP & Step-Up" },
-          { id: "tax_in", label: "Income Tax (New vs Old)" },
-          { id: "gst_in", label: "GST (CGST + SGST Split)" },
-          { id: "fdrd_in", label: "Bank FD & Post Office RD" },
-          { id: "ctc_in", label: "CTC to In-Hand Salary" },
-        ];
+export type ToolId =
+  | "sip"
+  | "lumpsum"
+  | "swp"
+  | "fd"
+  | "salary"
+  | "incometax"
+  | "gst"
+  | "emi"
+  | "loancompare"
+  | "inflation"
+  | "fire";
+
+interface SubTool {
+  id: ToolId;
+  name: string;
+}
+
+export default function FinealthProSuite() {
+  const [showSplash, setShowSplash] = useState<boolean>(true);
+  const [activeCategory, setActiveCategory] = useState<Category>("wealth");
+  const [activeTool, setActiveTool] = useState<ToolId>("sip");
+
+  const inr = (n: number) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(Number.isFinite(n) ? Math.round(n) : 0);
+
+  const CATEGORIES: { id: Category; label: string; icon: string; tools: SubTool[] }[] = [
+    {
+      id: "wealth",
+      label: "Wealth",
+      icon: "▲",
+      tools: [
+        { id: "sip", name: "SIP Engine" },
+        { id: "lumpsum", name: "Lump Sum" },
+        { id: "swp", name: "SWP Cashflow" },
+        { id: "fd", name: "Fixed Deposit" },
+      ],
+    },
+    {
+      id: "income",
+      label: "Income",
+      icon: "◆",
+      tools: [
+        { id: "salary", name: "In-Hand Salary" },
+        { id: "incometax", name: "Tax: New vs Old" },
+        { id: "gst", name: "GST Calculator" },
+      ],
+    },
+    {
+      id: "debts",
+      label: "Debts",
+      icon: "▼",
+      tools: [
+        { id: "emi", name: "Loan & EMI" },
+        { id: "loancompare", name: "Loan Compare" },
+      ],
+    },
+    {
+      id: "macro",
+      label: "Macro",
+      icon: "●",
+      tools: [
+        { id: "inflation", name: "Purchasing Power" },
+        { id: "fire", name: "FIRE Freedom" },
+      ],
+    },
+  ];
+
+  const handleCategorySwitch = (catId: Category) => {
+    setActiveCategory(catId);
+    const cat = CATEGORIES.find((c) => c.id === catId);
+    if (cat && cat.tools.length > 0) {
+      setActiveTool(cat.tools[0].id);
     }
-  }, [baseCurrency]);
+  };
 
-  const [activeToolId, setActiveToolId] = useState<string>("emi_in");
-
-  // Keep active tool in sync whenever region changes
-  React.useEffect(() => {
-    if (regionalTools.length > 0) {
-      setActiveToolId(regionalTools[0].id);
-    }
-  }, [regionalTools]);
+  const currentCategoryTools = useMemo(() => {
+    return CATEGORIES.find((c) => c.id === activeCategory)?.tools || [];
+  }, [activeCategory]);
 
   // ==========================================
-  // 1. LOAN / MORTGAGE STATE
+  // WEALTH: SIP
   // ==========================================
-  const [loanPrincipal, setLoanPrincipal] = useState<number>(
-    baseCurrency === "INR" ? 3500000 : 350000
-  );
-  const [loanRate, setLoanRate] = useState<number>(baseCurrency === "INR" ? 8.5 : 6.8);
-  const [loanTenureYears, setLoanTenureYears] = useState<number>(20);
-  const [usPropertyTaxRate, setUsPropertyTaxRate] = useState<number>(1.2);
-  const [usHomeInsuranceAnnual, setUsHomeInsuranceAnnual] = useState<number>(1400);
-  const [usPmiMonthly, setUsPmiMonthly] = useState<number>(120);
+  const [sipMonthly, setSipMonthly] = useState<number>(15000);
+  const [sipRate, setSipRate] = useState<number>(12);
+  const [sipYears, setSipYears] = useState<number>(15);
+  const [sipStepUp, setSipStepUp] = useState<number>(10);
+  const [hasStepUp, setHasStepUp] = useState<boolean>(false);
 
-  const monthlyInterestRate = loanRate / 12 / 100;
-  const totalMonths = loanTenureYears * 12;
-  const standardEmi =
-    monthlyInterestRate > 0
-      ? Math.round(
-          (loanPrincipal *
-            monthlyInterestRate *
-            Math.pow(1 + monthlyInterestRate, totalMonths)) /
-            (Math.pow(1 + monthlyInterestRate, totalMonths) - 1)
-        )
-      : Math.round(loanPrincipal / totalMonths);
-  const totalLoanRepayment = standardEmi * totalMonths;
-  const totalLoanInterest = Math.max(0, totalLoanRepayment - loanPrincipal);
-
-  // US PITI Mortgage Breakdown
-  const usMonthlyPropertyTax = Math.round((loanPrincipal * (usPropertyTaxRate / 100)) / 12);
-  const usMonthlyInsurance = Math.round(usHomeInsuranceAnnual / 12);
-  const usTotalMonthlyPITI = standardEmi + usMonthlyPropertyTax + usMonthlyInsurance + usPmiMonthly;
-
-  // ==========================================
-  // 2. SIP & RETIREMENT ENGINE
-  // ==========================================
-  const [sipMonthlyDeposit, setSipMonthlyDeposit] = useState<number>(
-    baseCurrency === "INR" ? 15000 : 750
-  );
-  const [sipExpectedReturn, setSipExpectedReturn] = useState<number>(12.5);
-  const [sipHorizonYears, setSipHorizonYears] = useState<number>(15);
-  const [sipStepUpPct, setSipStepUpPct] = useState<number>(10);
-
-  const stepUpResults = useMemo(() => {
-    let totalInvested = 0;
-    let corpus = 0;
-    let currentMonthly = sipMonthlyDeposit;
-    const monthlyRate = sipExpectedReturn / 12 / 100;
-
-    for (let y = 1; y <= sipHorizonYears; y++) {
-      for (let m = 1; m <= 12; m++) {
-        totalInvested += currentMonthly;
-        corpus = (corpus + currentMonthly) * (1 + monthlyRate);
+  const sipCalcs = useMemo(() => {
+    let invested = 0;
+    let total = 0;
+    const r = sipRate / 12 / 100;
+    if (!hasStepUp) {
+      const months = sipYears * 12;
+      invested = sipMonthly * months;
+      total = sipMonthly * ((Math.pow(1 + r, months) - 1) / r) * (1 + r);
+    } else {
+      let cur = sipMonthly;
+      for (let y = 1; y <= sipYears; y++) {
+        for (let m = 1; m <= 12; m++) {
+          invested += cur;
+          total = (total + cur) * (1 + r);
+        }
+        cur += (cur * sipStepUp) / 100;
       }
-      currentMonthly += (currentMonthly * sipStepUpPct) / 100;
     }
-    return {
-      invested: Math.round(totalInvested),
-      corpus: Math.round(corpus),
-      gains: Math.max(0, Math.round(corpus - totalInvested)),
-    };
-  }, [sipMonthlyDeposit, sipExpectedReturn, sipHorizonYears, sipStepUpPct]);
+    return { invested, profit: total - invested, total };
+  }, [sipMonthly, sipRate, sipYears, sipStepUp, hasStepUp]);
 
   // ==========================================
-  // 3. TAX ENGINES
+  // WEALTH: LUMP SUM
   // ==========================================
-  const [grossAnnualIncome, setGrossAnnualIncome] = useState<number>(
-    baseCurrency === "INR" ? 1800000 : 110000
-  );
-  const [inSec80C, setInSec80C] = useState<number>(150000);
-  const [inSec80D, setInSec80D] = useState<number>(25000);
-  const [inHraExempt, setInHraExempt] = useState<number>(120000);
+  const [lumpPrincipal, setLumpPrincipal] = useState<number>(200000);
+  const [lumpRate, setLumpRate] = useState<number>(12.5);
+  const [lumpYears, setLumpYears] = useState<number>(10);
 
-  // Indian Tax: New vs Old Regime
-  const indianTaxBreakdown = useMemo(() => {
-    const newStdDeduction = 75000;
-    const newTaxableIncome = Math.max(0, grossAnnualIncome - newStdDeduction);
-    let newTax = 0;
-
-    if (newTaxableIncome > 1500000) {
-      newTax = 150000 + (newTaxableIncome - 1500000) * 0.3;
-    } else if (newTaxableIncome > 1200000) {
-      newTax = 90000 + (newTaxableIncome - 1200000) * 0.2;
-    } else if (newTaxableIncome > 900000) {
-      newTax = 45000 + (newTaxableIncome - 900000) * 0.15;
-    } else if (newTaxableIncome > 600000) {
-      newTax = 15000 + (newTaxableIncome - 600000) * 0.1;
-    } else if (newTaxableIncome > 300000) {
-      newTax = (newTaxableIncome - 300000) * 0.05;
-    }
-    if (newTaxableIncome <= 700000) newTax = 0;
-    const newCess = newTax * 0.04;
-    const finalNewTax = Math.round(newTax + newCess);
-
-    const oldStdDeduction = 50000;
-    const oldTotalDeductions = oldStdDeduction + inSec80C + inSec80D + inHraExempt;
-    const oldTaxableIncome = Math.max(0, grossAnnualIncome - oldTotalDeductions);
-    let oldTax = 0;
-
-    if (oldTaxableIncome > 1000000) {
-      oldTax = 112500 + (oldTaxableIncome - 1000000) * 0.3;
-    } else if (oldTaxableIncome > 500000) {
-      oldTax = 12500 + (oldTaxableIncome - 500000) * 0.2;
-    } else if (oldTaxableIncome > 250000) {
-      oldTax = (oldTaxableIncome - 250000) * 0.05;
-    }
-    if (oldTaxableIncome <= 500000) oldTax = 0;
-    const oldCess = oldTax * 0.04;
-    const finalOldTax = Math.round(oldTax + oldCess);
-
-    return {
-      newTax: finalNewTax,
-      oldTax: finalOldTax,
-      recommended: finalNewTax <= finalOldTax ? "NEW REGIME" : "OLD REGIME",
-      savings: Math.abs(finalNewTax - finalOldTax),
-    };
-  }, [grossAnnualIncome, inSec80C, inSec80D, inHraExempt]);
-
-  // US Federal + State Paycheck
-  const usTaxBreakdown = useMemo(() => {
-    const stdDeduction = 14600;
-    const taxableFederal = Math.max(0, grossAnnualIncome - stdDeduction);
-    let federalTax = 0;
-
-    if (taxableFederal > 243725) {
-      federalTax = 52832 + (taxableFederal - 243725) * 0.35;
-    } else if (taxableFederal > 100525) {
-      federalTax = 17400 + (taxableFederal - 100525) * 0.24;
-    } else if (taxableFederal > 47150) {
-      federalTax = 5426 + (taxableFederal - 47150) * 0.22;
-    } else if (taxableFederal > 11600) {
-      federalTax = 1160 + (taxableFederal - 11600) * 0.12;
-    } else {
-      federalTax = taxableFederal * 0.1;
-    }
-
-    const stateRate = ALL_50_US_STATES[selectedUsState]?.incomeTaxRate || 0;
-    const stateTax = (grossAnnualIncome * stateRate) / 100;
-    const ficaSocialSecurity = Math.min(grossAnnualIncome, 168600) * 0.062;
-    const ficaMedicare = grossAnnualIncome * 0.0145;
-    const totalDeductions = federalTax + stateTax + ficaSocialSecurity + ficaMedicare;
-
-    return {
-      federalTax: Math.round(federalTax),
-      stateTax: Math.round(stateTax),
-      fica: Math.round(ficaSocialSecurity + ficaMedicare),
-      netPaycheckMonthly: Math.round((grossAnnualIncome - totalDeductions) / 12),
-      effectiveTaxRate: ((totalDeductions / grossAnnualIncome) * 100).toFixed(1),
-    };
-  }, [grossAnnualIncome, selectedUsState]);
-
-  // UK PAYE & National Insurance
-  const ukTaxBreakdown = useMemo(() => {
-    const personalAllowance = 12570;
-    const taxable = Math.max(0, grossAnnualIncome - personalAllowance);
-    let payeTax = 0;
-
-    if (taxable > 125140) {
-      payeTax = (taxable - 125140) * 0.45 + (125140 - 37700) * 0.4 + 37700 * 0.2;
-    } else if (taxable > 37700) {
-      payeTax = (taxable - 37700) * 0.4 + 37700 * 0.2;
-    } else {
-      payeTax = taxable * 0.2;
-    }
-
-    const niThreshold = 12570;
-    const niUpperLimit = 50270;
-    let ni = 0;
-    if (grossAnnualIncome > niUpperLimit) {
-      ni = (niUpperLimit - niThreshold) * 0.08 + (grossAnnualIncome - niUpperLimit) * 0.02;
-    } else if (grossAnnualIncome > niThreshold) {
-      ni = (grossAnnualIncome - niThreshold) * 0.08;
-    }
-
-    const totalDeductions = payeTax + ni;
-    return {
-      payeTax: Math.round(payeTax),
-      ni: Math.round(ni),
-      netMonthly: Math.round((grossAnnualIncome - totalDeductions) / 12),
-    };
-  }, [grossAnnualIncome]);
+  const lumpCalcs = useMemo(() => {
+    const total = lumpPrincipal * Math.pow(1 + lumpRate / 100, lumpYears);
+    return { invested: lumpPrincipal, profit: total - lumpPrincipal, total };
+  }, [lumpPrincipal, lumpRate, lumpYears]);
 
   // ==========================================
-  // 4. GST / VAT ENGINE
+  // WEALTH: SWP
   // ==========================================
-  const [invoiceAmount, setInvoiceAmount] = useState<number>(50000);
-  const [selectedGstTier, setSelectedGstTier] = useState<number>(18);
-  const [isGstInclusive, setIsGstInclusive] = useState<boolean>(false);
+  const [swpCorpus, setSwpCorpus] = useState<number>(6000000);
+  const [swpWithdrawal, setSwpWithdrawal] = useState<number>(40000);
+  const [swpRate, setSwpRate] = useState<number>(8.5);
+  const [swpYears, setSwpYears] = useState<number>(20);
 
-  const gstCalculation = useMemo(() => {
-    let basePrice = invoiceAmount;
-    let taxVal = 0;
-    if (isGstInclusive) {
-      basePrice = Math.round(invoiceAmount / (1 + selectedGstTier / 100));
-      taxVal = invoiceAmount - basePrice;
-    } else {
-      taxVal = Math.round((invoiceAmount * selectedGstTier) / 100);
+  const swpCalcs = useMemo(() => {
+    let bal = swpCorpus;
+    const r = swpRate / 12 / 100;
+    const months = swpYears * 12;
+    let withdrawn = 0;
+    let exhaustedMonth: number | null = null;
+
+    for (let m = 1; m <= months; m++) {
+      if (bal <= 0) {
+        if (!exhaustedMonth) exhaustedMonth = m;
+        bal = 0;
+        break;
+      }
+      bal = bal * (1 + r) - swpWithdrawal;
+      withdrawn += swpWithdrawal;
+      if (bal < 0) {
+        withdrawn += bal;
+        bal = 0;
+        if (!exhaustedMonth) exhaustedMonth = m;
+      }
     }
-    return {
-      baseAmount: basePrice,
-      totalGst: taxVal,
-      cgst: Math.round(taxVal / 2),
-      sgst: Math.round(taxVal / 2),
-      finalInvoice: isGstInclusive ? invoiceAmount : basePrice + taxVal,
-    };
-  }, [invoiceAmount, selectedGstTier, isGstInclusive]);
+    return { corpus: swpCorpus, withdrawn, balance: bal, exhaustedMonth };
+  }, [swpCorpus, swpWithdrawal, swpRate, swpYears]);
 
   // ==========================================
-  // 5. FD & RD MATURITY
+  // WEALTH: FD
   // ==========================================
-  const [fdPrincipal, setFdPrincipal] = useState<number>(500000);
-  const [fdInterestRate, setFdInterestRate] = useState<number>(7.2);
+  const [fdDeposit, setFdDeposit] = useState<number>(500000);
+  const [fdRate, setFdRate] = useState<number>(7.25);
   const [fdYears, setFdYears] = useState<number>(5);
-  const fdCompoundFreq = 4; // Quarterly
+  const [fdCompounding, setFdCompounding] = useState<number>(4);
 
-  const fdMaturityValue = Math.round(
-    fdPrincipal * Math.pow(1 + fdInterestRate / (100 * fdCompoundFreq), fdCompoundFreq * fdYears)
-  );
-  const fdInterestGained = fdMaturityValue - fdPrincipal;
+  const fdCalcs = useMemo(() => {
+    const r = fdRate / 100;
+    const n = fdCompounding;
+    const maturity = fdDeposit * Math.pow(1 + r / n, n * fdYears);
+    return {
+      principal: fdDeposit,
+      interest: maturity - fdDeposit,
+      maturity,
+    };
+  }, [fdDeposit, fdRate, fdYears, fdCompounding]);
 
   // ==========================================
-  // 6. CTC TO IN-HAND
+  // INCOME: SALARY
   // ==========================================
-  const [ctcAmount, setCtcAmount] = useState<number>(1500000);
-  const [annualBonus, setAnnualBonus] = useState<number>(100000);
+  const [ctcAnnual, setCtcAnnual] = useState<number>(1200000);
+  const [bonusAnnual, setBonusAnnual] = useState<number>(100000);
+  const [professionalTax, setProfessionalTax] = useState<number>(200);
 
-  const ctcBreakdown = useMemo(() => {
-    const basicSalary = (ctcAmount - annualBonus) * 0.4;
-    const epfEmployee = (basicSalary * 12) / 100;
-    const epfEmployer = (basicSalary * 12) / 100;
-    const gratuity = (basicSalary * 4.81) / 100;
-    const professionalTaxAnnual = 2500;
+  const salaryCalcs = useMemo(() => {
+    const fixedCtc = Math.max(0, ctcAnnual - bonusAnnual);
+    const monthlyGross = fixedCtc / 12;
+    const monthlyBasic = monthlyGross * 0.45;
+    const monthlyEpfc = Math.min(monthlyBasic * 0.12, 1800 * 12 > fixedCtc ? 1800 : monthlyBasic * 0.12);
+    const taxableApprox = Math.max(0, fixedCtc - 75000);
+    let annualTdsEst = 0;
+    if (taxableApprox > 1500000) annualTdsEst = (taxableApprox - 1500000) * 0.3 + 140000;
+    else if (taxableApprox > 1200000) annualTdsEst = (taxableApprox - 1200000) * 0.2 + 80000;
+    else if (taxableApprox > 800000) annualTdsEst = (taxableApprox - 800000) * 0.15 + 20000;
 
-    const monthlyGross = (ctcAmount - annualBonus - epfEmployer - gratuity) / 12;
-    const approxMonthlyTax = indianTaxBreakdown.newTax / 12;
-    const monthlyInHand = Math.round(
-      monthlyGross - epfEmployee / 12 - professionalTaxAnnual / 12 - approxMonthlyTax
-    );
+    const monthlyTds = annualTdsEst / 12;
+    const inHandMonthly = monthlyGross - monthlyEpfc - professionalTax - monthlyTds;
 
     return {
-      monthlyInHand: Math.max(0, monthlyInHand),
-      basicMonthly: Math.round(basicSalary / 12),
-      epfMonthly: Math.round(epfEmployee / 12),
-      annualBonus,
+      monthlyGross,
+      monthlyEpfc,
+      monthlyTds,
+      inHandMonthly: Math.max(0, inHandMonthly),
+      annualInHand: Math.max(0, inHandMonthly) * 12 + bonusAnnual,
     };
-  }, [ctcAmount, annualBonus, indianTaxBreakdown.newTax]);
+  }, [ctcAnnual, bonusAnnual, professionalTax]);
 
-  // Bullion city spread adjustment for India
-  const citySpread =
-    baseCurrency === "INR"
-      ? INDIAN_CITIES[selectedIndianCity] || INDIAN_CITIES["Mumbai"]
-      : null;
+  // ==========================================
+  // INCOME: TAX
+  // ==========================================
+  const [taxableIncome, setTaxableIncome] = useState<number>(1200000);
+  const [deductions80C, setDeductions80C] = useState<number>(150000);
+  const [deductions80D, setDeductions80D] = useState<number>(25000);
+  const [deductionsHra, setDeductionsHra] = useState<number>(120000);
+
+  const taxCalcs = useMemo(() => {
+    const newNet = Math.max(0, taxableIncome - 75000);
+    let newTax = 0;
+    if (newNet <= 300000) newTax = 0;
+    else if (newNet <= 700000) newTax = (newNet - 300000) * 0.05;
+    else if (newNet <= 1000000) newTax = 20000 + (newNet - 700000) * 0.10;
+    else if (newNet <= 1200000) newTax = 50000 + (newNet - 1000000) * 0.15;
+    else if (newNet <= 1500000) newTax = 80000 + (newNet - 1200000) * 0.20;
+    else newTax = 140000 + (newNet - 1500000) * 0.30;
+    if (newNet <= 700000) newTax = 0;
+    const newTotal = newTax * 1.04;
+
+    const oldDeductions = 50000 + Math.min(150000, deductions80C) + deductions80D + deductionsHra;
+    const oldNet = Math.max(0, taxableIncome - oldDeductions);
+    let oldTax = 0;
+    if (oldNet <= 250000) oldTax = 0;
+    else if (oldNet <= 500000) oldTax = (oldNet - 250000) * 0.05;
+    else if (oldNet <= 1000000) oldTax = 12500 + (oldNet - 500000) * 0.20;
+    else oldTax = 112500 + (oldNet - 1000000) * 0.30;
+    if (oldNet <= 500000) oldTax = 0;
+    const oldTotal = oldTax * 1.04;
+
+    return {
+      newTotal,
+      oldTotal,
+      savings: Math.abs(oldTotal - newTotal),
+      recommended: newTotal <= oldTotal ? "New Regime" : "Old Regime",
+    };
+  }, [taxableIncome, deductions80C, deductions80D, deductionsHra]);
+
+  // ==========================================
+  // INCOME: GST
+  // ==========================================
+  const [gstAmount, setGstAmount] = useState<number>(25000);
+  const [gstRate, setGstRate] = useState<number>(18);
+  const [gstType, setGstType] = useState<"exclusive" | "inclusive">("exclusive");
+
+  const gstCalcs = useMemo(() => {
+    if (gstType === "exclusive") {
+      const tax = (gstAmount * gstRate) / 100;
+      return { net: gstAmount, tax, cgst: tax / 2, sgst: tax / 2, total: gstAmount + tax };
+    } else {
+      const net = (gstAmount * 100) / (100 + gstRate);
+      const tax = gstAmount - net;
+      return { net, tax, cgst: tax / 2, sgst: tax / 2, total: gstAmount };
+    }
+  }, [gstAmount, gstRate, gstType]);
+
+  // ==========================================
+  // DEBTS: EMI
+  // ==========================================
+  const [loanPrincipal, setLoanPrincipal] = useState<number>(3000000);
+  const [loanRate, setLoanRate] = useState<number>(8.75);
+  const [loanYears, setLoanYears] = useState<number>(20);
+
+  const emiCalcs = useMemo(() => {
+    const P = loanPrincipal;
+    const r = loanRate / 12 / 100;
+    const n = loanYears * 12;
+    const emi = (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    const total = emi * n;
+    return { emi, totalInterest: total - P, total };
+  }, [loanPrincipal, loanRate, loanYears]);
+
+  // ==========================================
+  // DEBTS: LOAN COMPARE
+  // ==========================================
+  const [cmpLoanAmount, setCmpLoanAmount] = useState<number>(4000000);
+  const [bankARate, setBankARate] = useState<number>(8.5);
+  const [bankAYears, setBankAYears] = useState<number>(20);
+  const [bankBRate, setBankBRate] = useState<number>(8.9);
+  const [bankBYears, setBankBYears] = useState<number>(20);
+
+  const loanCompareCalcs = useMemo(() => {
+    const P = cmpLoanAmount;
+    const rA = bankARate / 12 / 100;
+    const nA = bankAYears * 12;
+    const emiA = (P * rA * Math.pow(1 + rA, nA)) / (Math.pow(1 + rA, nA) - 1);
+    const totalA = emiA * nA;
+    const interestA = totalA - P;
+
+    const rB = bankBRate / 12 / 100;
+    const nB = bankBYears * 12;
+    const emiB = (P * rB * Math.pow(1 + rB, nB)) / (Math.pow(1 + rB, nB) - 1);
+    const totalB = emiB * nB;
+    const interestB = totalB - P;
+
+    return {
+      emiA,
+      interestA,
+      emiB,
+      interestB,
+      interestDifference: Math.abs(interestA - interestB),
+      emiDifference: Math.abs(emiA - emiB),
+      cheaperBank: interestA <= interestB ? "Bank A" : "Bank B",
+    };
+  }, [cmpLoanAmount, bankARate, bankAYears, bankBRate, bankBYears]);
+
+  // ==========================================
+  // MACRO: INFLATION
+  // ==========================================
+  const [currentExpense, setCurrentExpense] = useState<number>(50000);
+  const [inflationRate, setInflationRate] = useState<number>(6.5);
+  const [inflationHorizon, setInflationHorizon] = useState<number>(15);
+
+  const inflationCalcs = useMemo(() => {
+    const futureMonthly = currentExpense * Math.pow(1 + inflationRate / 100, inflationHorizon);
+    const futureAnnual = futureMonthly * 12;
+    const currentAnnual = currentExpense * 12;
+    const erodedValue = 100 / Math.pow(1 + inflationRate / 100, inflationHorizon);
+
+    return {
+      currentAnnual,
+      futureMonthly,
+      futureAnnual,
+      erodedValue,
+      multiplier: futureMonthly / (currentExpense || 1),
+    };
+  }, [currentExpense, inflationRate, inflationHorizon]);
+
+  // ==========================================
+  // MACRO: FIRE
+  // ==========================================
+  const [fireAnnualExpense, setFireAnnualExpense] = useState<number>(800000);
+  const [fireCurrentSavings, setFireCurrentSavings] = useState<number>(1500000);
+  const [fireMonthlySaving, setFireMonthlySaving] = useState<number>(50000);
+  const [fireReturnRate, setFireReturnRate] = useState<number>(12);
+
+  const fireCalcs = useMemo(() => {
+    const targetCorpus = fireAnnualExpense * 25;
+    const r = fireReturnRate / 12 / 100;
+    let months = 0;
+    let accumulated = fireCurrentSavings;
+
+    while (accumulated < targetCorpus && months < 600) {
+      accumulated = (accumulated + fireMonthlySaving) * (1 + r);
+      months++;
+    }
+
+    return { targetCorpus, yearsToFire: (months / 12).toFixed(1) };
+  }, [fireAnnualExpense, fireCurrentSavings, fireMonthlySaving, fireReturnRate]);
 
   return (
-    <div className="min-h-screen bg-[#050508] text-zinc-100 selection:bg-emerald-500/30">
-      {/* Universal Header */}
-      <header className="border-b border-white/[0.08] bg-[#08080c]/90 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 ring-4 ring-emerald-400/20" />
-            <span className="text-xl font-black tracking-tight text-white font-mono">
-              FINEALTH
-            </span>
-            <span className="text-[10px] font-mono uppercase bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded tracking-widest hidden sm:inline-block">
-              STATUTORY ENGINE
-            </span>
-          </div>
+    <div className="h-screen w-screen bg-[#070708] text-zinc-100 flex flex-col overflow-hidden font-sans">
+      
+      {/* BRAND SPLASH SEQUENCE */}
+      {showSplash && <SplashSequence onComplete={() => setShowSplash(false)} />}
 
-          <div className="flex items-center gap-3">
-            <select
-              value={baseCurrency}
-              onChange={(e) => setBaseCurrency(e.target.value)}
-              className="bg-[#121216] text-white border border-white/[0.15] text-xs font-mono rounded-lg px-3 py-1.5 outline-none hover:border-emerald-500/50 transition cursor-pointer"
-            >
-              <option value="INR">🇮🇳 India (INR ₹)</option>
-              <option value="USD">🇺🇸 United States (USD $)</option>
-              <option value="EUR">🇪🇺 European Union (EUR €)</option>
-              <option value="GBP">🇬🇧 United Kingdom (GBP £)</option>
-            </select>
-
-            <button
-              onClick={manualRefresh}
-              disabled={isSyncing}
-              className="inline-flex items-center gap-1.5 text-xs font-mono bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] px-3 py-1.5 rounded-lg transition text-zinc-300 hover:text-white"
-            >
-              <span className={isSyncing ? "animate-spin" : ""}>⟳</span>
-              <span className="hidden md:inline">{lastUpdated}</span>
-            </button>
+      {/* 1. TOP BAR WITH BRAND LOGO */}
+      <header className="shrink-0 bg-[#0b0b0e] border-b border-[#1b1b24] safe-top z-30">
+        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-lg overflow-hidden relative border border-[#23232f] bg-[#14141a] flex items-center justify-center">
+              <Image
+                src="/logo.png"
+                alt="Finealth Logo"
+                width={32}
+                height={32}
+                className="object-cover"
+                priority
+              />
+            </div>
+            <div>
+              <span className="text-base font-bold tracking-tight text-zinc-100 font-serif">finealth</span>
+              <span className="ml-2 text-[10px] text-emerald-400 font-mono tracking-wider uppercase">
+                / {activeCategory}
+              </span>
+            </div>
           </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[11px] font-mono text-zinc-400 uppercase">{activeTool}</span>
+          </div>
+        </div>
+
+        {/* Dynamic Contextual Tool Bar */}
+        <div className="flex items-center space-x-1 px-3 py-1.5 overflow-x-auto no-scrollbar border-t border-[#16161e] bg-[#09090c]">
+          {currentCategoryTools.map((tool) => {
+            const isSelected = activeTool === tool.id;
+            return (
+              <button
+                key={tool.id}
+                onClick={() => setActiveTool(tool.id)}
+                className={`shrink-0 px-3 py-1.5 rounded text-xs font-mono transition-all duration-150 ${
+                  isSelected
+                    ? "bg-zinc-100 text-zinc-950 font-semibold shadow-sm scale-100"
+                    : "bg-[#111116] text-zinc-400 hover:text-zinc-200 border border-[#1d1d27]"
+                }`}
+              >
+                {tool.name}
+              </button>
+            );
+          })}
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        {/* Subtle, slim top ad slot */}
-        <AdSenseBanner client="ca-pub-XXXXXXXXXXXXXXXX" slot="1234567890" />
+      {/* 2. SCROLLABLE WORKSPACE */}
+      <main className="flex-1 overflow-y-auto no-scrollbar p-4 md:p-8 space-y-6">
+        <div key={activeTool} className="max-w-5xl w-full mx-auto animate-tool-fade space-y-6">
 
-        {/* Region & Benchmark Header */}
-        <div className="mb-8 pt-2">
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono text-emerald-400">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              JURISDICTION: {activeProfile.flag} {activeProfile.name.toUpperCase()} ({activeProfile.currencyCode}) • EXCHANGE: {activeProfile.primaryExchange}
-            </div>
+          {/* SIP */}
+          {activeTool === "sip" && (
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              <div className="md:col-span-7 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 space-y-5">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-400">
+                    SIP Wealth Accumulator
+                  </h2>
+                  <label className="flex items-center space-x-2 cursor-pointer text-xs text-zinc-400 font-mono">
+                    <input
+                      type="checkbox"
+                      checked={hasStepUp}
+                      onChange={(e) => setHasStepUp(e.target.checked)}
+                      className="accent-emerald-400 w-4 h-4 rounded"
+                    />
+                    <span>Annual Step-Up</span>
+                  </label>
+                </div>
 
-            {baseCurrency === "INR" && (
-              <div className="inline-flex items-center gap-2 bg-[#141418] border border-white/[0.1] px-3 py-1 rounded-full text-xs font-mono text-white">
-                <span className="text-zinc-400">CITY SPREAD:</span>
-                <select
-                  value={selectedIndianCity}
-                  onChange={(e) => setSelectedIndianCity(e.target.value)}
-                  className="bg-transparent text-emerald-400 font-bold outline-none cursor-pointer"
-                >
-                  {Object.keys(INDIAN_CITIES).map((city) => (
-                    <option key={city} value={city} className="bg-[#141418] text-white">
-                      {city}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {baseCurrency === "USD" && (
-              <div className="inline-flex items-center gap-2 bg-[#141418] border border-white/[0.1] px-3 py-1 rounded-full text-xs font-mono text-white">
-                <span className="text-zinc-400">STATE TAX MATRIX:</span>
-                <select
-                  value={selectedUsState}
-                  onChange={(e) => setSelectedUsState(e.target.value)}
-                  className="bg-transparent text-emerald-400 font-bold outline-none cursor-pointer"
-                >
-                  {Object.entries(ALL_50_US_STATES).map(([code, config]) => (
-                    <option key={code} value={code} className="bg-[#141418] text-white">
-                      {config.name} ({config.incomeTaxRate}%)
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </div>
-
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight font-serif">
-            Financial & Bullion Markets in {baseCurrency === "INR" ? selectedIndianCity : activeProfile.name}
-          </h1>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1.5 font-light">
-            Priority coverage: <span className="text-emerald-400 font-medium">{activeProfile.headlinePriority}</span>. Native statutory calibrations without synthetic conversions.
-          </p>
-        </div>
-
-        {/* Priority 4-Asset Grid */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          {activeProfile.priorityAssets.map((asset) => {
-            let adjustedPrice = asset.basePrice;
-            if (citySpread && asset.id === "in_gold") {
-              adjustedPrice += citySpread.goldPremiumPer10g;
-            }
-            if (citySpread && asset.id === "in_silver") {
-              adjustedPrice += citySpread.silverPremiumPerKg;
-            }
-
-            const formattedVal =
-              asset.symbol !== ""
-                ? `${asset.symbol}${Math.round(adjustedPrice).toLocaleString()}`
-                : `${adjustedPrice.toLocaleString()} pts`;
-
-            return (
-              <div
-                key={asset.id}
-                className="bg-[#0c0c10] border border-white/[0.08] hover:border-emerald-500/30 transition-all rounded-2xl p-5 flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-400/90 block">
-                        {asset.category}
-                      </span>
-                      <h3 className="text-lg font-bold text-white mt-0.5">{asset.name}</h3>
-                      <p className="text-xs text-zinc-400 font-mono">{asset.unit}</p>
-                    </div>
-                    <span
-                      className={`text-xs font-mono font-bold ${
-                        asset.changePct >= 0 ? "text-emerald-400" : "text-rose-400"
-                      }`}
-                    >
-                      {asset.changePct >= 0 ? "▲" : "▼"} {Math.abs(asset.changePct)}%
-                    </span>
-                  </div>
-
-                  <div className="my-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                    <span className="text-[9px] font-mono uppercase tracking-wider text-zinc-500 block mb-0.5">
-                      LIVE BENCHMARK
-                    </span>
-                    <div className="text-2xl font-extrabold text-white font-mono">
-                      {formattedVal}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Monthly Investment</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <span className="text-xs text-zinc-500 mr-1">₹</span>
+                      <input
+                        type="number"
+                        value={sipMonthly}
+                        onChange={(e) => setSipMonthly(Number(e.target.value) || 0)}
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                      />
                     </div>
                   </div>
-                </div>
-
-                <div className="text-[11px] font-mono text-zinc-500 pt-2 border-t border-white/[0.06]">
-                  {asset.taxNote}
-                </div>
-              </div>
-            );
-          })}
-        </section>
-
-        {/* Graphical Trajectory Curves */}
-        <section className="mb-12 bg-[#0c0c10] border border-white/[0.08] rounded-2xl p-5 sm:p-7">
-          <div className="mb-5">
-            <h2 className="text-lg sm:text-xl font-bold text-white">
-              Multi-Decade Inception Historical Trajectory
-            </h2>
-            <p className="text-xs text-zinc-400 mt-1 font-mono">
-              Empirical historical pricing milestones registered across official {activeProfile.name} records.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {activeProfile.priorityAssets.slice(0, 2).map((asset) => (
-              <div
-                key={`curve-${asset.id}`}
-                className="bg-white/[0.01] border border-white/[0.05] rounded-xl p-5"
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-sm font-bold text-white">
-                    {asset.name} ({asset.unit})
-                  </h3>
-                  <span className="text-[11px] font-mono text-emerald-400">
-                    Source: {asset.sourceAuthority}
-                  </span>
-                </div>
-
-                <div className="h-40 w-full flex items-end justify-between gap-2 pt-6 pb-2 px-1 border-b border-white/[0.08]">
-                  {asset.history.map((pt, idx) => {
-                    const maxVal = Math.max(...asset.history.map((h) => h.numericValue));
-                    const heightPct = Math.max(12, Math.round((pt.numericValue / maxVal) * 100));
-
-                    return (
-                      <div
-                        key={idx}
-                        className="flex-1 flex flex-col items-center gap-1 group relative h-full justify-end"
-                      >
-                        <div className="absolute -top-7 opacity-0 group-hover:opacity-100 transition pointer-events-none bg-zinc-900 border border-white/20 text-[10px] font-mono text-emerald-400 px-1.5 py-0.5 rounded whitespace-nowrap z-20">
-                          {pt.priceFormatted}
-                        </div>
-                        <div
-                          style={{ height: `${heightPct}%` }}
-                          className="w-full bg-emerald-500/20 group-hover:bg-emerald-500/50 border-t-2 border-emerald-400 rounded-t transition-all"
-                        />
-                        <span className="text-[10px] font-mono text-zinc-400 mt-2">
-                          {pt.year}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Mid Sponsor Ad */}
-        <AdSenseBanner client="ca-pub-XXXXXXXXXXXXXXXX" slot="0987654321" className="my-4" />
-
-        {/* WORKSPACE TOOLS SECTION */}
-        <section className="bg-[#0c0c10] border border-white/[0.08] rounded-2xl p-5 sm:p-7">
-          <div className="mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-white">
-              {activeProfile.name} Specific Tools & Financial Engines
-            </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 mt-1 font-mono">
-              Calibrated statutory tools for {activeProfile.name} currency and laws.
-            </p>
-          </div>
-
-          {/* Region Tool Tab Selector */}
-          <div className="flex flex-wrap gap-2 mb-8 border-b border-white/[0.06] pb-4">
-            {regionalTools.map((tool) => (
-              <button
-                key={tool.id}
-                onClick={() => setActiveToolId(tool.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-mono transition ${
-                  activeToolId === tool.id
-                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold"
-                    : "bg-white/[0.02] text-zinc-400 hover:text-white border border-white/[0.05]"
-                }`}
-              >
-                {tool.label}
-              </button>
-            ))}
-          </div>
-
-          {/* 1. LOAN & MORTGAGE ENGINE (emi_in, mortgage_us, mortgage_uk, euribor_loan) */}
-          {(activeToolId === "emi_in" ||
-            activeToolId === "mortgage_us" ||
-            activeToolId === "mortgage_uk" ||
-            activeToolId === "euribor_loan") && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
-                <div>
-                  <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
-                    <span>Borrowing Principal</span>
-                    <span className="text-white font-bold">
-                      {activeProfile.symbol}{loanPrincipal.toLocaleString()}
-                    </span>
-                  </div>
                   <input
                     type="range"
-                    min={baseCurrency === "INR" ? 100000 : 25000}
-                    max={baseCurrency === "INR" ? 25000000 : 2000000}
-                    step={baseCurrency === "INR" ? 50000 : 5000}
-                    value={loanPrincipal}
-                    onChange={(e) => setLoanPrincipal(Number(e.target.value))}
-                    className="w-full accent-emerald-400"
+                    min={500}
+                    max={200000}
+                    step={500}
+                    value={sipMonthly}
+                    onChange={(e) => setSipMonthly(Number(e.target.value))}
+                    className="w-full"
                   />
                 </div>
 
-                <div>
-                  <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
-                    <span>Annual Interest Rate (%)</span>
-                    <span className="text-emerald-400 font-bold">{loanRate}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="2"
-                    max="20"
-                    step="0.1"
-                    value={loanRate}
-                    onChange={(e) => setLoanRate(Number(e.target.value))}
-                    className="w-full accent-emerald-400"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
-                    <span>Repayment Tenure</span>
-                    <span className="text-white font-bold">{loanTenureYears} Years</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="1"
-                    max="30"
-                    step="1"
-                    value={loanTenureYears}
-                    onChange={(e) => setLoanTenureYears(Number(e.target.value))}
-                    className="w-full accent-emerald-400"
-                  />
-                </div>
-
-                {activeToolId === "mortgage_us" && (
-                  <div className="grid grid-cols-3 gap-3 pt-4 border-t border-white/[0.06]">
-                    <div>
-                      <span className="text-[10px] font-mono text-zinc-400 block mb-1">Property Tax (%)</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Expected Return (p.a.)</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
                       <input
                         type="number"
                         step="0.1"
-                        value={usPropertyTaxRate}
-                        onChange={(e) => setUsPropertyTaxRate(Number(e.target.value))}
-                        className="w-full bg-[#121216] border border-white/[0.1] rounded px-2 py-1 text-xs text-white"
+                        value={sipRate}
+                        onChange={(e) => setSipRate(Number(e.target.value) || 0)}
+                        className="w-16 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
                       />
+                      <span className="text-xs text-zinc-500 ml-1">%</span>
                     </div>
-                    <div>
-                      <span className="text-[10px] font-mono text-zinc-400 block mb-1">Annual Hazard Ins ($)</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={1}
+                    max={30}
+                    step={0.5}
+                    value={sipRate}
+                    onChange={(e) => setSipRate(Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Tenure (Years)</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
                       <input
                         type="number"
-                        value={usHomeInsuranceAnnual}
-                        onChange={(e) => setUsHomeInsuranceAnnual(Number(e.target.value))}
-                        className="w-full bg-[#121216] border border-white/[0.1] rounded px-2 py-1 text-xs text-white"
+                        value={sipYears}
+                        onChange={(e) => setSipYears(Number(e.target.value) || 0)}
+                        className="w-14 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                       />
+                      <span className="text-xs text-zinc-500 ml-1">Yr</span>
                     </div>
-                    <div>
-                      <span className="text-[10px] font-mono text-zinc-400 block mb-1">Monthly PMI ($)</span>
-                      <input
-                        type="number"
-                        value={usPmiMonthly}
-                        onChange={(e) => setUsPmiMonthly(Number(e.target.value))}
-                        className="w-full bg-[#121216] border border-white/[0.1] rounded px-2 py-1 text-xs text-white"
-                      />
+                  </div>
+                  <input
+                    type="range"
+                    min={1}
+                    max={40}
+                    step={1}
+                    value={sipYears}
+                    onChange={(e) => setSipYears(Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                {hasStepUp && (
+                  <div className="space-y-2 pt-2 border-t border-[#1e1e27]">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-emerald-400 font-mono">Annual Step-Up Growth</span>
+                      <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                        <input
+                          type="number"
+                          value={sipStepUp}
+                          onChange={(e) => setSipStepUp(Number(e.target.value) || 0)}
+                          className="w-14 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
+                        />
+                        <span className="text-xs text-zinc-500 ml-1">%</span>
+                      </div>
                     </div>
+                    <input
+                      type="range"
+                      min={1}
+                      max={25}
+                      step={1}
+                      value={sipStepUp}
+                      onChange={(e) => setSipStepUp(Number(e.target.value))}
+                      className="w-full"
+                    />
                   </div>
                 )}
               </div>
 
-              <div className="lg:col-span-5 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 flex flex-col justify-between">
+              <div className="md:col-span-5 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 flex flex-col justify-between space-y-6">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">
-                    {activeToolId === "mortgage_us" ? "TOTAL MONTHLY PITI" : "MONTHLY INSTALLMENT"}
-                  </span>
-                  <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono mb-4">
-                    {activeProfile.symbol}
-                    {(activeToolId === "mortgage_us" ? usTotalMonthlyPITI : standardEmi).toLocaleString()}
+                  <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">Maturity Balance</span>
+                  <div className="text-3xl lg:text-4xl font-mono font-bold text-emerald-400 tracking-tight mt-1 transition-all">
+                    {inr(sipCalcs.total)}
                   </div>
+                </div>
 
-                  <div className="space-y-3 border-t border-white/[0.06] pt-4 text-xs font-mono">
-                    <div className="flex justify-between text-zinc-400">
-                      <span>Principal Amount:</span>
-                      <span className="text-white">{activeProfile.symbol}{loanPrincipal.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-zinc-400">
-                      <span>Total Interest Payable:</span>
-                      <span className="text-rose-400">+{activeProfile.symbol}{totalLoanInterest.toLocaleString()}</span>
-                    </div>
-                    {activeToolId === "mortgage_us" && (
-                      <div className="flex justify-between text-zinc-400">
-                        <span>Taxes + Ins + PMI:</span>
-                        <span className="text-amber-400">
-                          +{activeProfile.symbol}{(usMonthlyPropertyTax + usMonthlyInsurance + usPmiMonthly).toLocaleString()}/mo
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex justify-between text-zinc-400 border-t border-white/[0.06] pt-2 font-bold">
-                      <span>Total Outlay:</span>
-                      <span className="text-emerald-400">
-                        {activeProfile.symbol}
-                        {(activeToolId === "mortgage_us" ? usTotalMonthlyPITI * totalMonths : totalLoanRepayment).toLocaleString()}
-                      </span>
-                    </div>
+                <div className="space-y-3 font-mono">
+                  <div className="p-3 bg-[#15151c] border border-[#22222e] rounded-lg flex justify-between items-center">
+                    <span className="text-xs text-zinc-400">Total Invested</span>
+                    <span className="text-sm font-semibold text-zinc-200">{inr(sipCalcs.invested)}</span>
+                  </div>
+                  <div className="p-3 bg-[#15151c] border border-[#22222e] rounded-lg flex justify-between items-center">
+                    <span className="text-xs text-zinc-400">Estimated Profit</span>
+                    <span className="text-sm font-semibold text-emerald-400">+{inr(sipCalcs.profit)}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="h-2 w-full bg-[#1e1e27] rounded-full overflow-hidden flex">
+                    <div className="bg-zinc-500" style={{ width: `${(sipCalcs.invested / (sipCalcs.total || 1)) * 100}%` }} />
+                    <div className="bg-emerald-400" style={{ width: `${(sipCalcs.profit / (sipCalcs.total || 1)) * 100}%` }} />
+                  </div>
+                  <div className="flex justify-between text-[10px] font-mono text-zinc-500">
+                    <span>Invested {((sipCalcs.invested / (sipCalcs.total || 1)) * 100).toFixed(0)}%</span>
+                    <span>Returns {((sipCalcs.profit / (sipCalcs.total || 1)) * 100).toFixed(0)}%</span>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* 2. SIP & RETIREMENT ENGINE (sip_in, retirement_us, isa_uk, savings_eu) */}
-          {(activeToolId === "sip_in" ||
-            activeToolId === "retirement_us" ||
-            activeToolId === "isa_uk" ||
-            activeToolId === "savings_eu") && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
-                <div>
-                  <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
-                    <span>Monthly Investment</span>
-                    <span className="text-white font-bold">
-                      {activeProfile.symbol}{sipMonthlyDeposit.toLocaleString()}
-                    </span>
+          {/* LUMP SUM */}
+          {activeTool === "lumpsum" && (
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              <div className="md:col-span-7 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 space-y-5">
+                <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-400">
+                  Lump Sum Deposit Growth
+                </h2>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Deposit Capital</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <span className="text-xs text-zinc-500 mr-1">₹</span>
+                      <input
+                        type="number"
+                        value={lumpPrincipal}
+                        onChange={(e) => setLumpPrincipal(Number(e.target.value) || 0)}
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                      />
+                    </div>
                   </div>
                   <input
                     type="range"
-                    min={baseCurrency === "INR" ? 500 : 50}
-                    max={baseCurrency === "INR" ? 300000 : 5000}
-                    step={baseCurrency === "INR" ? 500 : 50}
-                    value={sipMonthlyDeposit}
-                    onChange={(e) => setSipMonthlyDeposit(Number(e.target.value))}
-                    className="w-full accent-emerald-400"
+                    min={5000}
+                    max={5000000}
+                    step={5000}
+                    value={lumpPrincipal}
+                    onChange={(e) => setLumpPrincipal(Number(e.target.value))}
+                    className="w-full"
                   />
                 </div>
 
-                <div>
-                  <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
-                    <span>Expected Return Rate (% CAGR)</span>
-                    <span className="text-emerald-400 font-bold">{sipExpectedReturn}%</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Annual ROI (%)</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={lumpRate}
+                        onChange={(e) => setLumpRate(Number(e.target.value) || 0)}
+                        className="w-16 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
+                      />
+                      <span className="text-xs text-zinc-500 ml-1">%</span>
+                    </div>
                   </div>
                   <input
                     type="range"
-                    min="3"
-                    max="30"
-                    step="0.5"
-                    value={sipExpectedReturn}
-                    onChange={(e) => setSipExpectedReturn(Number(e.target.value))}
-                    className="w-full accent-emerald-400"
+                    min={1}
+                    max={30}
+                    step={0.5}
+                    value={lumpRate}
+                    onChange={(e) => setLumpRate(Number(e.target.value))}
+                    className="w-full"
                   />
                 </div>
 
-                <div>
-                  <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
-                    <span>Investment Horizon</span>
-                    <span className="text-white font-bold">{sipHorizonYears} Years</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Tenure (Years)</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <input
+                        type="number"
+                        value={lumpYears}
+                        onChange={(e) => setLumpYears(Number(e.target.value) || 0)}
+                        className="w-14 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                      />
+                      <span className="text-xs text-zinc-500 ml-1">Yr</span>
+                    </div>
                   </div>
                   <input
                     type="range"
-                    min="1"
-                    max="40"
-                    step="1"
-                    value={sipHorizonYears}
-                    onChange={(e) => setSipHorizonYears(Number(e.target.value))}
-                    className="w-full accent-emerald-400"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
-                    <span>Annual Step-Up (% per Year)</span>
-                    <span className="text-amber-400 font-bold">{sipStepUpPct}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="25"
-                    step="1"
-                    value={sipStepUpPct}
-                    onChange={(e) => setSipStepUpPct(Number(e.target.value))}
-                    className="w-full accent-emerald-400"
+                    min={1}
+                    max={35}
+                    step={1}
+                    value={lumpYears}
+                    onChange={(e) => setLumpYears(Number(e.target.value))}
+                    className="w-full"
                   />
                 </div>
               </div>
 
-              <div className="lg:col-span-5 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 flex flex-col justify-between">
+              <div className="md:col-span-5 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 flex flex-col justify-between space-y-6">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">
-                    PROJECTED WEALTH CORPUS
-                  </span>
-                  <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono mb-4">
-                    {activeProfile.symbol}{stepUpResults.corpus.toLocaleString()}
+                  <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">Maturity Value</span>
+                  <div className="text-3xl lg:text-4xl font-mono font-bold text-emerald-400 tracking-tight mt-1">
+                    {inr(lumpCalcs.total)}
                   </div>
-
-                  <div className="space-y-3 border-t border-white/[0.06] pt-4 text-xs font-mono">
-                    <div className="flex justify-between text-zinc-400">
-                      <span>Total Invested Capital:</span>
-                      <span className="text-white">{activeProfile.symbol}{stepUpResults.invested.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-zinc-400">
-                      <span>Compound Wealth Generated:</span>
-                      <span className="text-emerald-400">+{activeProfile.symbol}{stepUpResults.gains.toLocaleString()}</span>
-                    </div>
+                </div>
+                <div className="space-y-3 font-mono">
+                  <div className="p-3 bg-[#15151c] border border-[#22222e] rounded-lg flex justify-between items-center">
+                    <span className="text-xs text-zinc-400">Principal Deposit</span>
+                    <span className="text-sm font-semibold text-zinc-200">{inr(lumpCalcs.invested)}</span>
+                  </div>
+                  <div className="p-3 bg-[#15151c] border border-[#22222e] rounded-lg flex justify-between items-center">
+                    <span className="text-xs text-zinc-400">Net Return</span>
+                    <span className="text-sm font-semibold text-emerald-400">+{inr(lumpCalcs.profit)}</span>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* 3. TAX ENGINES (tax_in, paycheck_us, paye_uk) */}
-          {(activeToolId === "tax_in" ||
-            activeToolId === "paycheck_us" ||
-            activeToolId === "paye_uk") && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
-                <div>
-                  <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
-                    <span>Annual Gross Income</span>
-                    <span className="text-white font-bold">
-                      {activeProfile.symbol}{grossAnnualIncome.toLocaleString()}
-                    </span>
+          {/* SWP */}
+          {activeTool === "swp" && (
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              <div className="md:col-span-7 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 space-y-5">
+                <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-400">
+                  Systematic Withdrawal (SWP)
+                </h2>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Total Capital Corpus</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <span className="text-xs text-zinc-500 mr-1">₹</span>
+                      <input
+                        type="number"
+                        value={swpCorpus}
+                        onChange={(e) => setSwpCorpus(Number(e.target.value) || 0)}
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                      />
+                    </div>
                   </div>
                   <input
                     type="range"
-                    min={baseCurrency === "INR" ? 300000 : 25000}
-                    max={baseCurrency === "INR" ? 10000000 : 500000}
-                    step={baseCurrency === "INR" ? 50000 : 5000}
-                    value={grossAnnualIncome}
-                    onChange={(e) => setGrossAnnualIncome(Number(e.target.value))}
-                    className="w-full accent-emerald-400"
+                    min={500000}
+                    max={20000000}
+                    step={100000}
+                    value={swpCorpus}
+                    onChange={(e) => setSwpCorpus(Number(e.target.value))}
+                    className="w-full"
                   />
                 </div>
 
-                {activeToolId === "tax_in" && (
-                  <div className="grid grid-cols-3 gap-3 p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl text-xs font-mono">
-                    <div>
-                      <span className="text-zinc-400 block mb-1">Section 80C</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Monthly Cashout</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <span className="text-xs text-zinc-500 mr-1">₹</span>
                       <input
                         type="number"
-                        value={inSec80C}
-                        onChange={(e) => setInSec80C(Number(e.target.value))}
-                        className="w-full bg-[#121216] border border-white/[0.1] rounded px-2 py-1 text-white"
-                      />
-                    </div>
-                    <div>
-                      <span className="text-zinc-400 block mb-1">Section 80D</span>
-                      <input
-                        type="number"
-                        value={inSec80D}
-                        onChange={(e) => setInSec80D(Number(e.target.value))}
-                        className="w-full bg-[#121216] border border-white/[0.1] rounded px-2 py-1 text-white"
-                      />
-                    </div>
-                    <div>
-                      <span className="text-zinc-400 block mb-1">HRA Exempt</span>
-                      <input
-                        type="number"
-                        value={inHraExempt}
-                        onChange={(e) => setInHraExempt(Number(e.target.value))}
-                        className="w-full bg-[#121216] border border-white/[0.1] rounded px-2 py-1 text-white"
+                        value={swpWithdrawal}
+                        onChange={(e) => setSwpWithdrawal(Number(e.target.value) || 0)}
+                        className="w-24 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
                       />
                     </div>
                   </div>
-                )}
+                  <input
+                    type="range"
+                    min={5000}
+                    max={200000}
+                    step={1000}
+                    value={swpWithdrawal}
+                    onChange={(e) => setSwpWithdrawal(Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-zinc-400 font-mono">Annual Rate (%)</span>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={swpRate}
+                      onChange={(e) => setSwpRate(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-zinc-400 font-mono">Duration (Years)</span>
+                    <input
+                      type="number"
+                      value={swpYears}
+                      onChange={(e) => setSwpYears(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="lg:col-span-5 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 flex flex-col justify-between">
-                {activeToolId === "tax_in" ? (
-                  <div>
-                    <div className="inline-block bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-mono px-2 py-0.5 rounded uppercase font-bold mb-2">
-                      RECOMMENDATION: {indianTaxBreakdown.recommended}
-                    </div>
-                    <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono mb-4">
-                      ₹{Math.min(indianTaxBreakdown.newTax, indianTaxBreakdown.oldTax).toLocaleString()}
-                    </div>
-                    <div className="space-y-2 border-t border-white/[0.06] pt-3 text-xs font-mono">
-                      <div className="flex justify-between text-zinc-400">
-                        <span>New Regime Tax (Sec 115BAC):</span>
-                        <span className="text-white">₹{indianTaxBreakdown.newTax.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between text-zinc-400">
-                        <span>Old Regime Tax (with 80C/80D):</span>
-                        <span className="text-white">₹{indianTaxBreakdown.oldTax.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between text-emerald-400 border-t border-white/[0.06] pt-2 font-bold">
-                        <span>Tax Saved:</span>
-                        <span>₹{indianTaxBreakdown.savings.toLocaleString()}</span>
-                      </div>
-                    </div>
+              <div className="md:col-span-5 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 flex flex-col justify-between space-y-6">
+                <div>
+                  <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">Remaining Balance</span>
+                  <div className="text-3xl font-mono font-bold text-emerald-400 tracking-tight mt-1">
+                    {inr(swpCalcs.balance)}
                   </div>
-                ) : activeToolId === "paycheck_us" ? (
-                  <div>
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">
-                      NET MONTHLY PAYCHECK
-                    </span>
-                    <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono mb-4">
-                      ${usTaxBreakdown.netPaycheckMonthly.toLocaleString()}
+                  {swpCalcs.exhaustedMonth && (
+                    <div className="mt-3 p-3 bg-rose-500/10 border border-rose-500/20 rounded text-xs font-mono text-rose-400">
+                      Depleted in Month {swpCalcs.exhaustedMonth} ({(swpCalcs.exhaustedMonth / 12).toFixed(1)} yrs)
                     </div>
-                    <div className="space-y-2 border-t border-white/[0.06] pt-3 text-xs font-mono">
-                      <div className="flex justify-between text-zinc-400">
-                        <span>Federal Income Tax:</span>
-                        <span className="text-rose-400">-${usTaxBreakdown.federalTax.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between text-zinc-400">
-                        <span>{ALL_50_US_STATES[selectedUsState]?.name} State Tax:</span>
-                        <span className="text-rose-400">-${usTaxBreakdown.stateTax.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between text-zinc-400">
-                        <span>FICA (SS + Medicare):</span>
-                        <span className="text-rose-400">-${usTaxBreakdown.fica.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between text-emerald-400 border-t border-white/[0.06] pt-2 font-bold">
-                        <span>Effective Tax Rate:</span>
-                        <span>{usTaxBreakdown.effectiveTaxRate}%</span>
-                      </div>
-                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3 font-mono">
+                  <div className="p-3 bg-[#15151c] border border-[#22222e] rounded-lg flex justify-between items-center">
+                    <span className="text-xs text-zinc-400">Total Money Received</span>
+                    <span className="text-sm font-semibold text-zinc-100">{inr(swpCalcs.withdrawn)}</span>
                   </div>
-                ) : (
-                  <div>
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">
-                      NET TAKE-HOME PAY
-                    </span>
-                    <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono mb-4">
-                      £{ukTaxBreakdown.netMonthly.toLocaleString()}/mo
-                    </div>
-                    <div className="space-y-2 border-t border-white/[0.06] pt-3 text-xs font-mono">
-                      <div className="flex justify-between text-zinc-400">
-                        <span>PAYE Income Tax:</span>
-                        <span className="text-rose-400">£{ukTaxBreakdown.payeTax.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between text-zinc-400">
-                        <span>National Insurance (NI):</span>
-                        <span className="text-rose-400">£{ukTaxBreakdown.ni.toLocaleString()}</span>
-                      </div>
-                    </div>
+                  <div className="p-3 bg-[#15151c] border border-[#22222e] rounded-lg flex justify-between items-center">
+                    <span className="text-xs text-zinc-400">Initial Corpus</span>
+                    <span className="text-sm font-semibold text-zinc-400">{inr(swpCalcs.corpus)}</span>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           )}
 
-          {/* 4. GST & VAT ENGINES (gst_in, salestax_us, vat_eu, sdlt_uk) */}
-          {(activeToolId === "gst_in" ||
-            activeToolId === "salestax_us" ||
-            activeToolId === "vat_eu" ||
-            activeToolId === "sdlt_uk") && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
-                <div>
-                  <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
-                    <span>Transaction / Invoice Base</span>
-                    <span className="text-white font-bold">
-                      {activeProfile.symbol}{invoiceAmount.toLocaleString()}
-                    </span>
+          {/* FD */}
+          {activeTool === "fd" && (
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              <div className="md:col-span-7 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 space-y-5">
+                <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-400">
+                  Fixed Deposit (Compounded)
+                </h2>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Deposit Principal</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <span className="text-xs text-zinc-500 mr-1">₹</span>
+                      <input
+                        type="number"
+                        value={fdDeposit}
+                        onChange={(e) => setFdDeposit(Number(e.target.value) || 0)}
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                      />
+                    </div>
                   </div>
                   <input
                     type="range"
-                    min="1000"
-                    max="1000000"
-                    step="1000"
-                    value={invoiceAmount}
-                    onChange={(e) => setInvoiceAmount(Number(e.target.value))}
-                    className="w-full accent-emerald-400"
+                    min={10000}
+                    max={5000000}
+                    step={10000}
+                    value={fdDeposit}
+                    onChange={(e) => setFdDeposit(Number(e.target.value))}
+                    className="w-full"
                   />
                 </div>
 
-                <div>
-                  <span className="text-xs font-mono text-zinc-400 block mb-2">
-                    Applicable Tax Slab
-                  </span>
-                  <div className="flex gap-2">
-                    {[5, 12, 18, 28].map((tier) => (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-zinc-400 font-mono">FD Interest Rate (%)</span>
+                    <input
+                      type="number"
+                      step="0.05"
+                      value={fdRate}
+                      onChange={(e) => setFdRate(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-zinc-400 font-mono">Tenure (Years)</span>
+                    <input
+                      type="number"
+                      value={fdYears}
+                      onChange={(e) => setFdYears(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <span className="text-xs text-zinc-400 font-mono">Compounding Schedule</span>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { label: "Quarterly", val: 4 },
+                      { label: "Monthly", val: 12 },
+                      { label: "Annually", val: 1 },
+                    ].map((f) => (
                       <button
-                        key={tier}
-                        onClick={() => setSelectedGstTier(tier)}
-                        className={`flex-1 py-2 rounded-xl text-xs font-mono font-bold transition ${
-                          selectedGstTier === tier
-                            ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                            : "bg-white/[0.02] text-zinc-400 border border-white/[0.06]"
+                        key={f.val}
+                        onClick={() => setFdCompounding(f.val)}
+                        className={`py-1.5 text-xs font-mono rounded border ${
+                          fdCompounding === f.val
+                            ? "bg-emerald-500/10 border-emerald-400 text-emerald-400 font-bold"
+                            : "bg-[#181820] border-[#262633] text-zinc-400"
                         }`}
                       >
-                        {tier}%
+                        {f.label}
                       </button>
                     ))}
                   </div>
                 </div>
+              </div>
 
-                <div className="flex items-center gap-3">
-                  <label className="text-xs font-mono text-zinc-400 flex items-center gap-2 cursor-pointer">
+              <div className="md:col-span-5 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 flex flex-col justify-between space-y-6">
+                <div>
+                  <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">Maturity Proceeds</span>
+                  <div className="text-3xl lg:text-4xl font-mono font-bold text-emerald-400 tracking-tight mt-1">
+                    {inr(fdCalcs.maturity)}
+                  </div>
+                </div>
+
+                <div className="space-y-3 font-mono">
+                  <div className="p-3 bg-[#15151c] border border-[#22222e] rounded-lg flex justify-between items-center">
+                    <span className="text-xs text-zinc-400">Principal Locked</span>
+                    <span className="text-sm font-semibold text-zinc-200">{inr(fdCalcs.principal)}</span>
+                  </div>
+                  <div className="p-3 bg-[#15151c] border border-[#22222e] rounded-lg flex justify-between items-center">
+                    <span className="text-xs text-zinc-400">Guaranteed Interest</span>
+                    <span className="text-sm font-semibold text-emerald-400">+{inr(fdCalcs.interest)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SALARY */}
+          {activeTool === "salary" && (
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              <div className="md:col-span-7 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 space-y-5">
+                <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-400">
+                  Annual CTC to Take-Home
+                </h2>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Annual CTC</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <span className="text-xs text-zinc-500 mr-1">₹</span>
+                      <input
+                        type="number"
+                        value={ctcAnnual}
+                        onChange={(e) => setCtcAnnual(Number(e.target.value) || 0)}
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <input
+                    type="range"
+                    min={200000}
+                    max={10000000}
+                    step={50000}
+                    value={ctcAnnual}
+                    onChange={(e) => setCtcAnnual(Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-zinc-400 font-mono">Annual Variable/Bonus</span>
                     <input
-                      type="checkbox"
-                      checked={isGstInclusive}
-                      onChange={(e) => setIsGstInclusive(e.target.checked)}
-                      className="accent-emerald-400"
+                      type="number"
+                      value={bonusAnnual}
+                      onChange={(e) => setBonusAnnual(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
                     />
-                    Invoice Price is Already Tax-Inclusive
-                  </label>
+                  </div>
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-zinc-400 font-mono">Monthly Professional Tax</span>
+                    <input
+                      type="number"
+                      value={professionalTax}
+                      onChange={(e) => setProfessionalTax(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="lg:col-span-5 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 flex flex-col justify-between">
+              <div className="md:col-span-5 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 flex flex-col justify-between space-y-6">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">
-                    TOTAL TAX APPLICABLE ({selectedGstTier}%)
+                  <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">Net Take-Home (Monthly)</span>
+                  <div className="text-3xl lg:text-4xl font-mono font-bold text-emerald-400 tracking-tight mt-1">
+                    {inr(salaryCalcs.inHandMonthly)}
+                  </div>
+                  <span className="text-xs font-mono text-zinc-500 block mt-1">
+                    Annual In-Hand (incl. bonus): {inr(salaryCalcs.annualInHand)}
                   </span>
-                  <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono mb-4">
-                    {activeProfile.symbol}{gstCalculation.totalGst.toLocaleString()}
+                </div>
+
+                <div className="space-y-2 font-mono text-xs">
+                  <div className="p-2.5 bg-[#15151c] border border-[#22222e] rounded flex justify-between">
+                    <span className="text-zinc-400">Monthly Gross</span>
+                    <span className="text-zinc-200">{inr(salaryCalcs.monthlyGross)}</span>
+                  </div>
+                  <div className="p-2.5 bg-[#15151c] border border-[#22222e] rounded flex justify-between">
+                    <span className="text-rose-400/80">Employee PF (12%)</span>
+                    <span className="text-rose-400">-{inr(salaryCalcs.monthlyEpfc)}</span>
+                  </div>
+                  <div className="p-2.5 bg-[#15151c] border border-[#22222e] rounded flex justify-between">
+                    <span className="text-rose-400/80">Monthly TDS</span>
+                    <span className="text-rose-400">-{inr(salaryCalcs.monthlyTds)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* INCOME TAX */}
+          {activeTool === "incometax" && (
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              <div className="md:col-span-7 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 space-y-5">
+                <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-400">
+                  Income Tax: New vs Old Regime
+                </h2>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Gross Taxable Income</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <span className="text-xs text-zinc-500 mr-1">₹</span>
+                      <input
+                        type="number"
+                        value={taxableIncome}
+                        onChange={(e) => setTaxableIncome(Number(e.target.value) || 0)}
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <input
+                    type="range"
+                    min={300000}
+                    max={5000000}
+                    step={50000}
+                    value={taxableIncome}
+                    onChange={(e) => setTaxableIncome(Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <span className="text-[11px] text-zinc-400 font-mono">Sec 80C</span>
+                    <input
+                      type="number"
+                      value={deductions80C}
+                      onChange={(e) => setDeductions80C(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded p-2 text-xs font-mono text-zinc-100"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] text-zinc-400 font-mono">Sec 80D</span>
+                    <input
+                      type="number"
+                      value={deductions80D}
+                      onChange={(e) => setDeductions80D(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded p-2 text-xs font-mono text-zinc-100"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] text-zinc-400 font-mono">HRA Exemption</span>
+                    <input
+                      type="number"
+                      value={deductionsHra}
+                      onChange={(e) => setDeductionsHra(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded p-2 text-xs font-mono text-zinc-100"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="md:col-span-5 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 flex flex-col justify-between space-y-6">
+                <div>
+                  <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">Tax Recommendation</span>
+                  <div className="text-2xl font-mono font-bold text-emerald-400 mt-1">
+                    {taxCalcs.recommended} Saves {inr(taxCalcs.savings)}
+                  </div>
+                </div>
+
+                <div className="space-y-3 font-mono">
+                  <div className={`p-4 rounded-lg border ${
+                    taxCalcs.recommended === "New Regime"
+                      ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-300"
+                      : "bg-[#15151c] border-[#22222e] text-zinc-300"
+                  }`}>
+                    <div className="text-xs text-zinc-400">New Regime (FY 2025-26)</div>
+                    <div className="text-xl font-bold mt-1">{inr(taxCalcs.newTotal)}</div>
                   </div>
 
-                  <div className="space-y-3 border-t border-white/[0.06] pt-4 text-xs font-mono">
-                    <div className="flex justify-between text-zinc-400">
-                      <span>Base Net Amount:</span>
-                      <span className="text-white">{activeProfile.symbol}{gstCalculation.baseAmount.toLocaleString()}</span>
+                  <div className={`p-4 rounded-lg border ${
+                    taxCalcs.recommended === "Old Regime"
+                      ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-300"
+                      : "bg-[#15151c] border-[#22222e] text-zinc-300"
+                  }`}>
+                    <div className="text-xs text-zinc-400">Old Regime (With Deductions)</div>
+                    <div className="text-xl font-bold mt-1">{inr(taxCalcs.oldTotal)}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* GST */}
+          {activeTool === "gst" && (
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              <div className="md:col-span-7 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 space-y-5">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-400">
+                    GST Split Calculator
+                  </h2>
+                  <div className="flex bg-[#181820] p-0.5 rounded border border-[#262633]">
+                    <button
+                      onClick={() => setGstType("exclusive")}
+                      className={`px-2.5 py-1 text-xs font-mono rounded ${
+                        gstType === "exclusive" ? "bg-zinc-100 text-zinc-950 font-bold" : "text-zinc-400"
+                      }`}
+                    >
+                      Add GST
+                    </button>
+                    <button
+                      onClick={() => setGstType("inclusive")}
+                      className={`px-2.5 py-1 text-xs font-mono rounded ${
+                        gstType === "inclusive" ? "bg-zinc-100 text-zinc-950 font-bold" : "text-zinc-400"
+                      }`}
+                    >
+                      Remove GST
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Invoice Amount</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <span className="text-xs text-zinc-500 mr-1">₹</span>
+                      <input
+                        type="number"
+                        value={gstAmount}
+                        onChange={(e) => setGstAmount(Number(e.target.value) || 0)}
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                      />
                     </div>
-                    {baseCurrency === "INR" && (
-                      <>
-                        <div className="flex justify-between text-zinc-400">
-                          <span>Central GST (CGST {selectedGstTier / 2}%):</span>
-                          <span className="text-zinc-300">₹{gstCalculation.cgst.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between text-zinc-400">
-                          <span>State GST (SGST {selectedGstTier / 2}%):</span>
-                          <span className="text-zinc-300">₹{gstCalculation.sgst.toLocaleString()}</span>
-                        </div>
-                      </>
-                    )}
-                    <div className="flex justify-between text-emerald-400 border-t border-white/[0.06] pt-2 font-bold">
-                      <span>Final Gross Bill:</span>
-                      <span>{activeProfile.symbol}{gstCalculation.finalInvoice.toLocaleString()}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={100}
+                    max={1000000}
+                    step={500}
+                    value={gstAmount}
+                    onChange={(e) => setGstAmount(Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <span className="text-xs text-zinc-400 font-mono block">GST Tax Slab</span>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[5, 12, 18, 28].map((slab) => (
+                      <button
+                        key={slab}
+                        onClick={() => setGstRate(slab)}
+                        className={`py-2 text-xs font-mono rounded border transition-all ${
+                          gstRate === slab
+                            ? "bg-emerald-500/10 border-emerald-400 text-emerald-400 font-bold"
+                            : "bg-[#181820] border-[#262633] text-zinc-400"
+                        }`}
+                      >
+                        {slab}%
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="md:col-span-5 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 flex flex-col justify-between space-y-6">
+                <div>
+                  <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">Gross Invoice Total</span>
+                  <div className="text-3xl font-mono font-bold text-emerald-400 tracking-tight mt-1">
+                    {inr(gstCalcs.total)}
+                  </div>
+                </div>
+
+                <div className="space-y-2 font-mono text-xs">
+                  <div className="p-3 bg-[#15151c] border border-[#22222e] rounded flex justify-between">
+                    <span className="text-zinc-400">Net Base Cost</span>
+                    <span className="text-zinc-200">{inr(gstCalcs.net)}</span>
+                  </div>
+                  <div className="p-3 bg-[#15151c] border border-[#22222e] rounded flex justify-between">
+                    <span className="text-emerald-400">Total GST ({gstRate}%)</span>
+                    <span className="text-emerald-400 font-semibold">{inr(gstCalcs.tax)}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <div className="p-2 bg-[#181820] border border-[#262633] rounded">
+                      <span className="text-zinc-500 text-[10px] block">CGST ({gstRate / 2}%)</span>
+                      <span className="text-zinc-300">{inr(gstCalcs.cgst)}</span>
+                    </div>
+                    <div className="p-2 bg-[#181820] border border-[#262633] rounded">
+                      <span className="text-zinc-500 text-[10px] block">SGST ({gstRate / 2}%)</span>
+                      <span className="text-zinc-300">{inr(gstCalcs.sgst)}</span>
                     </div>
                   </div>
                 </div>
@@ -1011,162 +1163,433 @@ export default function Home() {
             </div>
           )}
 
-          {/* 5. FD & RD MATURITY (fdrd_in) */}
-          {activeToolId === "fdrd_in" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
-                <div>
-                  <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
-                    <span>Deposit Principal</span>
-                    <span className="text-white font-bold">
-                      ₹{fdPrincipal.toLocaleString()}
-                    </span>
+          {/* EMI */}
+          {activeTool === "emi" && (
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              <div className="md:col-span-7 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 space-y-5">
+                <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-400">
+                  Loan Repayment & EMI
+                </h2>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Principal Amount</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <span className="text-xs text-zinc-500 mr-1">₹</span>
+                      <input
+                        type="number"
+                        value={loanPrincipal}
+                        onChange={(e) => setLoanPrincipal(Number(e.target.value) || 0)}
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                      />
+                    </div>
                   </div>
                   <input
                     type="range"
-                    min="10000"
-                    max="5000000"
-                    step="10000"
-                    value={fdPrincipal}
-                    onChange={(e) => setFdPrincipal(Number(e.target.value))}
-                    className="w-full accent-emerald-400"
+                    min={50000}
+                    max={20000000}
+                    step={50000}
+                    value={loanPrincipal}
+                    onChange={(e) => setLoanPrincipal(Number(e.target.value))}
+                    className="w-full"
                   />
                 </div>
 
-                <div>
-                  <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
-                    <span>Interest Rate (%)</span>
-                    <span className="text-emerald-400 font-bold">{fdInterestRate}%</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Interest Rate (p.a.)</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <input
+                        type="number"
+                        step="0.05"
+                        value={loanRate}
+                        onChange={(e) => setLoanRate(Number(e.target.value) || 0)}
+                        className="w-16 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
+                      />
+                      <span className="text-xs text-zinc-500 ml-1">%</span>
+                    </div>
                   </div>
                   <input
                     type="range"
-                    min="3"
-                    max="12"
-                    step="0.1"
-                    value={fdInterestRate}
-                    onChange={(e) => setFdInterestRate(Number(e.target.value))}
-                    className="w-full accent-emerald-400"
+                    min={5}
+                    max={24}
+                    step={0.1}
+                    value={loanRate}
+                    onChange={(e) => setLoanRate(Number(e.target.value))}
+                    className="w-full"
                   />
                 </div>
 
-                <div>
-                  <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
-                    <span>Deposit Term</span>
-                    <span className="text-white font-bold">{fdYears} Years</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Tenure (Years)</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <input
+                        type="number"
+                        value={loanYears}
+                        onChange={(e) => setLoanYears(Number(e.target.value) || 0)}
+                        className="w-14 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                      />
+                      <span className="text-xs text-zinc-500 ml-1">Yr</span>
+                    </div>
                   </div>
                   <input
                     type="range"
-                    min="1"
-                    max="10"
-                    step="1"
-                    value={fdYears}
-                    onChange={(e) => setFdYears(Number(e.target.value))}
-                    className="w-full accent-emerald-400"
+                    min={1}
+                    max={30}
+                    step={1}
+                    value={loanYears}
+                    onChange={(e) => setLoanYears(Number(e.target.value))}
+                    className="w-full"
                   />
                 </div>
               </div>
 
-              <div className="lg:col-span-5 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 flex flex-col justify-between">
+              <div className="md:col-span-5 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 flex flex-col justify-between space-y-6">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">
-                    MATURITY VALUE
-                  </span>
-                  <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono mb-4">
-                    ₹{fdMaturityValue.toLocaleString()}
+                  <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">Monthly EMI Due</span>
+                  <div className="text-3xl lg:text-4xl font-mono font-bold text-emerald-400 tracking-tight mt-1">
+                    {inr(emiCalcs.emi)}
                   </div>
+                </div>
 
-                  <div className="space-y-3 border-t border-white/[0.06] pt-4 text-xs font-mono">
-                    <div className="flex justify-between text-zinc-400">
-                      <span>Principal Amount:</span>
-                      <span className="text-white">₹{fdPrincipal.toLocaleString()}</span>
+                <div className="space-y-3 font-mono">
+                  <div className="p-3 bg-[#15151c] border border-[#22222e] rounded-lg flex justify-between items-center">
+                    <span className="text-xs text-zinc-400">Total Interest</span>
+                    <span className="text-sm font-semibold text-rose-400">+{inr(emiCalcs.totalInterest)}</span>
+                  </div>
+                  <div className="p-3 bg-[#15151c] border border-[#22222e] rounded-lg flex justify-between items-center">
+                    <span className="text-xs text-zinc-400">Total Principal + Interest</span>
+                    <span className="text-sm font-semibold text-zinc-100">{inr(emiCalcs.total)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* LOAN COMPARE */}
+          {activeTool === "loancompare" && (
+            <div className="space-y-5">
+              <div className="bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-zinc-400 font-mono">Loan Amount for Comparison</span>
+                  <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                    <span className="text-xs text-zinc-500 mr-1">₹</span>
+                    <input
+                      type="number"
+                      value={cmpLoanAmount}
+                      onChange={(e) => setCmpLoanAmount(Number(e.target.value) || 0)}
+                      className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                    />
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min={100000}
+                  max={20000000}
+                  step={100000}
+                  value={cmpLoanAmount}
+                  onChange={(e) => setCmpLoanAmount(Number(e.target.value))}
+                  className="w-full mt-2"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-mono font-bold text-blue-400">OFFER / BANK A</span>
+                    <div className="flex items-center space-x-1">
+                      <input
+                        type="number"
+                        step="0.05"
+                        value={bankARate}
+                        onChange={(e) => setBankARate(Number(e.target.value) || 0)}
+                        className="w-16 bg-[#181820] border border-[#262633] rounded p-1 font-mono text-sm text-blue-400 text-right"
+                      />
+                      <span className="text-xs text-zinc-500 font-mono">%</span>
                     </div>
-                    <div className="flex justify-between text-emerald-400 font-bold">
-                      <span>Interest Earned:</span>
-                      <span>+₹{fdInterestGained.toLocaleString()}</span>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] text-zinc-400 font-mono">Tenure (Years)</span>
+                    <input
+                      type="number"
+                      value={bankAYears}
+                      onChange={(e) => setBankAYears(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded p-1.5 font-mono text-xs text-zinc-100"
+                    />
+                  </div>
+                  <div className="p-3 bg-[#14141a] rounded border border-[#20202a] font-mono space-y-1.5">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-zinc-400">Monthly EMI:</span>
+                      <span className="font-bold text-zinc-100">{inr(loanCompareCalcs.emiA)}</span>
                     </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-zinc-400">Total Interest:</span>
+                      <span className="text-rose-400">{inr(loanCompareCalcs.interestA)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-mono font-bold text-emerald-400">OFFER / BANK B</span>
+                    <div className="flex items-center space-x-1">
+                      <input
+                        type="number"
+                        step="0.05"
+                        value={bankBRate}
+                        onChange={(e) => setBankBRate(Number(e.target.value) || 0)}
+                        className="w-16 bg-[#181820] border border-[#262633] rounded p-1 font-mono text-sm text-emerald-400 text-right"
+                      />
+                      <span className="text-xs text-zinc-500 font-mono">%</span>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] text-zinc-400 font-mono">Tenure (Years)</span>
+                    <input
+                      type="number"
+                      value={bankBYears}
+                      onChange={(e) => setBankBYears(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded p-1.5 font-mono text-xs text-zinc-100"
+                    />
+                  </div>
+                  <div className="p-3 bg-[#14141a] rounded border border-[#20202a] font-mono space-y-1.5">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-zinc-400">Monthly EMI:</span>
+                      <span className="font-bold text-zinc-100">{inr(loanCompareCalcs.emiB)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-zinc-400">Total Interest:</span>
+                      <span className="text-rose-400">{inr(loanCompareCalcs.interestB)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-5 bg-[#0f0f13] border border-[#1e1e27] rounded-xl text-center">
+                <span className="text-xs font-mono text-zinc-500 uppercase tracking-widest">Cost Comparison</span>
+                <div className="text-2xl md:text-3xl font-mono font-bold text-emerald-400 mt-1">
+                  {loanCompareCalcs.cheaperBank} saves {inr(loanCompareCalcs.interestDifference)}
+                </div>
+                <p className="text-xs font-mono text-zinc-400 mt-1">
+                  EMI difference: {inr(loanCompareCalcs.emiDifference)}/month.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* INFLATION */}
+          {activeTool === "inflation" && (
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              <div className="md:col-span-7 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 space-y-5">
+                <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-400">
+                  Purchasing Power Reality
+                </h2>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Current Monthly Household Expense</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <span className="text-xs text-zinc-500 mr-1">₹</span>
+                      <input
+                        type="number"
+                        value={currentExpense}
+                        onChange={(e) => setCurrentExpense(Number(e.target.value) || 0)}
+                        className="w-24 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <input
+                    type="range"
+                    min={10000}
+                    max={500000}
+                    step={5000}
+                    value={currentExpense}
+                    onChange={(e) => setCurrentExpense(Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-zinc-400 font-mono">Inflation Rate (%)</span>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={inflationRate}
+                      onChange={(e) => setInflationRate(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-zinc-400 font-mono">Years into Future</span>
+                    <input
+                      type="number"
+                      value={inflationHorizon}
+                      onChange={(e) => setInflationHorizon(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="md:col-span-5 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 flex flex-col justify-between space-y-6">
+                <div>
+                  <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">Future Monthly Equivalent</span>
+                  <div className="text-3xl lg:text-4xl font-mono font-bold text-rose-400 tracking-tight mt-1">
+                    {inr(inflationCalcs.futureMonthly)}
+                  </div>
+                  <span className="text-xs font-mono text-zinc-500 block mt-1">
+                    Requires {inflationCalcs.multiplier.toFixed(2)}x of today's cost to survive identically.
+                  </span>
+                </div>
+
+                <div className="p-4 bg-[#15151c] border border-[#22222e] rounded-lg font-mono text-xs space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-zinc-400">Current Annual Outflow:</span>
+                    <span className="text-zinc-200">{inr(inflationCalcs.currentAnnual)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-zinc-400">Future Annual Outflow:</span>
+                    <span className="text-zinc-200">{inr(inflationCalcs.futureAnnual)}</span>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t border-[#22222e]">
+                    <span className="text-zinc-500">₹100 Purchasing Power drops to:</span>
+                    <span className="text-emerald-400 font-bold">₹{inflationCalcs.erodedValue.toFixed(1)}</span>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* 6. CTC TO IN-HAND (ctc_in) */}
-          {activeToolId === "ctc_in" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
-                <div>
-                  <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
-                    <span>Annual Cost to Company (CTC)</span>
-                    <span className="text-white font-bold">
-                      ₹{ctcAmount.toLocaleString()}
-                    </span>
+          {/* FIRE */}
+          {activeTool === "fire" && (
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              <div className="md:col-span-7 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 space-y-5">
+                <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-400">
+                  FIRE Financial Independence
+                </h2>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-400 font-mono">Annual Living Expenses</span>
+                    <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
+                      <span className="text-xs text-zinc-500 mr-1">₹</span>
+                      <input
+                        type="number"
+                        value={fireAnnualExpense}
+                        onChange={(e) => setFireAnnualExpense(Number(e.target.value) || 0)}
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                      />
+                    </div>
                   </div>
                   <input
                     type="range"
-                    min="300000"
-                    max="8000000"
-                    step="50000"
-                    value={ctcAmount}
-                    onChange={(e) => setCtcAmount(Number(e.target.value))}
-                    className="w-full accent-emerald-400"
+                    min={200000}
+                    max={5000000}
+                    step={50000}
+                    value={fireAnnualExpense}
+                    onChange={(e) => setFireAnnualExpense(Number(e.target.value))}
+                    className="w-full"
                   />
                 </div>
 
-                <div>
-                  <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
-                    <span>Annual Bonus Component</span>
-                    <span className="text-zinc-300 font-bold">
-                      ₹{annualBonus.toLocaleString()}
-                    </span>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-zinc-400 font-mono">Current Existing Savings</span>
+                    <input
+                      type="number"
+                      value={fireCurrentSavings}
+                      onChange={(e) => setFireCurrentSavings(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
+                    />
                   </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="1000000"
-                    step="25000"
-                    value={annualBonus}
-                    onChange={(e) => setAnnualBonus(Number(e.target.value))}
-                    className="w-full accent-emerald-400"
-                  />
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-zinc-400 font-mono">Monthly Saving Capacity</span>
+                    <input
+                      type="number"
+                      value={fireMonthlySaving}
+                      onChange={(e) => setFireMonthlySaving(Number(e.target.value) || 0)}
+                      className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="lg:col-span-5 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 flex flex-col justify-between">
+              <div className="md:col-span-5 bg-[#0f0f13] border border-[#1e1e27] rounded-xl p-5 flex flex-col justify-between space-y-6">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">
-                    ESTIMATED NET MONTHLY IN-HAND
-                  </span>
-                  <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono mb-4">
-                    ₹{ctcBreakdown.monthlyInHand.toLocaleString()}
+                  <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">Freedom Horizon</span>
+                  <div className="text-3xl lg:text-4xl font-mono font-bold text-emerald-400 tracking-tight mt-1">
+                    {fireCalcs.yearsToFire} Years
                   </div>
+                  <span className="text-xs font-mono text-zinc-500 block mt-1">
+                    To reach complete self-sustaining wealth
+                  </span>
+                </div>
 
-                  <div className="space-y-3 border-t border-white/[0.06] pt-4 text-xs font-mono">
-                    <div className="flex justify-between text-zinc-400">
-                      <span>Basic Pay:</span>
-                      <span className="text-white">₹{ctcBreakdown.basicMonthly.toLocaleString()}/mo</span>
-                    </div>
-                    <div className="flex justify-between text-zinc-400">
-                      <span>Employee EPF:</span>
-                      <span className="text-rose-400">-₹{ctcBreakdown.epfMonthly.toLocaleString()}/mo</span>
-                    </div>
-                    <div className="flex justify-between text-zinc-400">
-                      <span>Variable Bonus:</span>
-                      <span className="text-amber-400">₹{ctcBreakdown.annualBonus.toLocaleString()}/yr</span>
-                    </div>
+                <div className="p-4 bg-[#15151c] border border-[#22222e] rounded-lg font-mono text-xs space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-zinc-400">Target FIRE Corpus (25x):</span>
+                    <span className="text-emerald-400 font-bold">{inr(fireCalcs.targetCorpus)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-zinc-400">Safe Annual Withdrawal:</span>
+                    <span className="text-zinc-200">{inr(fireAnnualExpense)}</span>
                   </div>
                 </div>
               </div>
             </div>
           )}
-        </section>
 
-        {/* Bottom Sponsor Placement */}
-        <AdSenseBanner client="ca-pub-XXXXXXXXXXXXXXXX" slot="5678901234" className="my-6" />
+          {/* MONETIZATION SPONSOR UNIT */}
+          <div className="w-full bg-[#0a0a0d] border border-[#1a1a24] rounded-lg p-3 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono uppercase bg-[#181822] text-zinc-500 border border-[#262636]">
+                SPONSORED
+              </span>
+              <span className="text-xs font-mono text-zinc-400">
+                Compare direct mutual funds & zero-brokerage Demat accounts
+              </span>
+            </div>
+            <button className="px-3 py-1 rounded text-xs font-mono bg-[#14141c] hover:bg-[#1a1a24] text-emerald-400 border border-[#222230] transition-colors">
+              Explore →
+            </button>
+          </div>
+
+        </div>
       </main>
 
-      <footer className="border-t border-white/[0.08] mt-16 py-8 text-center text-xs font-mono text-zinc-500">
-        Finealth Financial Suite · Multi-Jurisdiction Statutory Architecture · Updated Live {lastUpdated}
+      {/* 3. STATIC CATEGORICAL BOTTOM DOCK */}
+      <footer className="shrink-0 bg-[#0a0a0d] border-t border-[#1b1b24] safe-bottom z-30">
+        <div className="flex justify-around items-center max-w-lg mx-auto py-2">
+          {CATEGORIES.map((cat) => {
+            const isActive = activeCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => handleCategorySwitch(cat.id)}
+                className="flex flex-col items-center justify-center flex-1 py-1 transition-all"
+              >
+                <span
+                  className={`text-xs font-mono transition-colors ${
+                    isActive ? "text-emerald-400 font-bold" : "text-zinc-500"
+                  }`}
+                >
+                  {cat.icon}
+                </span>
+                <span
+                  className={`text-[10px] font-mono mt-0.5 tracking-tight ${
+                    isActive ? "text-zinc-100 font-bold" : "text-zinc-500"
+                  }`}
+                >
+                  {cat.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </footer>
+
     </div>
   );
 }
