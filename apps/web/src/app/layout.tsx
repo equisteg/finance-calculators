@@ -1,32 +1,33 @@
-import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
-import AppShell from "@/components/AppShell";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+import { CurrencyProvider } from "./context/CurrencyContext";
 
 export const metadata: Metadata = {
-  title: "Finealth | Financial Calculators & Wealth Suite",
-  description: "Minimalist, eternal wealth projection engines, SIP, Lump Sum, and SWP calculators.",
-};
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  viewportFit: "cover",
+  title: "Finealth - Global & Domestic Financial Engines",
+  description:
+    "Live benchmark bullion rates, stock indices, multi-jurisdiction tax engines, and loan calculators.",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
+  const ADSENSE_PUB_ID = "ca-pub-XXXXXXXXXXXXXXXX";
+
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.variable} font-sans antialiased bg-[#0a0a0c] text-zinc-100`}>
-        <AppShell>{children}</AppShell>
+    <html lang="en">
+      <head>
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_PUB_ID}`}
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+      </head>
+      <body className="antialiased bg-[#050508] text-white">
+        <CurrencyProvider>{children}</CurrencyProvider>
       </body>
     </html>
   );
