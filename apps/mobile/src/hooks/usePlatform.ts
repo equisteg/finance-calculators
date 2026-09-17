@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import { Capacitor } from "@capacitor/core";
 
 export interface PlatformInfo {
@@ -9,22 +9,27 @@ export interface PlatformInfo {
   isReady: boolean;
 }
 
-export function usePlatform(): PlatformInfo {
-  const [platformInfo, setPlatformInfo] = useState<PlatformInfo>({
-    isNative: false,
-    platform: "web",
-    isReady: false,
-  });
+// The static export is pre-rendered without Capacitor, so the server snapshot
+// is always "web"; the client snapshot is read once the bridge is available.
+const SERVER_SNAPSHOT: PlatformInfo = { isNative: false, platform: "web", isReady: false };
 
-  useEffect(() => {
-    const native = Capacitor.isNativePlatform();
-    const plat = Capacitor.getPlatform() as "web" | "android" | "ios";
-    setPlatformInfo({
-      isNative: native,
-      platform: plat,
+let clientSnapshot: PlatformInfo | null = null;
+
+function getClientSnapshot(): PlatformInfo {
+  // Cached: useSyncExternalStore requires a stable reference between calls.
+  if (!clientSnapshot) {
+    clientSnapshot = {
+      isNative: Capacitor.isNativePlatform(),
+      platform: Capacitor.getPlatform() as PlatformInfo["platform"],
       isReady: true,
-    });
-  }, []);
+    };
+  }
+  return clientSnapshot;
+}
 
-  return platformInfo;
+// The platform never changes during a session, so there is nothing to subscribe to.
+const subscribe = () => () => {};
+
+export function usePlatform(): PlatformInfo {
+  return useSyncExternalStore(subscribe, getClientSnapshot, () => SERVER_SNAPSHOT);
 }

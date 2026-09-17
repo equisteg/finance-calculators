@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "include": ["**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "playwright-report",
+    "test-results",
+    // The native layer depends on optionalDependencies (WebdriverIO + Appium)
+    // that a Playwright-only install deliberately skips. Typecheck it with
+    // tsconfig.native.json once those are present.
+    "tests/native",
+    "wdio.conf.ts"
+  ]
+}

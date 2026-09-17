@@ -5,5 +5,7 @@ android/app/build/
 android/.gradle/
 android/build/
 *.png
+# ...except assets the apps ship. Without this the mobile brand logo was never committed.
+!apps/mobile/public/logo.png
 run-agent-qa.js
 .DS_Store

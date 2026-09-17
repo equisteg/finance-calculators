@@ -12,10 +12,17 @@ interface AdSenseBannerProps {
 
 declare global {
   interface Window {
-    adsbygoogle: any[];
+    adsbygoogle?: Array<Record<string, unknown>>;
   }
 }
 
+/**
+ * A display ad unit. Renders nothing until a real slot id is configured
+ * (see src/lib/ads.ts), so no placeholder unit is ever sent to Google.
+ *
+ * The container reserves its height before the ad loads, so a filled unit
+ * does not push the page content down (Cumulative Layout Shift).
+ */
 export default function AdSenseBanner({
   client,
   slot,
@@ -24,20 +31,21 @@ export default function AdSenseBanner({
   className = "",
 }: AdSenseBannerProps) {
   useEffect(() => {
+    if (!slot) return;
     try {
-      if (typeof window !== "undefined") {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      }
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch (err) {
       console.error("AdSense push error:", err);
     }
-  }, []);
+  }, [slot]);
+
+  if (!slot) return null;
 
   return (
-    <div className={`overflow-hidden text-center my-6 ${className}`}>
+    <div className={`overflow-hidden text-center my-6 min-h-[100px] ${className}`}>
       <ins
         className="adsbygoogle"
-        style={{ display: "block" }}
+        style={{ display: "block", minHeight: 100 }}
         data-ad-client={client}
         data-ad-slot={slot}
         data-ad-format={format}

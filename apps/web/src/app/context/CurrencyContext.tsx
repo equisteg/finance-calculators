@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { formatMoney as formatCurrency } from "@/lib/format";
 
 // --- Complete 50-State + DC US Tax Matrix ---
 export interface USStateConfig {
@@ -99,6 +100,8 @@ export interface PriorityAsset {
   sourceUrl: string;
   taxNote: string;
   history: HistoryPoint[];
+  /** Set when this benchmark is computed from another asset rather than quoted directly. */
+  derivedFrom?: string;
 }
 
 export interface CountryPriorityProfile {
@@ -111,6 +114,45 @@ export interface CountryPriorityProfile {
   priorityAssets: PriorityAsset[];
 }
 
+// --- Indian gold benchmarks ---
+const GOLD_24K_INDIA: PriorityAsset = {
+  id: "in_gold",
+  name: "Gold (24K Pure)",
+  category: "Precious Metals",
+  unit: "10 grams",
+  basePrice: 152890,
+  symbol: "₹",
+  changePct: 0.42,
+  sourceAuthority: "India Bullion and Jewellers Association (IBJA)",
+  sourceUrl: "https://www.ibja.co/",
+  taxNote: "+3% GST & Standard Domestic Making Charges",
+  history: [
+    { era: "Post-Independence", year: 1950, numericValue: 63.25, priceFormatted: "₹63 / 10g" },
+    { era: "Gold Control Repeal", year: 1990, numericValue: 3200, priceFormatted: "₹3,200 / 10g" },
+    { era: "Millennium", year: 2000, numericValue: 4400, priceFormatted: "₹4,400 / 10g" },
+    { era: "Financial Crisis", year: 2010, numericValue: 18500, priceFormatted: "₹18,500 / 10g" },
+    { era: "Pre-Pandemic", year: 2019, numericValue: 35220, priceFormatted: "₹35,220 / 10g" },
+    { era: "Current Benchmark", year: 2026, numericValue: 152890, priceFormatted: "₹1,52,890 / 10g" },
+  ],
+};
+
+/** 22K jewellery gold is 91.6% pure (BIS hallmark 916), so it tracks the 24K benchmark. */
+const PURITY_22K = 22 / 24;
+
+const GOLD_22K_INDIA: PriorityAsset = {
+  ...GOLD_24K_INDIA,
+  id: "in_gold_22k",
+  name: "Gold (22K Jewellery)",
+  basePrice: Math.round(GOLD_24K_INDIA.basePrice * PURITY_22K),
+  sourceAuthority: "Derived from the IBJA 24K benchmark at 916 purity",
+  taxNote: "+3% GST & Hallmarking / Making Charges",
+  derivedFrom: GOLD_24K_INDIA.id,
+  history: GOLD_24K_INDIA.history.map((point) => {
+    const value = Math.round(point.numericValue * PURITY_22K);
+    return { ...point, numericValue: value, priceFormatted: `₹${value.toLocaleString("en-IN")} / 10g` };
+  }),
+};
+
 export const REGIONAL_PRIORITY_DATA: Record<string, CountryPriorityProfile> = {
   INR: {
     currencyCode: "INR",
@@ -120,26 +162,8 @@ export const REGIONAL_PRIORITY_DATA: Record<string, CountryPriorityProfile> = {
     headlinePriority: "Gold 24K/22K, Silver, NIFTY 50 & Domestic Fixed Deposits",
     primaryExchange: "NSE, BSE & IBJA",
     priorityAssets: [
-      {
-        id: "in_gold",
-        name: "Gold (24K Pure)",
-        category: "Precious Metals",
-        unit: "10 grams",
-        basePrice: 152890,
-        symbol: "₹",
-        changePct: 0.42,
-        sourceAuthority: "India Bullion and Jewellers Association (IBJA)",
-        sourceUrl: "https://www.ibja.co/",
-        taxNote: "+3% GST & Standard Domestic Making Charges",
-        history: [
-          { era: "Post-Independence", year: 1950, numericValue: 63.25, priceFormatted: "₹63 / 10g" },
-          { era: "Gold Control Repeal", year: 1990, numericValue: 3200, priceFormatted: "₹3,200 / 10g" },
-          { era: "Millennium", year: 2000, numericValue: 4400, priceFormatted: "₹4,400 / 10g" },
-          { era: "Financial Crisis", year: 2010, numericValue: 18500, priceFormatted: "₹18,500 / 10g" },
-          { era: "Pre-Pandemic", year: 2019, numericValue: 35220, priceFormatted: "₹35,220 / 10g" },
-          { era: "Current Benchmark", year: 2026, numericValue: 152890, priceFormatted: "₹1,52,890 / 10g" },
-        ],
-      },
+      GOLD_24K_INDIA,
+      GOLD_22K_INDIA,
       {
         id: "in_silver",
         name: "Silver (Fine 999)",
@@ -468,7 +492,7 @@ const CurrencyContext = createContext<CurrencyContextType>({
   setSelectedIndianCity: () => {},
   rates: {},
   activeProfile: REGIONAL_PRIORITY_DATA["INR"],
-  lastUpdated: "Live",
+  lastUpdated: "Reference data",
   isSyncing: false,
   manualRefresh: () => {},
   convert: () => 0,
@@ -476,11 +500,21 @@ const CurrencyContext = createContext<CurrencyContextType>({
   region: "INR",
 });
 
+/** Latest USD-based FX rates, or null if the request fails. Calculators never depend on this. */
+async function fetchUsdRates(): Promise<{ rates?: Record<string, number> } | null> {
+  try {
+    const res = await fetch("https://open.er-api.com/v6/latest/USD", { cache: "no-store" });
+    return res.ok ? await res.json() : null;
+  } catch {
+    return null;
+  }
+}
+
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [baseCurrency, setBaseCurrency] = useState<string>("INR");
   const [selectedUsState, setSelectedUsState] = useState<string>("TX");
   const [selectedIndianCity, setSelectedIndianCity] = useState<string>("Mumbai");
-  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [isSyncing, setIsSyncing] = useState<boolean>(true);
 
   const [rates, setRates] = useState<Record<string, number>>({
     USD: 1,
@@ -493,35 +527,39 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     SAR: 3.751,
   });
 
-  const [lastUpdated, setLastUpdated] = useState<string>("Synced Live");
+  // Asset benchmarks are static reference figures; only FX rates are fetched.
+  // The label says exactly that rather than implying live prices.
+  const [lastUpdated, setLastUpdated] = useState<string>("Reference data");
   const activeProfile = REGIONAL_PRIORITY_DATA[baseCurrency] || REGIONAL_PRIORITY_DATA["INR"];
+
+  const applyRates = useCallback((data: { rates?: Record<string, number> } | null) => {
+    if (!data?.rates) return;
+    // Take the published rates as-is. Anything missing keeps its last value.
+    setRates((prev) => ({ ...prev, ...data.rates }));
+    setLastUpdated(`FX ${new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`);
+  }, []);
+
+  // The FX source publishes once a day, so one fetch per visit is enough.
+  // (This previously polled every 10 seconds for data nothing on screen used.)
+  useEffect(() => {
+    let cancelled = false;
+    fetchUsdRates()
+      .then((data) => {
+        if (!cancelled) applyRates(data);
+      })
+      .finally(() => {
+        if (!cancelled) setIsSyncing(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [applyRates]);
 
   const syncForex = useCallback(async () => {
     setIsSyncing(true);
-    const ts = Date.now();
-    try {
-      const res = await fetch(`https://open.er-api.com/v6/latest/USD?_t=${ts}`, { cache: "no-store" });
-      const data = await res.json();
-      if (data?.rates) {
-        setRates((prev) => ({
-          ...prev,
-          ...data.rates,
-          INR: data.rates.INR && data.rates.INR > 90 ? data.rates.INR : 95.545,
-        }));
-      }
-      setLastUpdated(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
-    } catch {
-      // Retain state
-    } finally {
-      setIsSyncing(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    syncForex();
-    const interval = setInterval(syncForex, 10000);
-    return () => clearInterval(interval);
-  }, [syncForex]);
+    applyRates(await fetchUsdRates());
+    setIsSyncing(false);
+  }, [applyRates]);
 
   const convert = (amount: number, from: string, to: string): number => {
     const rateFrom = rates[from] || 1;
@@ -529,9 +567,8 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     return (amount / rateFrom) * rateTo;
   };
 
-  const formatMoney = (amount: number): string => {
-    return `${activeProfile.symbol}${amount > 100 ? Math.round(amount).toLocaleString() : amount.toFixed(2)}`;
-  };
+  const formatMoney = (amount: number): string =>
+    formatCurrency(amount, activeProfile.currencyCode, Math.abs(amount) >= 100 ? 0 : 2);
 
   return (
     <CurrencyContext.Provider
