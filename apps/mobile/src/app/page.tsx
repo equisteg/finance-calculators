@@ -3,6 +3,20 @@
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import SplashSequence from "@/components/SplashSequence";
+import { Capacitor } from "@capacitor/core";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { formatMoney } from "@/lib/format";
+import {
+  compareIndiaRegimes,
+  gstBreakdown,
+  indiaNewRegimeTax,
+  loanSummary,
+  lumpSumFutureValue,
+  sipFutureValue,
+  systematicWithdrawal,
+  yearsToFinancialIndependence,
+  INDIA_GST_RATES,
+} from "@/lib/finance";
 
 export type Category = "wealth" | "income" | "debts" | "macro";
 
@@ -24,61 +38,63 @@ interface SubTool {
   name: string;
 }
 
+const CATEGORIES: { id: Category; label: string; icon: string; tools: SubTool[] }[] = [
+  {
+    id: "wealth",
+    label: "Wealth",
+    icon: "▲",
+    tools: [
+      { id: "sip", name: "SIP Engine" },
+      { id: "lumpsum", name: "Lump Sum" },
+      { id: "swp", name: "SWP Cashflow" },
+      { id: "fd", name: "Fixed Deposit" },
+    ],
+  },
+  {
+    id: "income",
+    label: "Income",
+    icon: "◆",
+    tools: [
+      { id: "salary", name: "In-Hand Salary" },
+      { id: "incometax", name: "Tax: New vs Old" },
+      { id: "gst", name: "GST Calculator" },
+    ],
+  },
+  {
+    id: "debts",
+    label: "Debts",
+    icon: "▼",
+    tools: [
+      { id: "emi", name: "Loan & EMI" },
+      { id: "loancompare", name: "Loan Compare" },
+    ],
+  },
+  {
+    id: "macro",
+    label: "Macro",
+    icon: "●",
+    tools: [
+      { id: "inflation", name: "Purchasing Power" },
+      { id: "fire", name: "FIRE Freedom" },
+    ],
+  },
+];
+
 export default function FinealthProSuite() {
   const [showSplash, setShowSplash] = useState<boolean>(true);
   const [activeCategory, setActiveCategory] = useState<Category>("wealth");
   const [activeTool, setActiveTool] = useState<ToolId>("sip");
 
-  const inr = (n: number) =>
-    new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    }).format(Number.isFinite(n) ? Math.round(n) : 0);
-
-  const CATEGORIES: { id: Category; label: string; icon: string; tools: SubTool[] }[] = [
-    {
-      id: "wealth",
-      label: "Wealth",
-      icon: "▲",
-      tools: [
-        { id: "sip", name: "SIP Engine" },
-        { id: "lumpsum", name: "Lump Sum" },
-        { id: "swp", name: "SWP Cashflow" },
-        { id: "fd", name: "Fixed Deposit" },
-      ],
-    },
-    {
-      id: "income",
-      label: "Income",
-      icon: "◆",
-      tools: [
-        { id: "salary", name: "In-Hand Salary" },
-        { id: "incometax", name: "Tax: New vs Old" },
-        { id: "gst", name: "GST Calculator" },
-      ],
-    },
-    {
-      id: "debts",
-      label: "Debts",
-      icon: "▼",
-      tools: [
-        { id: "emi", name: "Loan & EMI" },
-        { id: "loancompare", name: "Loan Compare" },
-      ],
-    },
-    {
-      id: "macro",
-      label: "Macro",
-      icon: "●",
-      tools: [
-        { id: "inflation", name: "Purchasing Power" },
-        { id: "fire", name: "FIRE Freedom" },
-      ],
-    },
-  ];
+  const inr = (n: number) => formatMoney(Math.round(n), "INR");
+  /** Paise precision, for GST where CGST + SGST must visibly add up. */
+  const inr2 = (n: number) => formatMoney(n, "INR", 2);
 
   const handleCategorySwitch = (catId: Category) => {
+    // Light tap feedback in the native app only. On the web the plugin lazy-loads
+    // a vibration fallback over the network, which breaks offline use.
+    if (Capacitor.isNativePlatform()) {
+      Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
+    }
     setActiveCategory(catId);
     const cat = CATEGORIES.find((c) => c.id === catId);
     if (cat && cat.tools.length > 0) {
@@ -100,24 +116,8 @@ export default function FinealthProSuite() {
   const [hasStepUp, setHasStepUp] = useState<boolean>(false);
 
   const sipCalcs = useMemo(() => {
-    let invested = 0;
-    let total = 0;
-    const r = sipRate / 12 / 100;
-    if (!hasStepUp) {
-      const months = sipYears * 12;
-      invested = sipMonthly * months;
-      total = sipMonthly * ((Math.pow(1 + r, months) - 1) / r) * (1 + r);
-    } else {
-      let cur = sipMonthly;
-      for (let y = 1; y <= sipYears; y++) {
-        for (let m = 1; m <= 12; m++) {
-          invested += cur;
-          total = (total + cur) * (1 + r);
-        }
-        cur += (cur * sipStepUp) / 100;
-      }
-    }
-    return { invested, profit: total - invested, total };
+    const result = sipFutureValue(sipMonthly, sipRate, sipYears, hasStepUp ? sipStepUp : 0);
+    return { invested: result.invested, profit: result.gains, total: result.maturity };
   }, [sipMonthly, sipRate, sipYears, sipStepUp, hasStepUp]);
 
   // ==========================================
@@ -128,8 +128,8 @@ export default function FinealthProSuite() {
   const [lumpYears, setLumpYears] = useState<number>(10);
 
   const lumpCalcs = useMemo(() => {
-    const total = lumpPrincipal * Math.pow(1 + lumpRate / 100, lumpYears);
-    return { invested: lumpPrincipal, profit: total - lumpPrincipal, total };
+    const result = lumpSumFutureValue(lumpPrincipal, lumpRate, lumpYears, 1);
+    return { invested: result.invested, profit: result.gains, total: result.maturity };
   }, [lumpPrincipal, lumpRate, lumpYears]);
 
   // ==========================================
@@ -141,27 +141,13 @@ export default function FinealthProSuite() {
   const [swpYears, setSwpYears] = useState<number>(20);
 
   const swpCalcs = useMemo(() => {
-    let bal = swpCorpus;
-    const r = swpRate / 12 / 100;
-    const months = swpYears * 12;
-    let withdrawn = 0;
-    let exhaustedMonth: number | null = null;
-
-    for (let m = 1; m <= months; m++) {
-      if (bal <= 0) {
-        if (!exhaustedMonth) exhaustedMonth = m;
-        bal = 0;
-        break;
-      }
-      bal = bal * (1 + r) - swpWithdrawal;
-      withdrawn += swpWithdrawal;
-      if (bal < 0) {
-        withdrawn += bal;
-        bal = 0;
-        if (!exhaustedMonth) exhaustedMonth = m;
-      }
-    }
-    return { corpus: swpCorpus, withdrawn, balance: bal, exhaustedMonth };
+    const result = systematicWithdrawal(swpCorpus, swpWithdrawal, swpRate, swpYears);
+    return {
+      corpus: result.corpus,
+      withdrawn: result.totalWithdrawn,
+      balance: result.remainingBalance,
+      exhaustedMonth: result.exhaustedInMonth,
+    };
   }, [swpCorpus, swpWithdrawal, swpRate, swpYears]);
 
   // ==========================================
@@ -173,14 +159,8 @@ export default function FinealthProSuite() {
   const [fdCompounding, setFdCompounding] = useState<number>(4);
 
   const fdCalcs = useMemo(() => {
-    const r = fdRate / 100;
-    const n = fdCompounding;
-    const maturity = fdDeposit * Math.pow(1 + r / n, n * fdYears);
-    return {
-      principal: fdDeposit,
-      interest: maturity - fdDeposit,
-      maturity,
-    };
+    const result = lumpSumFutureValue(fdDeposit, fdRate, fdYears, fdCompounding);
+    return { principal: result.invested, interest: result.gains, maturity: result.maturity };
   }, [fdDeposit, fdRate, fdYears, fdCompounding]);
 
   // ==========================================
@@ -194,22 +174,18 @@ export default function FinealthProSuite() {
     const fixedCtc = Math.max(0, ctcAnnual - bonusAnnual);
     const monthlyGross = fixedCtc / 12;
     const monthlyBasic = monthlyGross * 0.45;
-    const monthlyEpfc = Math.min(monthlyBasic * 0.12, 1800 * 12 > fixedCtc ? 1800 : monthlyBasic * 0.12);
-    const taxableApprox = Math.max(0, fixedCtc - 75000);
-    let annualTdsEst = 0;
-    if (taxableApprox > 1500000) annualTdsEst = (taxableApprox - 1500000) * 0.3 + 140000;
-    else if (taxableApprox > 1200000) annualTdsEst = (taxableApprox - 1200000) * 0.2 + 80000;
-    else if (taxableApprox > 800000) annualTdsEst = (taxableApprox - 800000) * 0.15 + 20000;
-
-    const monthlyTds = annualTdsEst / 12;
-    const inHandMonthly = monthlyGross - monthlyEpfc - professionalTax - monthlyTds;
+    // Employee PF: 12% of basic, capped at the statutory wage ceiling (12% of ₹15,000).
+    const monthlyEpfc = Math.min(monthlyBasic * 0.12, 1_800);
+    // TDS: new-regime tax on the full year's salary, bonus included, spread over 12 months.
+    const monthlyTds = indiaNewRegimeTax(ctcAnnual).totalTax / 12;
+    const inHandMonthly = Math.max(0, monthlyGross - monthlyEpfc - professionalTax - monthlyTds);
 
     return {
       monthlyGross,
       monthlyEpfc,
       monthlyTds,
-      inHandMonthly: Math.max(0, inHandMonthly),
-      annualInHand: Math.max(0, inHandMonthly) * 12 + bonusAnnual,
+      inHandMonthly,
+      annualInHand: inHandMonthly * 12 + bonusAnnual,
     };
   }, [ctcAnnual, bonusAnnual, professionalTax]);
 
@@ -222,32 +198,16 @@ export default function FinealthProSuite() {
   const [deductionsHra, setDeductionsHra] = useState<number>(120000);
 
   const taxCalcs = useMemo(() => {
-    const newNet = Math.max(0, taxableIncome - 75000);
-    let newTax = 0;
-    if (newNet <= 300000) newTax = 0;
-    else if (newNet <= 700000) newTax = (newNet - 300000) * 0.05;
-    else if (newNet <= 1000000) newTax = 20000 + (newNet - 700000) * 0.10;
-    else if (newNet <= 1200000) newTax = 50000 + (newNet - 1000000) * 0.15;
-    else if (newNet <= 1500000) newTax = 80000 + (newNet - 1200000) * 0.20;
-    else newTax = 140000 + (newNet - 1500000) * 0.30;
-    if (newNet <= 700000) newTax = 0;
-    const newTotal = newTax * 1.04;
-
-    const oldDeductions = 50000 + Math.min(150000, deductions80C) + deductions80D + deductionsHra;
-    const oldNet = Math.max(0, taxableIncome - oldDeductions);
-    let oldTax = 0;
-    if (oldNet <= 250000) oldTax = 0;
-    else if (oldNet <= 500000) oldTax = (oldNet - 250000) * 0.05;
-    else if (oldNet <= 1000000) oldTax = 12500 + (oldNet - 500000) * 0.20;
-    else oldTax = 112500 + (oldNet - 1000000) * 0.30;
-    if (oldNet <= 500000) oldTax = 0;
-    const oldTotal = oldTax * 1.04;
-
+    const result = compareIndiaRegimes(taxableIncome, {
+      section80C: deductions80C,
+      section80D: deductions80D,
+      hraExemption: deductionsHra,
+    });
     return {
-      newTotal,
-      oldTotal,
-      savings: Math.abs(oldTotal - newTotal),
-      recommended: newTotal <= oldTotal ? "New Regime" : "Old Regime",
+      newTotal: result.newTax,
+      oldTotal: result.oldTax,
+      savings: result.savings,
+      recommended: result.recommended === "NEW REGIME" ? "New Regime" : "Old Regime",
     };
   }, [taxableIncome, deductions80C, deductions80D, deductionsHra]);
 
@@ -259,14 +219,8 @@ export default function FinealthProSuite() {
   const [gstType, setGstType] = useState<"exclusive" | "inclusive">("exclusive");
 
   const gstCalcs = useMemo(() => {
-    if (gstType === "exclusive") {
-      const tax = (gstAmount * gstRate) / 100;
-      return { net: gstAmount, tax, cgst: tax / 2, sgst: tax / 2, total: gstAmount + tax };
-    } else {
-      const net = (gstAmount * 100) / (100 + gstRate);
-      const tax = gstAmount - net;
-      return { net, tax, cgst: tax / 2, sgst: tax / 2, total: gstAmount };
-    }
+    const result = gstBreakdown(gstAmount, gstRate, gstType === "inclusive");
+    return { net: result.base, tax: result.totalTax, cgst: result.cgst, sgst: result.sgst, total: result.total };
   }, [gstAmount, gstRate, gstType]);
 
   // ==========================================
@@ -277,12 +231,13 @@ export default function FinealthProSuite() {
   const [loanYears, setLoanYears] = useState<number>(20);
 
   const emiCalcs = useMemo(() => {
-    const P = loanPrincipal;
-    const r = loanRate / 12 / 100;
-    const n = loanYears * 12;
-    const emi = (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-    const total = emi * n;
-    return { emi, totalInterest: total - P, total };
+    const result = loanSummary(loanPrincipal, loanRate, loanYears);
+    return {
+      emi: result.emi,
+      totalInterest: result.totalInterest,
+      total: result.totalPayment,
+      principalShare: result.principalShare,
+    };
   }, [loanPrincipal, loanRate, loanYears]);
 
   // ==========================================
@@ -295,27 +250,16 @@ export default function FinealthProSuite() {
   const [bankBYears, setBankBYears] = useState<number>(20);
 
   const loanCompareCalcs = useMemo(() => {
-    const P = cmpLoanAmount;
-    const rA = bankARate / 12 / 100;
-    const nA = bankAYears * 12;
-    const emiA = (P * rA * Math.pow(1 + rA, nA)) / (Math.pow(1 + rA, nA) - 1);
-    const totalA = emiA * nA;
-    const interestA = totalA - P;
-
-    const rB = bankBRate / 12 / 100;
-    const nB = bankBYears * 12;
-    const emiB = (P * rB * Math.pow(1 + rB, nB)) / (Math.pow(1 + rB, nB) - 1);
-    const totalB = emiB * nB;
-    const interestB = totalB - P;
-
+    const a = loanSummary(cmpLoanAmount, bankARate, bankAYears);
+    const b = loanSummary(cmpLoanAmount, bankBRate, bankBYears);
     return {
-      emiA,
-      interestA,
-      emiB,
-      interestB,
-      interestDifference: Math.abs(interestA - interestB),
-      emiDifference: Math.abs(emiA - emiB),
-      cheaperBank: interestA <= interestB ? "Bank A" : "Bank B",
+      emiA: a.emi,
+      interestA: a.totalInterest,
+      emiB: b.emi,
+      interestB: b.totalInterest,
+      interestDifference: Math.abs(a.totalInterest - b.totalInterest),
+      emiDifference: Math.abs(a.emi - b.emi),
+      cheaperBank: a.totalInterest <= b.totalInterest ? "Bank A" : "Bank B",
     };
   }, [cmpLoanAmount, bankARate, bankAYears, bankBRate, bankBYears]);
 
@@ -350,17 +294,14 @@ export default function FinealthProSuite() {
   const [fireReturnRate, setFireReturnRate] = useState<number>(12);
 
   const fireCalcs = useMemo(() => {
-    const targetCorpus = fireAnnualExpense * 25;
-    const r = fireReturnRate / 12 / 100;
-    let months = 0;
-    let accumulated = fireCurrentSavings;
-
-    while (accumulated < targetCorpus && months < 600) {
-      accumulated = (accumulated + fireMonthlySaving) * (1 + r);
-      months++;
-    }
-
-    return { targetCorpus, yearsToFire: (months / 12).toFixed(1) };
+    const result = yearsToFinancialIndependence(
+      fireAnnualExpense,
+      fireCurrentSavings,
+      fireMonthlySaving,
+      fireReturnRate
+    );
+    // Beyond 50 years the target is reported as unreachable rather than as "50.0".
+    return { targetCorpus: result.targetCorpus, yearsToFire: result.yearsToTarget };
   }, [fireAnnualExpense, fireCurrentSavings, fireMonthlySaving, fireReturnRate]);
 
   return (
@@ -1114,7 +1055,7 @@ export default function FinealthProSuite() {
                 <div className="space-y-2">
                   <span className="text-xs text-zinc-400 font-mono block">GST Tax Slab</span>
                   <div className="grid grid-cols-4 gap-2">
-                    {[5, 12, 18, 28].map((slab) => (
+                    {INDIA_GST_RATES.map((slab) => (
                       <button
                         key={slab}
                         onClick={() => setGstRate(slab)}
@@ -1135,27 +1076,27 @@ export default function FinealthProSuite() {
                 <div>
                   <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">Gross Invoice Total</span>
                   <div className="text-3xl font-mono font-bold text-emerald-400 tracking-tight mt-1">
-                    {inr(gstCalcs.total)}
+                    {inr2(gstCalcs.total)}
                   </div>
                 </div>
 
                 <div className="space-y-2 font-mono text-xs">
                   <div className="p-3 bg-[#15151c] border border-[#22222e] rounded flex justify-between">
                     <span className="text-zinc-400">Net Base Cost</span>
-                    <span className="text-zinc-200">{inr(gstCalcs.net)}</span>
+                    <span className="text-zinc-200">{inr2(gstCalcs.net)}</span>
                   </div>
                   <div className="p-3 bg-[#15151c] border border-[#22222e] rounded flex justify-between">
                     <span className="text-emerald-400">Total GST ({gstRate}%)</span>
-                    <span className="text-emerald-400 font-semibold">{inr(gstCalcs.tax)}</span>
+                    <span className="text-emerald-400 font-semibold">{inr2(gstCalcs.tax)}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2 pt-1">
                     <div className="p-2 bg-[#181820] border border-[#262633] rounded">
                       <span className="text-zinc-500 text-[10px] block">CGST ({gstRate / 2}%)</span>
-                      <span className="text-zinc-300">{inr(gstCalcs.cgst)}</span>
+                      <span className="text-zinc-300">{inr2(gstCalcs.cgst)}</span>
                     </div>
                     <div className="p-2 bg-[#181820] border border-[#262633] rounded">
                       <span className="text-zinc-500 text-[10px] block">SGST ({gstRate / 2}%)</span>
-                      <span className="text-zinc-300">{inr(gstCalcs.sgst)}</span>
+                      <span className="text-zinc-300">{inr2(gstCalcs.sgst)}</span>
                     </div>
                   </div>
                 </div>
@@ -1261,6 +1202,17 @@ export default function FinealthProSuite() {
                   <div className="p-3 bg-[#15151c] border border-[#22222e] rounded-lg flex justify-between items-center">
                     <span className="text-xs text-zinc-400">Total Principal + Interest</span>
                     <span className="text-sm font-semibold text-zinc-100">{inr(emiCalcs.total)}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="h-2 w-full bg-[#1e1e27] rounded-full overflow-hidden flex">
+                    <div className="bg-zinc-500" style={{ width: `${emiCalcs.principalShare * 100}%` }} />
+                    <div className="bg-rose-400" style={{ width: `${(1 - emiCalcs.principalShare) * 100}%` }} />
+                  </div>
+                  <div className="flex justify-between text-[10px] font-mono text-zinc-500">
+                    <span>Principal {(emiCalcs.principalShare * 100).toFixed(0)}%</span>
+                    <span>Interest {((1 - emiCalcs.principalShare) * 100).toFixed(0)}%</span>
                   </div>
                 </div>
               </div>
@@ -1440,7 +1392,7 @@ export default function FinealthProSuite() {
                     {inr(inflationCalcs.futureMonthly)}
                   </div>
                   <span className="text-xs font-mono text-zinc-500 block mt-1">
-                    Requires {inflationCalcs.multiplier.toFixed(2)}x of today's cost to survive identically.
+                    Requires {inflationCalcs.multiplier.toFixed(2)}x of today&apos;s cost to survive identically.
                   </span>
                 </div>
 
@@ -1513,6 +1465,23 @@ export default function FinealthProSuite() {
                       className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
                     />
                   </div>
+
+                  <div className="space-y-1.5 col-span-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-zinc-400 font-mono">Expected Return (p.a.)</span>
+                      <span className="text-xs font-mono font-semibold text-zinc-100">{fireReturnRate}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      aria-label="Expected Return (p.a.)"
+                      min={4}
+                      max={18}
+                      step={0.5}
+                      value={fireReturnRate}
+                      onChange={(e) => setFireReturnRate(Number(e.target.value))}
+                      className="w-full"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -1520,7 +1489,7 @@ export default function FinealthProSuite() {
                 <div>
                   <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">Freedom Horizon</span>
                   <div className="text-3xl lg:text-4xl font-mono font-bold text-emerald-400 tracking-tight mt-1">
-                    {fireCalcs.yearsToFire} Years
+                    {fireCalcs.yearsToFire === null ? "50+" : fireCalcs.yearsToFire} Years
                   </div>
                   <span className="text-xs font-mono text-zinc-500 block mt-1">
                     To reach complete self-sustaining wealth
