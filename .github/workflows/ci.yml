@@ -60,7 +60,7 @@ jobs:
       - name: No secret files or live keys in tracked files
         run: node tests/tools/check-forbidden-files.mjs
       - name: Secret scan (Gitleaks)
-        run: docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:latest detect --source /repo --redact --exit-code 1
+        run: docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:latest detect --source /repo --redact --verbose --exit-code 1
       - name: Static analysis (Semgrep CE)
         run: docker run --rm -v "$PWD:/src" semgrep/semgrep semgrep scan --config p/default --metrics=off --error /src
       - name: Dependency vulnerabilities (OSV-Scanner)
