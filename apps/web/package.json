@@ -1,19 +1,21 @@
 {
-  "name": "finance-calculators",
+  "name": "@finealth/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "tsc -p . --noEmit"
   },
   "dependencies": {
-    "next": "16.3.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "@finealth/finance-core": "*",
+    "@finealth/shared-types": "*",
+    "next": "16.4.4",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
@@ -23,15 +25,15 @@
     "@types/node": "^22.13.9",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^5.1.0",
     "autoprefixer": "^10.5.6",
     "eslint": "^9.39.5",
-    "eslint-config-next": "^16.3.4",
+    "eslint-config-next": "^16.4.4",
     "jsdom": "^26.0.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.2",
     "vite": "^7.3.6",
-    "vitest": "^3.0.7"
+    "vitest": "^4.1.12"
   }
 }

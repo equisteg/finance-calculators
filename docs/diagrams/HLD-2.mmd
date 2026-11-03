@@ -1,0 +1,7 @@
+flowchart TB
+  core[packages/finance-core] --> web[apps/web]
+  core --> mobile[apps/mobile]
+  core --> api[apps/api]
+  types[packages/shared-types] --> core
+  types --> api
+  types --> web

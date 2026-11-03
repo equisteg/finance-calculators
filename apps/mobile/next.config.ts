@@ -1,19 +1,11 @@
-import path from "node:path";
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
-// This app has its own package-lock.json, but the repository root has another.
-// Without an explicit root, Next.js guesses the repo root and resolves and
-// traces files from the wrong dependency tree.
-const appRoot = path.resolve(__dirname);
-
+// Static export loaded by Capacitor from webDir "out" (capacitor.config.ts).
 const nextConfig: NextConfig = {
-  output: "export",
+  output: 'export',
   trailingSlash: true,
-  images: {
-    unoptimized: true,
-  },
-  turbopack: { root: appRoot },
-  outputFileTracingRoot: appRoot,
+  images: { unoptimized: true },
+  transpilePackages: ['@finealth/finance-core', '@finealth/shared-types'],
 };
 
 export default nextConfig;

@@ -1,0 +1,20 @@
+{
+  "_note": "Public routes of the static export (same list as apps/web/src/app/sitemap.ts)",
+  "routes": [
+    "/",
+    "/health-check/",
+    "/debt-payoff/",
+    "/goal-planner/",
+    "/retirement-planner/",
+    "/loan-prepayment/",
+    "/pricing/",
+    "/sip-calculator/",
+    "/emi-calculator/",
+    "/compound-interest/",
+    "/about/",
+    "/privacy/",
+    "/terms/",
+    "/refund/",
+    "/contact/"
+  ]
+}

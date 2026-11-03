@@ -7,6 +7,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <!-- The launcher activity must be exported (MAIN/LAUNCHER intent filter, required on Android 12+).
+             Semgrep skips this file for that reason: see .semgrepignore. -->
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
             android:name=".MainActivity"

@@ -10,7 +10,7 @@ import {
 } from "./context/CurrencyContext";
 import AdSenseBanner from "../components/AdSenseBanner";
 import { ADSENSE_CLIENT, AD_SLOTS } from "@/lib/ads";
-import { formatMoney, formatNumber } from "@/lib/format";
+import { formatMoney, formatNumber } from "@finealth/finance-core";
 import {
   compareIndiaRegimes,
   consumptionTax,
@@ -26,7 +26,7 @@ import {
   EU_STANDARD_VAT_RATES,
   INDIA_GST_RATES,
   type SdltBuyer,
-} from "@/lib/finance";
+} from "@finealth/finance-core";
 
 type Currency = "INR" | "USD" | "EUR" | "GBP";
 
@@ -292,6 +292,21 @@ export default function Home() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        {/* Product entry points: the free health check and the planners (Pro features live there) */}
+        <section aria-label="Plan your money" className="mb-6 grid gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.06] p-5 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div>
+            <h2 className="text-lg font-bold text-white">How healthy are your finances?</h2>
+            <p className="text-sm text-zinc-300 mt-1">
+              Get a score out of 100 in two minutes, then a plan for your debts, goals and retirement. No login, nothing leaves your device.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/health-check/" className="btn btn-primary">Start free health check</Link>
+            <Link href="/debt-payoff/" className="btn btn-secondary">Debt planner</Link>
+            <Link href="/goal-planner/" className="btn btn-secondary">Goal planner</Link>
+          </div>
+        </section>
+
         <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.top} />
 
         {/* Region & Benchmark Header */}
@@ -933,8 +948,19 @@ export default function Home() {
         <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.bottom} className="my-6" />
       </main>
 
-      <footer className="border-t border-white/[0.08] mt-16 py-8 text-center text-xs font-mono text-zinc-500 px-4">
-        Finealth Financial Suite · Multi-Jurisdiction Statutory Architecture · Indicative figures, not financial advice
+      <footer className="border-t border-white/[0.08] mt-16 py-8 text-center text-xs font-mono text-zinc-500 px-4 grid gap-3">
+        <nav aria-label="Footer" className="flex flex-wrap justify-center gap-4 text-zinc-400">
+          <Link href="/health-check/">Health Check</Link>
+          <Link href="/pricing/">Pricing</Link>
+          <Link href="/about/">About</Link>
+          <Link href="/privacy/">Privacy</Link>
+          <Link href="/terms/">Terms</Link>
+          <Link href="/refund/">Refunds</Link>
+          <Link href="/contact/">Contact</Link>
+        </nav>
+        <span>
+          Finealth Financial Suite · A product by <a href="https://equisteg.com" className="underline">Equisteg</a> · Indicative figures, not financial advice
+        </span>
       </footer>
     </div>
   );
