@@ -1,35 +1,45 @@
-import type { Metadata } from "next";
-import Script from "next/script";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { CurrencyProvider } from "./context/CurrencyContext";
-import { ADSENSE_CLIENT } from "@/lib/ads";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { CurrencyProvider } from './context/CurrencyContext';
+import { ProProvider } from '@/components/ProProvider';
+import { AdLoader } from '@/components/AdLoader';
+import { config } from '@/lib/config';
 
-const inter = Inter({ subsets: ["latin"], display: "swap" });
+const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
 export const metadata: Metadata = {
-  title: "Finealth - Global & Domestic Financial Engines",
+  metadataBase: new URL(config.siteUrl),
+  title: {
+    default: 'Finealth: free financial health check, debt and goal planner',
+    template: '%s · Finealth',
+  },
   description:
-    "Reference bullion and index benchmarks, multi-jurisdiction tax engines, and loan and investment calculators.",
+    'Check your financial health in two minutes, then get a plan: debt payoff, goals, retirement odds and 20+ calculators. No login, no bank link, your numbers stay on your device.',
+  robots: config.noindex ? { index: false, follow: false } : undefined,
+  applicationName: 'Finealth',
+  publisher: 'Equisteg',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Finealth',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Web, Android',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },
+  publisher: { '@type': 'Organization', name: 'Equisteg', url: 'https://equisteg.com' },
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <head>
-        <Script
-          async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
-      </head>
       <body className={`${inter.className} antialiased bg-[#050508] text-white`}>
-        <CurrencyProvider>{children}</CurrencyProvider>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
+        <ProProvider>
+          <AdLoader />
+          <CurrencyProvider>{children}</CurrencyProvider>
+        </ProProvider>
       </body>
     </html>
   );

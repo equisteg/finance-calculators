@@ -1,19 +1,21 @@
 {
-  "name": "finance-calculators",
+  "name": "@finealth/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "tsc -p . --noEmit"
   },
   "dependencies": {
+    "@finealth/finance-core": "*",
+    "@finealth/shared-types": "*",
     "next": "16.3.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",

@@ -6,8 +6,8 @@ import CalculatorShell, {
   CalculatorSlider,
   useCalculatorCurrency,
 } from "@/components/CalculatorShell";
-import { formatMoney } from "@/lib/format";
-import { loanSummary } from "@/lib/finance";
+import { formatMoney } from "@finealth/finance-core";
+import { loanSummary } from "@finealth/finance-core";
 
 const PRINCIPAL = {
   INR: { initial: 3_000_000, min: 100_000, max: 20_000_000, step: 50_000 },

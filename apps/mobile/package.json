@@ -1,16 +1,19 @@
 {
-  "name": "finance-calculators",
+  "name": "@finealth/mobile",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "tsc -p . --noEmit",
+    "cap:sync": "next build && npx cap sync"
   },
   "dependencies": {
+    "@finealth/finance-core": "*",
+    "@finealth/shared-types": "*",
     "@capacitor/android": "^8.5.2",
     "@capacitor/cli": "^8.5.2",
     "@capacitor/core": "^8.5.2",
@@ -18,8 +21,8 @@
     "@capacitor/ios": "^8.5.2",
     "@capacitor/status-bar": "^8.0.3",
     "next": "16.3.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",

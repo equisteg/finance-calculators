@@ -1,12 +1,13 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
+import { useEffect } from 'react';
+import { useAdsAllowed } from './ProProvider';
 
 interface AdSenseBannerProps {
   client: string;
   slot: string;
-  format?: "auto" | "fluid" | "rectangle" | "horizontal";
-  responsive?: "true" | "false";
+  format?: 'auto' | 'fluid' | 'rectangle' | 'horizontal';
+  responsive?: 'true' | 'false';
   className?: string;
 }
 
@@ -17,35 +18,28 @@ declare global {
 }
 
 /**
- * A display ad unit. Renders nothing until a real slot id is configured
- * (see src/lib/ads.ts), so no placeholder unit is ever sent to Google.
- *
- * The container reserves its height before the ad loads, so a filled unit
- * does not push the page content down (Cumulative Layout Shift).
+ * A display ad unit, outside the calculation flow and never inside a result (docs/standards/product-categories.md §1).
+ * Renders nothing until a real slot id is configured (src/lib/ads.ts), and nothing at all for Pro users.
+ * The container reserves its height before the ad loads, so a filled unit does not push content down (CLS).
  */
-export default function AdSenseBanner({
-  client,
-  slot,
-  format = "auto",
-  responsive = "true",
-  className = "",
-}: AdSenseBannerProps) {
+export default function AdSenseBanner({ client, slot, format = 'auto', responsive = 'true', className = '' }: AdSenseBannerProps) {
+  const allowed = useAdsAllowed();
   useEffect(() => {
-    if (!slot) return;
+    if (!slot || !allowed) return;
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch (err) {
-      console.error("AdSense push error:", err);
+      console.error('AdSense push error:', err);
     }
-  }, [slot]);
+  }, [slot, allowed]);
 
-  if (!slot) return null;
+  if (!slot || !allowed) return null;
 
   return (
-    <div className={`overflow-hidden text-center my-6 min-h-[100px] ${className}`}>
+    <div className={`no-print overflow-hidden text-center my-6 min-h-[100px] ${className}`} aria-label="Advertisement">
       <ins
         className="adsbygoogle"
-        style={{ display: "block", minHeight: 100 }}
+        style={{ display: 'block', minHeight: 100 }}
         data-ad-client={client}
         data-ad-slot={slot}
         data-ad-format={format}

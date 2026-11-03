@@ -1,0 +1,10 @@
+sequenceDiagram
+  participant U as User
+  participant B as Browser (Finealth web)
+  participant S as localStorage
+  U->>B: types income, debts, goals…
+  B->>B: finance-core computes score / plan (in memory)
+  B->>S: saves inputs (finealth.v1.*)
+  Note over B,S: nothing is sent over the network
+  U->>B: Download backup / CSV
+  B-->>U: file generated in the browser

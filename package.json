@@ -1,42 +1,42 @@
 {
-  "name": "finance-calculators",
-  "version": "0.1.0",
+  "name": "finealth",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "test": "vitest run",
-    "test:watch": "vitest"
-  },
-  "dependencies": {
-    "@capacitor/android": "^8.5.2",
-    "@capacitor/cli": "^8.5.2",
-    "@capacitor/core": "^8.5.2",
-    "@capacitor/haptics": "^8.0.2",
-    "@capacitor/ios": "^8.5.2",
-    "@capacitor/status-bar": "^8.0.3",
-    "next": "16.3.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "build": "turbo run build",
+    "check": "turbo run lint typecheck test build",
+    "dev:web": "npm run dev --workspace @finealth/web",
+    "dev:mobile": "npm run dev --workspace @finealth/mobile",
+    "dev:api": "npm run dev --workspace @finealth/api",
+    "security": "gitleaks detect --redact && npx --yes osv-scanner scan source -r .",
+    "test:web": "playwright test -c tests/web/playwright.config.ts",
+    "lint:agents": "node tests/tools/lint-agents.mjs",
+    "test:guards": "node --test tests/tools/*.test.mjs",
+    "check:secrets": "node tests/tools/check-forbidden-files.mjs",
+    "prepare": "node tests/tools/install-githooks.mjs",
+    "licence:keys": "node scripts/gen-licence-keys.mjs",
+    "cases": "node scripts/test-cases.mjs",
+    "docs": "node scripts/docs-export.mjs docs/HLD.md docs/LLD.md docs/USER_MANUAL.md",
+    "licence:test": "node scripts/make-test-licence.mjs"
   },
   "devDependencies": {
-    "@capacitor/assets": "^3.0.5",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0",
-    "@testing-library/user-event": "^14.6.1",
-    "@types/node": "^22.13.9",
-    "@types/react": "^19.0.10",
-    "@types/react-dom": "^19.0.4",
-    "@vitejs/plugin-react": "^4.3.4",
-    "autoprefixer": "^10.5.6",
-    "jsdom": "^26.0.0",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5.8.2",
-    "vite": "^8.3.0",
-    "vitest": "^3.0.7"
-  }
+    "@mermaid-js/mermaid-cli": "^12.2.0",
+    "@playwright/test": "1.64.1",
+    "docx": "^9.15.1",
+    "exceljs": "^4.4.0",
+    "marked": "^18.1.3",
+    "sharp": "^0.34.5",
+    "turbo": "2.11.10"
+  },
+  "overrides": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "packageManager": "npm@10.9.0"
 }

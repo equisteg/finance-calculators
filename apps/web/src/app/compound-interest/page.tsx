@@ -6,8 +6,8 @@ import CalculatorShell, {
   CalculatorSlider,
   useCalculatorCurrency,
 } from "@/components/CalculatorShell";
-import { formatMoney } from "@/lib/format";
-import { compoundGrowth } from "@/lib/finance";
+import { formatMoney } from "@finealth/finance-core";
+import { compoundGrowth } from "@finealth/finance-core";
 
 const AMOUNTS = {
   INR: { principal: 200_000, principalMax: 5_000_000, principalStep: 10_000, addition: 50_000, additionMax: 1_000_000, additionStep: 5_000 },

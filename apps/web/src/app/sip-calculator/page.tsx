@@ -6,8 +6,8 @@ import CalculatorShell, {
   CalculatorSlider,
   useCalculatorCurrency,
 } from "@/components/CalculatorShell";
-import { formatMoney } from "@/lib/format";
-import { sipFutureValue } from "@/lib/finance";
+import { formatMoney } from "@finealth/finance-core";
+import { sipFutureValue } from "@finealth/finance-core";
 
 const DEPOSIT = {
   INR: { initial: 10_000, min: 500, max: 200_000, step: 500 },

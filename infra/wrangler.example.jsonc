@@ -1,0 +1,129 @@
+// Finealth reference config. The real file is apps/api/wrangler.jsonc (owned by the API workspace); keep the two in step.
+// DEVIATION (CLAUDE.md "Finealth specifics" §2): no D1, no KV, no R2, no cron. deploy.yml fails if a storage binding appears.
+// Finealth — one Worker serves the static web app (apps/web/out) AND the API (/api/v1/*).
+// STATELESS by founder decision: no D1, no KV, no R2, no cron. The store (Razorpay / Google Play) is the only record of a
+// purchase; this Worker only verifies it and signs a short-lived Pro token.
+// Environments: development -> dev, staging -> staging, production -> production (`wrangler deploy --env <name>`).
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "finealth",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // Static files are served BEFORE the Worker runs (free, and pages keep working if the API is down); only /api/* runs
+  // the Worker. Page security headers live in apps/web/public/_headers; www -> apex is a zone Redirect Rule.
+  "assets": { "directory": "../web/out", "binding": "ASSETS", "not_found_handling": "404-page", "run_worker_first": ["/api/*"] },
+  "observability": { "enabled": true },
+  "workers_dev": true,
+  // Keep variables added in the Cloudflare dashboard (Worker → Settings → Variables and Secrets) across deploys.
+  // Values written in this file still win for the same name, so dashboard-managed names are left out below.
+  "keep_vars": true,
+
+  "env": {
+    "dev": {
+      // Workers Rate Limiting (free). namespace_id: any integer unique in the account — REPLACE the placeholders with
+      // a distinct pair per environment (e.g. 4101/4102 dev, 4201/4202 staging, 4301/4302 production).
+      "ratelimits": [
+        { "name": "RL_STRICT", "namespace_id": "4101", "simple": { "limit": 5, "period": 60 } },
+        { "name": "RL_API", "namespace_id": "4102", "simple": { "limit": 120, "period": 60 } }
+      ],
+      "vars": {
+        "ENVIRONMENT": "dev",
+        "CANONICAL_HOST": "",
+        "ALLOWED_ORIGINS": "",
+        // Razorpay (web Pro). Key id is public: Dashboard -> Account & Settings -> API Keys. dev/staging MUST use a
+        // rzp_test_ key and production a rzp_live_ key — the Worker refuses the wrong mode (503).
+        "RAZORPAY_KEY_ID": "<razorpay-test-key-id>",
+        // Dashboard -> Subscriptions -> Plans: yearly, interval 1, Rs 399 (INR) and US$14.99 (USD). Leave USD as a
+        // placeholder until international payments are enabled: USD yearly checkout then answers 503.
+        "RAZORPAY_PLAN_ID_YEARLY_INR": "<razorpay-plan-id-yearly-inr>",
+        "RAZORPAY_PLAN_ID_YEARLY_USD": "<razorpay-plan-id-yearly-usd>",
+        // Retired yearly plan ids (comma list) whose subscriptions must keep working. Never edit a Razorpay plan:
+        // create a new one, point the INR/USD var at it and add the old id here.
+        "RAZORPAY_PLAN_IDS_YEARLY_LEGACY": "",
+        // "checkout" → POST /api/v1/checkout answers 503 (verify and confirm keep working).
+        "KILL_SWITCHES": "",
+        // Browsers per licence key (counter kept in Razorpay payment notes, fh_activations).
+        "MAX_ACTIVATIONS": "5",
+        "PLAY_PACKAGE_NAME": "com.tezech.finealth",
+        // Subscription `pro` with base plans `monthly` and `yearly`; one-time product `pro_lifetime`.
+        "PLAY_SUBSCRIPTION_ID": "pro",
+        "PLAY_LIFETIME_PRODUCT_ID": "pro_lifetime"
+      }
+    },
+    "staging": {
+      "ratelimits": [
+        { "name": "RL_STRICT", "namespace_id": "4201", "simple": { "limit": 5, "period": 60 } },
+        { "name": "RL_API", "namespace_id": "4202", "simple": { "limit": 120, "period": 60 } }
+      ],
+      "vars": {
+        "ENVIRONMENT": "staging",
+        "CANONICAL_HOST": "",
+        "ALLOWED_ORIGINS": "",
+        "RAZORPAY_KEY_ID": "<razorpay-test-key-id>",
+        "RAZORPAY_PLAN_ID_YEARLY_INR": "<razorpay-plan-id-yearly-inr>",
+        "RAZORPAY_PLAN_ID_YEARLY_USD": "<razorpay-plan-id-yearly-usd>",
+        "RAZORPAY_PLAN_IDS_YEARLY_LEGACY": "",
+        "KILL_SWITCHES": "",
+        "MAX_ACTIVATIONS": "5",
+        "PLAY_PACKAGE_NAME": "com.tezech.finealth",
+        "PLAY_SUBSCRIPTION_ID": "pro",
+        "PLAY_LIFETIME_PRODUCT_ID": "pro_lifetime"
+      }
+    },
+    // Until launch: the dashboard Worker "finealth" runs as a test site (Razorpay TEST keys, hidden from search).
+    // Workers Builds deploy command: npx wrangler deploy -c apps/api/wrangler.jsonc --env prelaunch
+    // At launch switch it to --env production (live keys). deploy.yml never uses prelaunch.
+    "prelaunch": {
+      "name": "finealth",
+      "ratelimits": [
+        { "name": "RL_STRICT", "namespace_id": "4401", "simple": { "limit": 5, "period": 60 } },
+        { "name": "RL_API", "namespace_id": "4402", "simple": { "limit": 120, "period": 60 } }
+      ],
+      "vars": {
+        // "staging" = non-production rules: rzp_test_ keys only, tokens marked env "staging".
+        "ENVIRONMENT": "staging",
+        "CANONICAL_HOST": "",
+        "ALLOWED_ORIGINS": "",
+        // RAZORPAY_KEY_ID (rzp_test_), RAZORPAY_PLAN_ID_YEARLY_INR (+ _USD later) come from the dashboard (keep_vars).
+        "RAZORPAY_PLAN_IDS_YEARLY_LEGACY": "",
+        "KILL_SWITCHES": "",
+        "MAX_ACTIVATIONS": "5",
+        "PLAY_PACKAGE_NAME": "com.tezech.finealth",
+        "PLAY_SUBSCRIPTION_ID": "pro",
+        "PLAY_LIFETIME_PRODUCT_ID": "pro_lifetime"
+      }
+    },
+    "production": {
+      // Keep the production Worker named "finealth" (not "finealth-production") so it matches the Worker
+      // connected in the Cloudflare dashboard (Workers Builds refuses to deploy on a name mismatch).
+      "name": "finealth",
+      "ratelimits": [
+        { "name": "RL_STRICT", "namespace_id": "4301", "simple": { "limit": 5, "period": 60 } },
+        { "name": "RL_API", "namespace_id": "4302", "simple": { "limit": 120, "period": 60 } }
+      ],
+      "vars": {
+        "ENVIRONMENT": "production",
+        // The product's own domain, e.g. finealth.app. The Worker 301s any other host on /api/*.
+        "CANONICAL_HOST": "<domain>",
+        "ALLOWED_ORIGINS": "",
+        // RAZORPAY_KEY_ID (rzp_live_ only; a rzp_test_ key is refused), RAZORPAY_PLAN_ID_YEARLY_INR and
+        // RAZORPAY_PLAN_ID_YEARLY_USD are set in the Cloudflare dashboard (keep_vars), not here.
+        "RAZORPAY_PLAN_IDS_YEARLY_LEGACY": "",
+        "KILL_SWITCHES": "",
+        "MAX_ACTIVATIONS": "5",
+        "PLAY_PACKAGE_NAME": "com.tezech.finealth",
+        "PLAY_SUBSCRIPTION_ID": "pro",
+        "PLAY_LIFETIME_PRODUCT_ID": "pro_lifetime"
+      }
+      // RELEASE is set per deploy: --var RELEASE:<git sha>
+      // Custom domain (its Cloudflare zone must exist first), add when the domain is bought:
+      // "routes": [{ "pattern": "<domain>", "custom_domain": true }]
+    }
+  }
+  // Secrets (never in this file): npx wrangler secret put <NAME> --env <dev|staging|production>
+  //   LICENCE_SIGNING_KEY  Ed25519 private key, PKCS#8, base64url — created by `node scripts/gen-licence-keys.mjs`
+  //   GOOGLE_PLAY_SA_KEY   Google service-account JSON key (whole file contents)
+  //   RAZORPAY_KEY_SECRET  Razorpay key secret paired with RAZORPAY_KEY_ID (test secret for dev/staging, live for production)
+  // Local development: copy .dev.vars.example to .dev.vars (git-ignored) and fill it in.
+}

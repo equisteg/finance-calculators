@@ -1,0 +1,10 @@
+flowchart LR
+  user([User]) -->|numbers typed in| web[Finealth Web\nNext.js static export]
+  user --> app[Finealth Android\nCapacitor WebView]
+  web -->|HTML/JS/CSS| cf[(Cloudflare Worker\nstatic assets)]
+  web -->|licence key only| api[Licence API\nCloudflare Worker + Hono]
+  app -->|licence key / Play token| api
+  api -->|verify purchase| rzp[Razorpay]
+  api -->|verify purchase| play[Google Play Developer API]
+  web -.->|free users, after consent| adsense[Google AdSense]
+  app -.->|free users| admob[Google AdMob]
