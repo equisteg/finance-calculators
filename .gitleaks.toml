@@ -1,0 +1,22 @@
+# Gitleaks config for CI (ci.yml "security" job). Keeps every default rule and only allows the
+# fixed dummy licence IDs used in tests and one storage key name. They are not secrets:
+# a licence ID is a Razorpay payment/subscription ID, and these exact values never exist at Razorpay.
+# Add a value here only if it is a test fixture or a public constant, never a real key.
+title = "Finealth"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Dummy test licence IDs and public storage key names"
+regexTarget = "secret"
+regexes = [
+  '''^pay_TestKey12345678$''',
+  '''^pay_ABCD1234EF567890$''',
+  '''^pay_Unknown1234567$''',
+  '''^sub_Yearly12345ABC$''',
+  '''^rzp_test_abc123$''',
+  '''^ABCD1234-EF567890-ABCD1234-EF567890$''',
+  '''^ABCD1234-EF567890-12345678-90ABCDEF$''',
+  '''^finealth\.pending\.v1$''',
+]
