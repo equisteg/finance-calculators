@@ -1,0 +1,6 @@
+# OSV-Scanner exceptions. Every entry needs a founder's yes, a reason and an end date (docs/risk-register.md).
+
+[[IgnoredVulns]]
+id = "GHSA-g3hv-75wg-m249"
+ignoreUntil = 2027-02-03T00:00:00Z
+reason = "RSK-009, accepted by a founder on 2026-11-03. minimatch 3.1.5 / 5.1.9 come only from dev tools (eslint-plugin-import, jsx-a11y and react via eslint-config-next; archiver via exceljs for the test-case sheet). They run on developer machines and CI with repo-owned patterns, never in the shipped web app, Worker or Android app. The only fix is minimatch 11, which those packages do not support yet; Dependabot proposes updates monthly."
