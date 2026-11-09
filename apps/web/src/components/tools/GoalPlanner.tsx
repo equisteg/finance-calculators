@@ -67,8 +67,8 @@ export function GoalPlanner() {
         ) : undefined
       }
     >
-      <div className="grid gap-6 md:grid-cols-12 items-start">
-        <div className="md:col-span-7 grid gap-4 content-start">
+      <div className="grid gap-6 items-start">
+        <div className="grid gap-4 content-start">
           {goals.map((g, i) => {
             const p = plan.goals[i];
             const locked = i >= limit;
@@ -91,7 +91,7 @@ export function GoalPlanner() {
                     ✕
                   </button>
                 </div>
-                <div className="grid gap-3 grid-cols-2 sm:grid-cols-3">
+                <div className="fieldgrid grid gap-x-3 gap-y-3">
                   <NumberField label="Cost today" value={g.costToday} onChange={(n) => update(g.id, { costToday: n })} />
                   <NumberField label="In years" value={g.years} onChange={(n) => update(g.id, { years: Math.min(60, n) })} max={60} step={1} />
                   <NumberField label="Saved so far" value={g.currentSavings} onChange={(n) => update(g.id, { currentSavings: n })} />
@@ -125,10 +125,10 @@ export function GoalPlanner() {
           )}
         </div>
 
-        <div className="md:col-span-5 grid gap-6 content-start">
+        <div className="grid gap-6 content-start">
           <Panel title="Your monthly saving budget">
             <NumberField label="I can save each month" value={budget} onChange={setBudget} testId="in-goal-budget" />
-            <div className="grid gap-3 sm:grid-cols-2 mt-4">
+            <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(10rem,100%),1fr))] mt-4">
               <Stat label="Needed for these goals" value={money(plan.totalNeeded)} testId="goals-needed" />
               <Stat
                 label={plan.surplus >= 0 ? 'Left over' : 'Shortfall'}

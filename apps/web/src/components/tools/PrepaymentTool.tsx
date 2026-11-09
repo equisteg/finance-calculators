@@ -24,9 +24,9 @@ export function PrepaymentTool() {
       title="Loan Prepayment Optimiser"
       intro="Paying part of a loan early? Compare keeping your EMI and finishing sooner with keeping the end date and paying less each month."
     >
-      <div className="grid gap-6 md:grid-cols-12 items-start">
-        <Panel title="Your loan" className="md:col-span-5">
-          <div className="fieldgrid grid gap-x-4 gap-y-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-6 items-start">
+        <Panel title="Your loan">
+          <div className="fieldgrid grid gap-x-4 gap-y-4">
             <NumberField label="Balance today" value={outstanding} onChange={setOutstanding} testId="in-outstanding" />
             <NumberField label="Interest rate" suffix="%" value={apr} onChange={setApr} max={40} />
             <NumberField label="Months left" value={monthsLeft} onChange={(n) => setMonthsLeft(Math.min(480, n))} step={1} max={480} />
@@ -36,7 +36,7 @@ export function PrepaymentTool() {
           <p className="hint mt-4">Current EMI: {money(r.emi)} · Interest left if you change nothing: {money(r.baseline.totalInterest)}</p>
         </Panel>
 
-        <div className="md:col-span-7 grid gap-6 content-start sm:grid-cols-2">
+        <div className="grid gap-6 content-start sm:grid-cols-2">
           <Panel title="Keep EMI, finish sooner" testId="prepay-tenure" className={r.better === 'reduceTenure' ? '!border-emerald-400/60' : ''}>
             <div className="grid gap-3">
               <Stat label="Interest saved" value={money(r.reduceTenure.interestSaved)} tone="ok" testId="tenure-saved" />

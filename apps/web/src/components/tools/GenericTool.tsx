@@ -10,7 +10,7 @@ import { toolIcon } from '../GlassIcon';
 function SelectField(props: { label: string; value: string; options: Array<{ value: string; label: string }>; onChange: (v: string) => void; testId?: string }) {
   const id = useId();
   return (
-    <div>
+    <div className="nf">
       <label htmlFor={id} className="label">
         {props.label}
       </label>
@@ -21,6 +21,7 @@ function SelectField(props: { label: string; value: string; options: Array<{ val
           </option>
         ))}
       </select>
+      <span aria-hidden="true" />
     </div>
   );
 }
@@ -61,21 +62,19 @@ function ToolBody({ slug }: { slug: string }) {
 
   return (
     <ToolPage eyebrow={`${def.region} · ${def.category}`} title={def.title} intro={def.summary} icon={toolIcon(def.slug, def.category)}>
-      <div className="grid gap-6 md:grid-cols-12 items-start">
-        <div className="md:col-span-5 grid gap-3 content-start">
+      <div className="grid gap-6 items-start">
+        <div className="grid gap-3 content-start">
         <Panel title="Your numbers">
-          <div className="fieldgrid grid gap-x-4 gap-y-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+          <div className="fieldgrid grid gap-x-4 gap-y-4">
             {def.fields.map((f) => {
               const testId = `in-${f.key}`;
               if (f.kind === 'select')
                 return (
-                  <div key={f.key} className="col-span-2 md:col-span-1 lg:col-span-2">
-                    <SelectField label={f.label} value={String(values[f.key])} options={f.options ?? []} onChange={(v) => set(f.key, v)} testId={testId} />
-                  </div>
+                  <SelectField key={f.key} label={f.label} value={String(values[f.key])} options={f.options ?? []} onChange={(v) => set(f.key, v)} testId={testId} />
                 );
               if (f.kind === 'toggle')
                 return (
-                  <label key={f.key} className="col-span-2 md:col-span-1 lg:col-span-2 flex items-start gap-3 text-sm text-zinc-200">
+                  <label key={f.key} className="col-span-full flex items-start gap-3 text-sm text-zinc-200">
                     <input type="checkbox" className="check mt-0.5" checked={values[f.key] === true} onChange={(e) => set(f.key, e.target.checked)} data-testid={testId} />
                     <span>
                       {f.label}
@@ -85,7 +84,7 @@ function ToolBody({ slug }: { slug: string }) {
                 );
               if (f.kind === 'text')
                 return (
-                  <div key={f.key} className="col-span-2 md:col-span-1 lg:col-span-2">
+                  <div key={f.key} className="col-span-full">
                     <label className="label" htmlFor={`${slug}-${f.key}`}>
                       {f.label}
                     </label>
@@ -128,9 +127,9 @@ function ToolBody({ slug }: { slug: string }) {
         )}
         </div>
 
-        <div className="md:col-span-7 grid gap-4 content-start scroll-mt-32" id="tool-result">
+        <div className="grid gap-4 content-start scroll-mt-32" id="tool-result">
           <Panel title="Result" testId="tool-result">
-            <div className="grid gap-3 grid-cols-2">
+            <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(10rem,100%),1fr))]">
               {result.rows.map((r, i) => (
                 <Stat key={r.label} label={r.label} value={r.value} tone={r.tone} sub={r.sub} testId={i === 0 ? 'tool-primary' : undefined} />
               ))}

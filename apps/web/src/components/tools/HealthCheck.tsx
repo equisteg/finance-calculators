@@ -88,9 +88,9 @@ export function HealthCheck() {
           Snapshot saved on this device. See your progress on <Link href="/my-plan/" className="link">My Plan</Link>.
         </p>
       )}
-      <div className="grid gap-6 md:grid-cols-12 items-start">
-        <Panel title="Your numbers (per month unless stated)" className="md:col-span-5 no-print">
-          <div className="fieldgrid grid gap-x-4 gap-y-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-6 items-start">
+        <Panel title="Your numbers (per month unless stated)" className="no-print">
+          <div className="fieldgrid grid gap-x-4 gap-y-4">
             <NumberField label="Take-home income" value={input.monthlyIncome} onChange={(n) => set({ monthlyIncome: n })} testId="in-income" />
             <NumberField label="Spending" hint="Everything except loan payments" value={input.monthlyExpenses} onChange={(n) => set({ monthlyExpenses: n })} testId="in-expenses" />
             <NumberField label="Loan & card payments" hint="EMIs and minimum card payments" value={input.monthlyDebtPayments} onChange={(n) => set({ monthlyDebtPayments: n })} testId="in-debtpay" />
@@ -118,7 +118,7 @@ export function HealthCheck() {
           )}
         </Panel>
 
-        <div className="md:col-span-7 grid gap-6 content-start print-dark-text">
+        <div className="grid gap-6 content-start print-dark-text">
           <Panel testId="health-result">
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <ScoreRing score={report.score} label={report.grade} />

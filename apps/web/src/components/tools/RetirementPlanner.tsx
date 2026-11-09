@@ -45,9 +45,9 @@ export function RetirementPlanner() {
       title="Retirement Planner"
       intro="See how much you will have when you stop working, how much you need, and (with Pro) the chance your money lasts when markets go up and down."
     >
-      <div className="grid gap-6 md:grid-cols-12 items-start">
-        <Panel title="Your plan" className="md:col-span-5">
-          <div className="fieldgrid grid gap-x-4 gap-y-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-6 items-start">
+        <Panel title="Your plan">
+          <div className="fieldgrid grid gap-x-4 gap-y-4">
             <NumberField label="Age now" value={input.currentAge} onChange={(n) => set({ currentAge: n })} step={1} max={100} />
             <NumberField label="Retire at" value={input.retireAge} onChange={(n) => set({ retireAge: n })} step={1} max={100} />
             <NumberField label="Plan until age" value={input.planToAge} onChange={(n) => set({ planToAge: n })} step={1} max={110} />
@@ -61,7 +61,7 @@ export function RetirementPlanner() {
           </div>
         </Panel>
 
-        <div className="md:col-span-7 grid gap-6 content-start">
+        <div className="grid gap-6 content-start">
           <Panel testId="retirement-result">
             <div className="grid gap-3 sm:grid-cols-2">
               <Stat label={`At age ${input.retireAge} you will have`} value={money(p.corpusAtRetirement)} testId="ret-corpus" />

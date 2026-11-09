@@ -40,8 +40,8 @@ export default function SipCalculatorPage() {
       title={currency === "USD" ? "401(k) & Index Wealth Calculator" : "SIP Wealth Compounder"}
       subtitle="Monthly deposits at the start of each month, compounded monthly."
     >
-      <div className="grid grid-cols-1 md:grid-cols-12 items-start gap-6">
-        <div className="md:col-span-7 card p-6 sm:p-8 space-y-8">
+      <div className="grid grid-cols-1 items-start gap-6">
+        <div className="card p-6 sm:p-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           <CalculatorSlider
             label="Monthly Deposit"
             display={money(monthlyInvestment)}
@@ -77,7 +77,7 @@ export default function SipCalculatorPage() {
           />
         </div>
 
-        <div className="md:col-span-5 card glass-strong p-6 sm:p-8">
+        <div className="card glass-strong p-6 sm:p-8 calc-result">
           <span className="text-[11px] tabular-nums uppercase tracking-widest text-zinc-400 block">
             Projected Accumulation
           </span>

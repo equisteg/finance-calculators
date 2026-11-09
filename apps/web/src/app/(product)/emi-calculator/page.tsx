@@ -38,8 +38,8 @@ export default function EmiCalculator() {
       title="EMI & Debt Schedule"
       subtitle="Equated monthly installment on a diminishing-balance loan."
     >
-      <div className="grid grid-cols-1 md:grid-cols-12 items-start gap-6 items-start">
-        <div className="md:col-span-7 card p-6 sm:p-8 space-y-8">
+      <div className="grid grid-cols-1 items-start gap-6 items-start">
+        <div className="card p-6 sm:p-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           <CalculatorSlider
             label="Borrowing Principal"
             display={money(principal)}
@@ -75,7 +75,7 @@ export default function EmiCalculator() {
           />
         </div>
 
-        <div className="md:col-span-5 card glass-strong p-6 sm:p-8">
+        <div className="card glass-strong p-6 sm:p-8 calc-result">
           <span className="text-[11px] tabular-nums uppercase tracking-widest text-zinc-400 block">
             Equated Monthly Installment
           </span>

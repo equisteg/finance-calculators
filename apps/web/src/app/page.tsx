@@ -496,8 +496,8 @@ export default function Home() {
 
           {/* 1. LOAN & MORTGAGE ENGINE */}
           {LOAN_TOOLS.includes(activeToolId) && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
-              <div className="md:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 gap-6 lg:gap-8">
+              <div className="grid gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Borrowing Principal"
                   display={money(loanPrincipal)}
@@ -535,7 +535,7 @@ export default function Home() {
                 )}
               </div>
 
-              <div className="md:col-span-5 glass glass-strong p-6 flex flex-col justify-between">
+              <div className="glass glass-strong p-6 flex flex-col">
                 <div>
                   <span className="text-[10px] tabular-nums uppercase tracking-widest text-zinc-500 block mb-1">
                     {activeToolId === "mortgage_us" ? "TOTAL MONTHLY PITI" : "MONTHLY INSTALLMENT"}
@@ -579,8 +579,8 @@ export default function Home() {
 
           {/* 2. SIP & RETIREMENT ENGINE */}
           {GROWTH_TOOLS.includes(activeToolId) && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
-              <div className="md:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 gap-6 lg:gap-8">
+              <div className="grid gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Monthly Investment"
                   display={money(sipMonthlyDeposit)}
@@ -619,7 +619,7 @@ export default function Home() {
                 />
               </div>
 
-              <div className="md:col-span-5 glass glass-strong p-6 flex flex-col justify-between">
+              <div className="glass glass-strong p-6 flex flex-col">
                 <div>
                   <span className="text-[10px] tabular-nums uppercase tracking-widest text-zinc-500 block mb-1">
                     PROJECTED WEALTH CORPUS
@@ -639,8 +639,8 @@ export default function Home() {
 
           {/* 3. INCOME TAX ENGINES */}
           {INCOME_TAX_TOOLS.includes(activeToolId) && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
-              <div className="md:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 gap-6 lg:gap-8">
+              <div className="grid gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Annual Gross Income"
                   display={money(grossAnnualIncome)}
@@ -667,7 +667,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="md:col-span-5 glass glass-strong p-6 flex flex-col justify-between">
+              <div className="glass glass-strong p-6 flex flex-col">
                 {activeToolId === "tax_in" && (
                   <div>
                     <div className="inline-block bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] tabular-nums px-2 py-0.5 rounded uppercase font-bold mb-2">
@@ -728,8 +728,8 @@ export default function Home() {
 
           {/* 4a. INDIA GST */}
           {activeToolId === "gst_in" && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
-              <div className="md:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 gap-6 lg:gap-8">
+              <div className="grid gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Transaction / Invoice Base"
                   display={money(invoiceAmount)}
@@ -757,8 +757,8 @@ export default function Home() {
 
           {/* 4b. EU VAT */}
           {activeToolId === "vat_eu" && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
-              <div className="md:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 gap-6 lg:gap-8">
+              <div className="grid gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Transaction / Invoice Base"
                   display={money(invoiceAmount)}
@@ -796,8 +796,8 @@ export default function Home() {
 
           {/* 4c. US SALES TAX */}
           {activeToolId === "salestax_us" && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
-              <div className="md:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 gap-6 lg:gap-8">
+              <div className="grid gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Purchase Price (pre-tax)"
                   display={money(invoiceAmount)}
@@ -821,8 +821,8 @@ export default function Home() {
 
           {/* 4d. UK STAMP DUTY */}
           {activeToolId === "sdlt_uk" && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
-              <div className="md:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 gap-6 lg:gap-8">
+              <div className="grid gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Property Purchase Price"
                   display={money(sdltPrice)}
@@ -853,8 +853,8 @@ export default function Home() {
 
           {/* 5. FD MATURITY */}
           {activeToolId === "fdrd_in" && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
-              <div className="md:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 gap-6 lg:gap-8">
+              <div className="grid gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Deposit Principal"
                   display={money(fdPrincipal)}
@@ -894,8 +894,8 @@ export default function Home() {
 
           {/* 6. CTC TO IN-HAND */}
           {activeToolId === "ctc_in" && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
-              <div className="md:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 gap-6 lg:gap-8">
+              <div className="grid gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Annual Cost to Company (CTC)"
                   display={money(ctcAmount)}
@@ -1097,7 +1097,7 @@ function TotalRow(props: { label: string; value: string }) {
 
 function ResultPanel(props: { heading: string; amount: string; children: React.ReactNode }) {
   return (
-    <div className="md:col-span-5 glass glass-strong p-6 flex flex-col justify-between">
+    <div className="glass glass-strong p-6 flex flex-col">
       <div>
         <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400 block mb-1">
           {props.heading}

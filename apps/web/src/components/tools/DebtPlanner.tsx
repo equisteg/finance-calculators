@@ -72,14 +72,14 @@ export function DebtPlanner() {
         ) : undefined
       }
     >
-      <div className="grid gap-6 md:grid-cols-12 items-start">
-        <div className="md:col-span-5 grid gap-6 content-start">
+      <div className="grid gap-6 items-start">
+        <div className="grid gap-6 content-start">
           <Panel title="Your debts">
             <ul className="grid gap-4">
               {debts.map((d, i) => {
                 const locked = i >= limit;
                 return (
-                  <li key={d.id} className={`grid gap-3 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-3.5 ${locked ? 'opacity-50' : ''}`}>
+                  <li key={d.id} className={`grid gap-3 md:grid-cols-[minmax(0,1.3fr)_minmax(0,3fr)] md:items-end md:gap-x-4 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-3.5 ${locked ? 'opacity-50' : ''}`}>
                     <div className="flex gap-2">
                       <input aria-label="Debt name" className="input" value={d.name} maxLength={60} onChange={(e) => update(d.id, { name: e.target.value })} />
                       <button type="button" className="btn btn-ghost btn-sm" onClick={() => remove(d.id)} aria-label={`Remove ${d.name}`}>
@@ -106,8 +106,9 @@ export function DebtPlanner() {
             )}
           </Panel>
           <Panel title="Your monthly budget">
+            <div className="grid gap-4 md:grid-cols-2 items-start">
             <NumberField label="Extra on top of the minimums" value={extra} onChange={setExtra} hint={`Minimums total ${money(minTotal)}. You will pay ${money(budget)} a month.`} testId="in-extra" />
-            <div className="mt-4">
+            <div>
               <label className="label" htmlFor="strategy">
                 Strategy
               </label>
@@ -119,10 +120,11 @@ export function DebtPlanner() {
                 ))}
               </select>
             </div>
+            </div>
           </Panel>
         </div>
 
-        <div className="md:col-span-7 grid gap-6 content-start">
+        <div className="grid gap-6 content-start">
           {!chosen.feasible ? (
             <p className="notice notice-danger" role="alert" data-testid="debt-infeasible">
               {chosen.reason}

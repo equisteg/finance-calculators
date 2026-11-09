@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { useCurrency } from "@/app/context/CurrencyContext";
 import { ToolPage } from "./ui";
 import type { GlyphName, Tone } from "./GlassIcon";
@@ -72,7 +71,7 @@ export function CalculatorSlider(props: {
 }) {
   return (
     <div>
-      <div className="flex justify-between items-baseline mb-3 gap-3">
+      <div className="flex flex-wrap justify-between items-baseline mb-3 gap-x-3 gap-y-1">
         <span className="label !mb-0">{props.label}</span>
         <span className="tabular-nums text-xl sm:text-2xl font-bold text-white shrink-0">{props.display}</span>
       </div>
