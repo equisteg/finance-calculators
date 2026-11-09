@@ -115,7 +115,13 @@ export default function CompoundInterestCalculator() {
           <span className="text-[11px] tabular-nums uppercase tracking-widest text-zinc-400 block">
             Future Balance
           </span>
-          <div className="mt-2 font-bold tabular-nums gradient-text text-[clamp(1.8rem,1.2rem+2vw,2.6rem)] leading-tight">{money(growth.maturity)}</div>
+          <div>
+            <div className="mt-2 font-bold tabular-nums gradient-text text-[clamp(1.8rem,1.2rem+2vw,2.6rem)] leading-tight">{money(growth.maturity)}</div>
+          <div className="fitgrid grid gap-2 mt-4">
+            <div className="stat !p-3"><span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-400">Money multiplied</span><span className="block mt-0.5 font-bold tabular-nums text-white whitespace-nowrap">{growth.invested > 0 ? `${(growth.maturity / growth.invested).toFixed(2)}×` : "—"}</span></div>
+            <div className="stat !p-3"><span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-400">Years</span><span className="block mt-0.5 font-bold tabular-nums text-white whitespace-nowrap">{years}</span></div>
+          </div>
+          </div>
 
           <BreakdownDonut
             share={depositShare}

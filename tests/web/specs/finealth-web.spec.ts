@@ -132,12 +132,12 @@ test.describe("FN-W :: Finealth Web Application", () => {
     const citySelect = page.locator("main select").first();
     await expect(citySelect).toBeVisible();
     await expect(citySelect).toHaveValue("Mumbai");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Mumbai");
+    await expect(page.getByRole("heading", { name: /Bullion Markets in/ })).toContainText("Mumbai");
 
     // Switching city must move the bullion premium (INDIAN_CITIES spread).
     const mumbaiPrice = await numberFrom(goldPrice);
     await citySelect.selectOption("Chennai");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Chennai");
+    await expect(page.getByRole("heading", { name: /Bullion Markets in/ })).toContainText("Chennai");
     const chennaiPrice = await numberFrom(goldPrice);
     expect(chennaiPrice, "city spread must adjust the gold benchmark").not.toBe(mumbaiPrice);
   });

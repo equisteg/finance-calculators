@@ -119,6 +119,15 @@ test.describe('FH :: global tools library and disclaimers', () => {
     for (const gap of gaps) expect(gap).toBeLessThanOrEqual(2);
   });
 
+  test('FH-19 home hero shows the live example score card', async ({ page }) => {
+    await page.goto('/');
+    const hero = page.getByTestId('home-hero');
+    await expect(hero.getByRole('heading', { level: 1 })).toContainText('two minutes');
+    await expect(hero.getByRole('link', { name: 'Start free health check' })).toBeVisible();
+    await expect(hero).toContainText('75');
+    await expect(hero).toContainText('Top priority');
+  });
+
   test('FH-16 terms carry the no-advice, accuracy and liability sections', async ({ page }) => {
     await page.goto('/terms/');
     for (const h of ['Information, not advice', 'Accuracy and estimates', 'Limitation of liability', 'Your statutory rights']) {

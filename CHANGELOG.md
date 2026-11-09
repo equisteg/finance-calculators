@@ -2,6 +2,9 @@
 
 ## Unreleased — 2026-11-09
 ### Added
+- New home page: a premium hero (headline, two clear actions, trust chips) beside a live example score card from the real engine, five planner cards, and the same nav rail as the rest of the site.
+- Two-tone glass icons with depth lighting, and new, more accurate icons: prepayment (calendar with fast-forward), tax (receipt with %), bank (RD), piggy bank (PPF), stamp duty, 50/30/20 (pie), Rule of 72 (hourglass), inflation, price tag (discount, margin, sales tax).
+- No empty cells: the tools library, pricing comparison, calculator results (money multiplied, payments) and bullion charts (value labels, growth since the first year) fill every row; the Lifetime card lists what it includes.
 - Aggressive pricing after a market check (Indian money apps ₹149 a month or ₹499 a year; global budgeting apps US$95-110 a year): Pro yearly ₹199 / US$7.99, Lifetime ₹499 / US$19.99, Monthly ₹29 / US$0.99 on Android.
 - Gap-free tool layouts: every tool heading shows its 2-3 key figures; input and result rows fill edge to edge (the last item stretches); the health score and top priority sit side by side at equal height, with savings rate, emergency months, loan-to-pay and a score scale.
 - Ad placeholders: dev and staging builds (`NEXT_PUBLIC_AD_PLACEHOLDERS=1`) show a labelled "Advertisement" box wherever an AdSense slot id is still unset; production shows nothing until the slot ids exist. Pro users still load no ads.

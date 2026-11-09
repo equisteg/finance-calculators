@@ -9,7 +9,10 @@ import {
   type PriorityAsset,
 } from "./context/CurrencyContext";
 import AdSenseBanner from "../components/AdSenseBanner";
-import { GlassIcon } from "../components/GlassIcon";
+import { AREA_ICON, GlassIcon } from "../components/GlassIcon";
+import { NAV } from "../components/site/SiteHeader";
+import { HomeHero, PlannerCards } from "../components/site/HomeHero";
+import { useFitRows } from "../components/ui";
 import { ADSENSE_CLIENT, AD_SLOTS } from "@/lib/ads";
 import { formatMoney, formatNumber } from "@finealth/finance-core";
 import {
@@ -102,6 +105,7 @@ const SDLT_BUYERS: { id: SdltBuyer; label: string }[] = [
 ];
 
 export default function Home() {
+  const fitRef = useFitRows<HTMLElement>();
   const {
     baseCurrency,
     setBaseCurrency,
@@ -294,24 +298,24 @@ export default function Home() {
             </button>
           </div>
         </div>
+        <nav aria-label="Main" className="max-w-7xl mx-auto px-4 sm:px-6 pb-2.5 rail">
+          {NAV.map((n) => {
+            const icon = AREA_ICON[n.href];
+            const on = n.href === "/";
+            return (
+              <Link key={n.href} href={n.href} aria-current={on ? "page" : undefined} className="chip !py-1 !pl-1">
+                {icon && <GlassIcon name={icon.name} tone={on ? icon.tone : "slate"} size={24} />}
+                <span className="whitespace-nowrap">{n.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <main ref={fitRef} className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         {/* Product entry points: the free health check and the planners (Pro features live there) */}
-        <section aria-label="Plan your money" className="glass glass-strong fade-up mb-6 grid gap-4 p-5 sm:p-6 md:grid-cols-[auto_1fr_auto] md:items-center !border-emerald-400/25">
-          <GlassIcon name="health" tone="emerald" size={52} />
-          <div>
-            <h2 className="text-xl font-serif font-semibold text-white">How healthy are your finances?</h2>
-            <p className="text-sm text-zinc-300 mt-1">
-              Get a score out of 100 in two minutes, then a plan for your debts, goals and retirement. No login, nothing leaves your device.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Link href="/health-check/" className="btn btn-primary">Start free health check</Link>
-            <Link href="/debt-payoff/" className="btn btn-secondary">Debt planner</Link>
-            <Link href="/goal-planner/" className="btn btn-secondary">Goal planner</Link>
-          </div>
-        </section>
+        <HomeHero />
+        <PlannerCards />
 
         <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.top} />
 
@@ -360,9 +364,9 @@ export default function Home() {
             )}
           </div>
 
-          <h1 className="heading-xl">
+          <h2 className="heading-xl">
             Financial & Bullion Markets in {currency === "INR" ? selectedIndianCity : activeProfile.name}
-          </h1>
+          </h2>
           <p className="text-xs sm:text-sm text-zinc-400 mt-1.5 font-light">
             Priority coverage: <span className="text-emerald-400 font-medium">{activeProfile.headlinePriority}</span>. Reference benchmarks for planning; confirm live quotes before trading.
           </p>
@@ -452,8 +456,11 @@ export default function Home() {
                             title={`${pt.year}: ${pt.priceFormatted}`}
                           >
                             <span className="sr-only">{`${pt.year}: ${pt.priceFormatted}`}</span>
+                            <span aria-hidden="true" className="hidden xl:block text-[10px] font-semibold tabular-nums text-zinc-300 whitespace-nowrap">
+                              {pt.priceFormatted.split(' /')[0]}
+                            </span>
                             <div
-                              style={{ height: `${heightPct}%` }}
+                              style={{ height: `${Math.round(heightPct * 0.72)}%` }}
                               className="w-full rounded-t-md bg-gradient-to-t from-emerald-500/10 to-emerald-400/50 group-hover:to-emerald-300/80 border-t-2 border-emerald-300 transition-all"
                             />
                             <span className="text-[10px] tabular-nums text-zinc-400 mt-2">{pt.year}</span>
@@ -461,6 +468,15 @@ export default function Home() {
                         );
                       })}
                     </div>
+                    {asset.history.length > 1 && asset.history[0].numericValue > 0 && (
+                      <p className="mt-3 mb-0 text-xs text-zinc-400">
+                        Up{' '}
+                        <b className="text-emerald-300 tabular-nums">
+                          {formatNumber(asset.history[asset.history.length - 1].numericValue / asset.history[0].numericValue, currency, 0)}×
+                        </b>{' '}
+                        since {asset.history[0].year}. Past prices do not predict future returns.
+                      </p>
+                    )}
                   </div>
                 );
               })}
@@ -497,7 +513,7 @@ export default function Home() {
           {/* 1. LOAN & MORTGAGE ENGINE */}
           {LOAN_TOOLS.includes(activeToolId) && (
             <div className="grid grid-cols-1 gap-6 lg:gap-8">
-              <div className="grid gap-6 md:grid-cols-2 content-start">
+              <div className="fitgrid grid grid-cols-1 gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Borrowing Principal"
                   display={money(loanPrincipal)}
@@ -580,7 +596,7 @@ export default function Home() {
           {/* 2. SIP & RETIREMENT ENGINE */}
           {GROWTH_TOOLS.includes(activeToolId) && (
             <div className="grid grid-cols-1 gap-6 lg:gap-8">
-              <div className="grid gap-6 md:grid-cols-2 content-start">
+              <div className="fitgrid grid grid-cols-1 gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Monthly Investment"
                   display={money(sipMonthlyDeposit)}
@@ -640,7 +656,7 @@ export default function Home() {
           {/* 3. INCOME TAX ENGINES */}
           {INCOME_TAX_TOOLS.includes(activeToolId) && (
             <div className="grid grid-cols-1 gap-6 lg:gap-8">
-              <div className="grid gap-6 md:grid-cols-2 content-start">
+              <div className="fitgrid grid grid-cols-1 gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Annual Gross Income"
                   display={money(grossAnnualIncome)}
@@ -729,7 +745,7 @@ export default function Home() {
           {/* 4a. INDIA GST */}
           {activeToolId === "gst_in" && (
             <div className="grid grid-cols-1 gap-6 lg:gap-8">
-              <div className="grid gap-6 md:grid-cols-2 content-start">
+              <div className="fitgrid grid grid-cols-1 gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Transaction / Invoice Base"
                   display={money(invoiceAmount)}
@@ -758,7 +774,7 @@ export default function Home() {
           {/* 4b. EU VAT */}
           {activeToolId === "vat_eu" && (
             <div className="grid grid-cols-1 gap-6 lg:gap-8">
-              <div className="grid gap-6 md:grid-cols-2 content-start">
+              <div className="fitgrid grid grid-cols-1 gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Transaction / Invoice Base"
                   display={money(invoiceAmount)}
@@ -797,7 +813,7 @@ export default function Home() {
           {/* 4c. US SALES TAX */}
           {activeToolId === "salestax_us" && (
             <div className="grid grid-cols-1 gap-6 lg:gap-8">
-              <div className="grid gap-6 md:grid-cols-2 content-start">
+              <div className="fitgrid grid grid-cols-1 gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Purchase Price (pre-tax)"
                   display={money(invoiceAmount)}
@@ -822,7 +838,7 @@ export default function Home() {
           {/* 4d. UK STAMP DUTY */}
           {activeToolId === "sdlt_uk" && (
             <div className="grid grid-cols-1 gap-6 lg:gap-8">
-              <div className="grid gap-6 md:grid-cols-2 content-start">
+              <div className="fitgrid grid grid-cols-1 gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Property Purchase Price"
                   display={money(sdltPrice)}
@@ -854,7 +870,7 @@ export default function Home() {
           {/* 5. FD MATURITY */}
           {activeToolId === "fdrd_in" && (
             <div className="grid grid-cols-1 gap-6 lg:gap-8">
-              <div className="grid gap-6 md:grid-cols-2 content-start">
+              <div className="fitgrid grid grid-cols-1 gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Deposit Principal"
                   display={money(fdPrincipal)}
@@ -895,7 +911,7 @@ export default function Home() {
           {/* 6. CTC TO IN-HAND */}
           {activeToolId === "ctc_in" && (
             <div className="grid grid-cols-1 gap-6 lg:gap-8">
-              <div className="grid gap-6 md:grid-cols-2 content-start">
+              <div className="fitgrid grid grid-cols-1 gap-6 md:grid-cols-2 content-start">
                 <SliderField
                   label="Annual Cost to Company (CTC)"
                   display={money(ctcAmount)}

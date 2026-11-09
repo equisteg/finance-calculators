@@ -72,8 +72,9 @@ export function fitRows(root: ParentNode): void {
   });
 }
 
-function useFitRows() {
-  const ref = useRef<HTMLDivElement>(null);
+/** Keeps the rows inside the returned element filled as it resizes or its content changes. */
+export function useFitRows<T extends HTMLElement = HTMLDivElement>() {
+  const ref = useRef<T>(null);
   useEffect(() => {
     const root = ref.current;
     if (!root || typeof ResizeObserver === 'undefined') return;
@@ -94,6 +95,16 @@ function useFitRows() {
     };
   }, []);
   return ref;
+}
+
+/** A wrapper that keeps every `.fitgrid` row inside it filled (usable from server components). */
+export function FitArea({ children, className }: { children: ReactNode; className?: string }) {
+  const ref = useFitRows();
+  return (
+    <div ref={ref} className={className}>
+      {children}
+    </div>
+  );
 }
 
 /** Frame for every planning tool: heading with key figures, the tool, the disclaimer, then one ad slot below the result. */

@@ -8,6 +8,7 @@ import { config } from '@/lib/config';
 import type { WebPlan } from '@/lib/pro';
 import { useCurrency } from '@/app/context/CurrencyContext';
 import { usePro } from './ProProvider';
+import { useFitRows } from './ui';
 
 const FREE_FEATURES = [
   'Financial Health Check: score, grade and your top priority',
@@ -98,6 +99,7 @@ export function PriceCards() {
   const [busy, setBusy] = useState<WebPlan | null>(null);
   const [result, setResult] = useState<CheckoutResult | null>(null);
   const [agreed, setAgreed] = useState(false);
+  const fitRef = useFitRows();
   useEffect(() => {
     // ₹ when the site currency is INR or the browser locale is Indian (en-IN, hi-IN …); US$ everywhere else.
     // eslint-disable-next-line react-hooks/set-state-in-effect -- navigator.language exists only in the browser
@@ -139,7 +141,7 @@ export function PriceCards() {
   };
 
   return (
-    <div>
+    <div ref={fitRef}>
       {result && <CheckoutOutcome key={JSON.stringify(result)} result={result} />}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <p className="m-0 text-sub">
@@ -212,10 +214,48 @@ export function PriceCards() {
             {price(lifetime)}
           </p>
           <p className="text-sub">{lifetime.note}</p>
-          <p className="mt-5 flex-1 text-[0.95rem]">All Pro features on the web, with no renewals. Good if you plan to check in every month and want to pay once.</p>
+          <ul className="mt-5 grid content-start gap-2 text-[0.95rem] flex-1">
+            {[
+              'Every Pro feature listed under Yearly',
+              'One payment: no renewal to remember',
+              'Costs the same as about 2½ years of Yearly',
+              'Use your licence key on up to 5 browsers',
+              'No ads anywhere, in any browser you activate',
+            ].map((f) => (
+              <li key={f} className="flex gap-2">
+                <span className="text-ok font-bold shrink-0" aria-hidden="true">✓</span>
+                {f}
+              </li>
+            ))}
+          </ul>
           <div className="mt-6">{buyButton('pro_lifetime', `Buy lifetime · ${price(lifetime)}`, false)}</div>
         </div>
       </div>
+      <section className="card p-5 sm:p-6 mt-6" aria-label="How our price compares" data-testid="price-compare">
+        <h2 className="text-lg font-bold">How our price compares</h2>
+        <p className="text-sub text-sm mt-1">Typical published prices for money apps, checked 9 November 2026.</p>
+        <div className="fitgrid grid gap-3 mt-4">
+          {(inr
+            ? [
+                ['Indian money-tracker apps', '₹149 a month', 'about ₹1,800 a year'],
+                ['Indian investing-app premium', '₹499 a year', 'single feature set'],
+                ['Lifetime plans in India', '₹4,999 and up', 'one payment'],
+                ['Finealth Pro', `${price(yearly)} a year`, `or ${price(lifetime)} for life`],
+              ]
+            : [
+                ['Leading budgeting apps', 'US$95-110 a year', 'billed yearly'],
+                ['Monthly budgeting plans', 'US$6.99-14.99 a month', 'billed monthly'],
+                ['Finealth Pro', `${price(yearly)} a year`, `or ${price(lifetime)} for life`],
+              ]
+          ).map(([what, amount, note], i, all) => (
+            <div key={what} className="stat">
+              <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-400">{what}</span>
+              <span className={`block mt-1 text-lg font-bold tabular-nums ${i === all.length - 1 ? 'text-emerald-300' : 'text-white'}`}>{amount}</span>
+              <span className="block text-xs text-zinc-500">{note}</span>
+            </div>
+          ))}
+        </div>
+      </section>
       <p className="mt-4 text-sm text-sub">
         {monthly.label} ({price(monthly)} {monthly.note}) is available in the Android app only{config.playUrl ? <> — <a href={config.playUrl}>get it on Google Play</a></> : ''}. Already bought? <Link href="/pro/">Restore Pro with your payment or subscription ID</Link>.
         {status.state === 'pro' ? ' Pro is active in this browser.' : ''}

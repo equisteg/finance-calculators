@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { CATEGORIES, CHECKED_LABEL, TOOLS } from '@/lib/toolCatalog';
 import { AREA_ICON, CATEGORY_ICON, GlassIcon, toolIcon } from '@/components/GlassIcon';
+import { FitArea } from '@/components/ui';
 
 export const metadata: Metadata = {
   title: 'All money tools: tax, loans, savings and business calculators',
@@ -23,7 +24,7 @@ const slug = (c: string) => c.toLowerCase().replace(/[^a-z]+/g, '-');
 
 export default function ToolsIndex() {
   return (
-    <div className="fade-up">
+    <FitArea className="fade-up">
       <section className="glass glass-strong p-6 sm:p-8 mb-6 grid gap-6 md:grid-cols-[1.4fr_1fr] md:items-center">
         <div className="min-w-0">
           <span className="eyebrow block mb-2">{TOOLS.length + PLANNERS.length} free tools · 7 countries · 67 VAT rates</span>
@@ -59,7 +60,7 @@ export default function ToolsIndex() {
 
       <section id="planners" className="mb-10 scroll-mt-40">
         <SectionTitle icon={<GlassIcon name="spark" tone="emerald" size={30} />} title="Planners" count={PLANNERS.length} />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="fitgrid grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {PLANNERS.map((p) => {
             const icon = AREA_ICON[p.href];
             return <ToolCard key={p.href} href={p.href} icon={<GlassIcon name={icon.name} tone={icon.tone} size={44} />} title={p.title} summary={p.summary} />;
@@ -70,7 +71,7 @@ export default function ToolsIndex() {
       {CATEGORIES.map((c) => (
         <section key={c} id={slug(c)} className="mb-10 scroll-mt-40">
           <SectionTitle icon={<GlassIcon name={CATEGORY_ICON[c].name} tone={CATEGORY_ICON[c].tone} size={30} />} title={c} count={TOOLS.filter((t) => t.category === c).length} />
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="fitgrid grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {TOOLS.filter((t) => t.category === c).map((t) => {
               const icon = toolIcon(t.slug, t.category);
               return (
@@ -88,7 +89,7 @@ export default function ToolsIndex() {
           </div>
         </section>
       ))}
-    </div>
+    </FitArea>
   );
 }
 

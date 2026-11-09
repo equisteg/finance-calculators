@@ -158,6 +158,7 @@ const rows = [
   ['TC-095', m('REQ-022'), W, P, 'Health Check, example household', 'Open /health-check/', '—', 'Heading shows Score 75/100, monthly surplus and net worth beside the title', 'P2', `Y — ${E2E}product.spec.ts FH-17`],
   ['TC-096', m('REQ-022'), W, X, 'Health Check at 1280 px', 'Look at the input rows', '10 inputs', 'Rows are filled edge to edge: no empty cell at the end of a row', 'P2', `Y — ${E2E}product.spec.ts FH-18`],
   ['TC-098', m('REQ-022'), W, N, 'Health Check, spending above income', 'Set spending to 1,20,000', 'income 1,00,000', 'Monthly surplus figure in the heading turns red and shows a negative amount; nothing spills out of its tile', 'P2', 'N — manual'],
+  ['TC-099', m('REQ-022'), W, P, 'Home page, example household', 'Open /', '—', 'Hero shows the headline, "Start free health check", and a live score card (75, Good) with savings rate, emergency months and top priority', 'P2', `Y — ${E2E}product.spec.ts FH-19`],
   ['TC-097', m('REQ-013'), W, P, 'Free plan, no ad slot id set', 'Open a tool page on a production build', '—', 'No ad box and no ad script; on dev/staging (NEXT_PUBLIC_AD_PLACEHOLDERS=1) a labelled "Advertisement" box shows after the disclaimer', 'P2', 'N — manual'],
 ];
 
