@@ -131,9 +131,14 @@ export function npv(ratePct: number, cashFlows: number[]): number {
   return r2(cashFlows.reduce((sum, cf, t) => sum + num(cf) / Math.pow(1 + r, t), 0));
 }
 
-/** Solves f(rate) = 0 by bisection between -99.99% and 1,000,000%. Returns the rate as a fraction, or null. */
+/**
+ * Solves f(rate) = 0 by bisection. The lower bound starts at -99.99% and moves
+ * toward 0 while f overflows there (long series make (1 + r)^-n huge), so long
+ * loans and 100+ period series still solve. Returns the rate as a fraction, or null.
+ */
 function solveRate(f: (r: number) => number): number | null {
   let lo = -0.9999;
+  while (!Number.isFinite(f(lo)) && lo < -1e-6) lo /= 2;
   let hi = 10_000;
   let flo = f(lo);
   const fhi = f(hi);
@@ -151,13 +156,26 @@ function solveRate(f: (r: number) => number): number | null {
   return (lo + hi) / 2;
 }
 
+/** Number of sign changes in a series (zeros skipped). More than one means IRR may not be unique. */
+export function signChanges(cashFlows: number[]): number {
+  let changes = 0;
+  let last = 0;
+  for (const cf of cashFlows.map(num)) {
+    if (cf === 0) continue;
+    if (last !== 0 && Math.sign(cf) !== Math.sign(last)) changes++;
+    last = cf;
+  }
+  return changes;
+}
+
 /**
  * Internal rate of return per period, in %. Needs at least one negative and
- * one positive flow. Null when no rate between -99.99% and 1,000,000% gives NPV 0.
+ * one positive flow and exactly one sign change (otherwise there may be several
+ * rates; use NPV instead). Null when no single rate gives NPV 0.
  */
 export function irr(cashFlows: number[]): number | null {
   const flows = cashFlows.map(num);
-  if (!flows.some((f) => f < 0) || !flows.some((f) => f > 0)) return null;
+  if (signChanges(flows) !== 1) return null;
   const r = solveRate((x) => flows.reduce((s, cf, t) => s + cf / Math.pow(1 + x, t), 0));
   return r === null ? null : r2(r * 100);
 }
@@ -168,11 +186,20 @@ export interface DatedFlow {
   amount: number;
 }
 
+/** Parses YYYY-MM-DD as UTC midnight; null for malformed or impossible dates such as 2026-02-30. */
+export function parseIsoDate(date: string): number | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date.trim());
+  if (!m) return null;
+  const t = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const d = new Date(t);
+  return d.getUTCFullYear() === Number(m[1]) && d.getUTCMonth() === Number(m[2]) - 1 && d.getUTCDate() === Number(m[3]) ? t : null;
+}
+
 /** Annualised return for irregular dated flows (same convention as spreadsheet XIRR, 365-day year). */
 export function xirr(flows: DatedFlow[]): number | null {
   const parsed = flows
-    .map((f) => ({ t: Date.parse(`${f.date}T00:00:00Z`), a: num(f.amount) }))
-    .filter((f) => Number.isFinite(f.t));
+    .map((f) => ({ t: parseIsoDate(f.date), a: num(f.amount) }))
+    .filter((f): f is { t: number; a: number } => f.t !== null);
   if (parsed.length < 2 || !parsed.some((f) => f.a < 0) || !parsed.some((f) => f.a > 0)) return null;
   const t0 = Math.min(...parsed.map((f) => f.t));
   const yearsOf = (t: number) => (t - t0) / (365 * 86_400_000);
@@ -336,7 +363,7 @@ export function rentVsBuy(input: RentVsBuyInput): RentVsBuyResult {
   const emi = n === 0 ? 0 : lr === 0 ? loan / n : (loan * lr) / (1 - Math.pow(1 + lr, -n));
   const months = Math.round(pos(input.years) * 12);
   const ir = num(input.investReturnPct) / 1200;
-  const hg = num(input.homeGrowthPct) / 100;
+  const hg = Math.max(-0.99, num(input.homeGrowthPct) / 100);
 
   let balance = loan;
   let rent = pos(input.monthlyRent);

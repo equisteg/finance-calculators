@@ -15,6 +15,8 @@ import {
   marginMarkup,
   monthlySavingForTarget,
   netWorth,
+  parseIsoDate,
+  signChanges,
   npv,
   percentChange,
   percentOf,
@@ -85,6 +87,33 @@ describe('NPV, IRR, XIRR', () => {
       { date: '2026-01-01', amount: 11_000 },
     ])).toBe(10);
     expect(xirr([{ date: '2025-01-01', amount: -1 }])).toBeNull();
+  });
+});
+
+describe('review fixes: long series, multiple sign changes, impossible dates', () => {
+  it('solves the true rate for 7, 20 and 30-year loans (bracket no longer overflows)', () => {
+    expect(effectiveLoanRatePct(100_000, 10, 7, 2_000)!).toBeGreaterThan(10.5);
+    expect(effectiveLoanRatePct(5_000_000, 8.5, 20, 0)).toBeCloseTo(8.5, 2);
+    expect(effectiveLoanRatePct(300_000, 6.5, 30, 0)).toBeCloseTo(6.5, 2);
+    expect(flatRateLoan(500_000, 7, 7).effectiveRatePct).not.toBeNull();
+  });
+  it('IRR works over 100 periods', () => {
+    const flows = [-1_000, ...Array(100).fill(100)];
+    const rate = irr(flows)!;
+    expect(rate).toBeCloseTo(9.99, 1);
+  });
+  it('IRR refuses to pick one answer when the sign changes twice', () => {
+    expect(signChanges([-100, 230, -132])).toBe(2);
+    expect(irr([-100, 230, -132])).toBeNull();
+  });
+  it('rejects impossible dates', () => {
+    expect(parseIsoDate('2026-02-30')).toBeNull();
+    expect(parseIsoDate('2026-13-01')).toBeNull();
+    expect(parseIsoDate('2024-02-29')).not.toBeNull();
+  });
+  it('rent vs buy survives a -100% home price change', () => {
+    const r = rentVsBuy({ homePrice: 1, downPayment: 0, loanRatePct: 0, loanYears: 1, buyingCostsPct: 0, ownershipCostsPct: 0, homeGrowthPct: -150, monthlyRent: 1, rentGrowthPct: 0, investReturnPct: 0, years: 1, sellingCostsPct: 0 });
+    expect(Number.isFinite(r.buyerWealth)).toBe(true);
   });
 });
 

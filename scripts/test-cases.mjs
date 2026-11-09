@@ -151,6 +151,9 @@ const rows = [
   ['TC-089', m('REQ-020'), B, X, 'Thresholds', 'Compute at the edges', 'AU A$18,000; CA C$300,000', 'AU total tax 0; CA basic personal amount falls to the minimum 14,829', 'P2', `Y — ${FC}world.test.ts`],
   ['TC-090', m('REQ-021'), W, N, 'Pricing, box unticked', 'Try to click Buy', '—', 'Button is disabled with the hint "Tick the box above the plans first"; checkout does not open', 'P1', `Y — ${E2E}product.spec.ts FH-15`],
   ['TC-091', m('REQ-021'), W, X, 'Pro already active', 'Open /pricing/', 'test token', 'No acknowledgement box; buttons read "Pro is active"', 'P3', 'N — manual (needs a test-key build)'],
+  ['TC-092', m('REQ-019'), B, X, 'True cost / flat-rate / IRR tools', 'Long series', '7, 20, 30-year loans; 100-period IRR', 'A rate is always found (no "Check the inputs")', 'P1', `Y — ${FC}tools.test.ts`],
+  ['TC-093', m('REQ-019'), B, N, 'NPV / XIRR tools', 'Paste Indian-style amounts, a blank first line, a junk line and 2026-02-30', '-1,00,000 / "xyz" / 2026-02-30', 'Amounts read whole; the bad lines are named in a note and left out', 'P1', `Y — ${WL}toolCatalog.test.ts`],
+  ['TC-094', m('REQ-019'), B, X, 'NPV / IRR tool', 'Flows that change sign twice', '-100, 230, -132', 'IRR shows "More than one IRR possible: use NPV"', 'P2', `Y — ${WL}toolCatalog.test.ts`],
 ];
 
 // Non-functional requirements with measurable thresholds (template rule: every NFR has rows).

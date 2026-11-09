@@ -32,6 +32,8 @@ import {
   netWorth,
   newZealandTax,
   npv,
+  parseIsoDate,
+  signChanges,
   percentChange,
   percentOf,
   RATES_LAST_CHECKED,
@@ -110,11 +112,41 @@ const n = (v: Values, k: string) => {
   return Number.isFinite(x) ? x : 0;
 };
 const yrs = (m: number | null) => (m === null ? 'Never at this payment' : m < 12 ? `${m} months` : `${Math.floor(m / 12)} yr ${m % 12} mo`);
-const parseList = (s: string) =>
-  s
-    .split(/[\s,;]+/)
-    .map((x) => Number(x))
-    .filter((x) => Number.isFinite(x));
+/** "1,00,000" / "100 000" / "-10,000.50" -> number; null if it is not a number. */
+export const parseAmount = (s: string): number | null => {
+  const t = s.trim().replace(/[,\s_]/g, '');
+  if (!/^[-+]?\d*\.?\d+$/.test(t)) return null;
+  return Number(t);
+};
+
+/** One amount per line (or separated by ";"). Grouping commas inside a number are allowed. */
+export const parseFlows = (s: string) => {
+  const lines = s.split(/[\n;]+/).map((l) => l.trim()).filter(Boolean);
+  const bad: number[] = [];
+  const flows: number[] = [];
+  lines.forEach((l, i) => {
+    const v = parseAmount(l);
+    if (v === null) bad.push(i + 1);
+    else flows.push(v);
+  });
+  return { flows, bad };
+};
+
+/** One "YYYY-MM-DD, amount" per line; only the first comma splits date from amount. */
+export const parseDatedFlows = (s: string) => {
+  const lines = s.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+  const bad: number[] = [];
+  const flows: Array<{ date: string; amount: number }> = [];
+  lines.forEach((l, i) => {
+    const cut = l.indexOf(',');
+    const date = cut < 0 ? '' : l.slice(0, cut).trim();
+    const amount = cut < 0 ? null : parseAmount(l.slice(cut + 1));
+    if (amount === null || parseIsoDate(date) === null) bad.push(i + 1);
+    else flows.push({ date, amount });
+  });
+  return { flows, bad };
+};
+const badNote = (bad: number[]) => (bad.length ? `Line${bad.length > 1 ? 's' : ''} ${bad.join(', ')} not understood and left out.` : undefined);
 
 export const CHECKED_LABEL = new Date(`${RATES_LAST_CHECKED}T00:00:00Z`).toLocaleDateString('en-GB', {
   day: 'numeric',
@@ -331,7 +363,9 @@ export const TOOLS: ToolDef[] = [
     compute: (v, f) => {
       const r = creditCardPayoff(n(v, 'b'), n(v, 'apr'), n(v, 'pay'));
       if (r.months === null)
-        return { rows: [{ label: 'Paid off in', value: 'Never', tone: 'bad', sub: `Pay more than ${f.money(r.minimumToMakeProgress)} a month to reduce the balance` }] };
+        return n(v, 'pay') >= r.minimumToMakeProgress
+          ? { rows: [{ label: 'Paid off in', value: 'More than 50 years', tone: 'bad', sub: 'Pay more each month to clear it sooner' }] }
+          : { rows: [{ label: 'Paid off in', value: 'Never', tone: 'bad', sub: `Pay more than ${f.money(r.minimumToMakeProgress)} a month to reduce the balance` }] };
       return {
         rows: [
           { label: 'Paid off in', value: yrs(r.months), tone: 'ok' },
@@ -538,7 +572,7 @@ export const TOOLS: ToolDef[] = [
       { key: 'basic', label: 'Basic + DA (year)', def: 600_000 },
       { key: 'hra', label: 'HRA received (year)', def: 240_000 },
       { key: 'rent', label: 'Rent paid (year)', def: 300_000 },
-      { key: 'metro', label: '50% city (Delhi, Mumbai, Kolkata, Chennai)', kind: 'toggle', def: true, hint: 'Check whether your city is on the current notified list' },
+      { key: 'metro', label: 'I live in a city where 50% of basic applies', kind: 'toggle', def: true, hint: 'Delhi, Mumbai, Kolkata and Chennai. The Income-tax Rules under the Income-tax Act 2025 may add Bengaluru, Hyderabad, Pune and Ahmedabad from tax year 2026-27: check the notified list.' },
     ],
     compute: (v, f) => {
       const r = indiaHraExemption(n(v, 'basic'), n(v, 'hra'), n(v, 'rent'), v.metro === true);
@@ -636,7 +670,7 @@ export const TOOLS: ToolDef[] = [
     },
     source: 'ATO resident rates from 1 July 2026 (15% / 30% / 37% / 45%), low income tax offset, 2% Medicare levy with low-income shade-in.',
     official: { label: 'ATO simple tax calculator', url: 'https://www.ato.gov.au/calculators-and-tools/simple-tax-calculator' },
-    limits: 'Residents for the full year only. Excludes the Medicare levy surcharge, HELP/student loan repayments, family thresholds and other offsets. Super is paid on top by the employer.',
+    limits: 'Residents for the full year only. The Medicare low-income threshold used ($27,222) is the latest legislated single figure and is usually raised each year. Excludes the Medicare levy surcharge, HELP/student loan repayments, family thresholds and other offsets. Super is paid on top by the employer.',
   },
   {
     slug: 'canada-income-tax-calculator',
@@ -648,7 +682,7 @@ export const TOOLS: ToolDef[] = [
     statutory: true,
     fields: [
       { key: 'g', label: 'Employment income (year)', def: 75_000 },
-      { key: 'p', label: 'Provincial tax rate', def: 6, suffix: '%', hint: 'Flat estimate of your provincial rate' },
+      { key: 'p', label: 'Average provincial tax rate', def: 5, suffix: '%', hint: 'Your provincial tax ÷ income, after provincial credits (often 3-8%). Not the top bracket rate.' },
     ],
     compute: (v, f) => {
       const r = canadaTax(n(v, 'g'), n(v, 'p'));
@@ -687,6 +721,7 @@ export const TOOLS: ToolDef[] = [
           { label: 'Income tax', value: f.money(r.incomeTax) },
           { label: 'Employee CPF', value: f.money(r.cpfEmployee) },
           { label: 'Chargeable income', value: f.money(r.chargeableIncome) },
+          { label: 'Income-tax rate', value: f.pct(r.effectiveRatePct), sub: 'tax ÷ salary, excluding CPF' },
         ],
       };
     },
@@ -757,7 +792,7 @@ export const TOOLS: ToolDef[] = [
       { key: 'amt', label: 'Amount (in that country’s currency)', def: 1_000 },
       { key: 'incl', label: 'Amount already includes tax', kind: 'toggle', def: false },
     ],
-    compute: (v, f) => {
+    compute: (v) => {
       const c = WORLD_VAT_RATES[String(v.c)] ?? WORLD_VAT_RATES.GB;
       const r = consumptionTax(n(v, 'amt'), c.rate, v.incl === true);
       // Shown without a currency symbol: the amount is in the chosen country's currency.
@@ -954,17 +989,23 @@ export const TOOLS: ToolDef[] = [
     category: 'Business',
     region: 'Global',
     fields: [
-      { key: 'flows', label: 'Cash flows, one per year (first = today)', kind: 'text', def: '-10000, 3000, 4000, 4000, 3000', hint: 'Use a minus sign for money going out' },
+      { key: 'flows', label: 'Cash flows, one per line, one line per year (first = today)', kind: 'text', def: '-10,000\n3,000\n4,000\n4,000\n3,000', hint: 'Minus sign for money going out. Commas inside numbers are fine.' },
       { key: 'r', label: 'Discount rate', def: 8, suffix: '%' },
     ],
     compute: (v, f) => {
-      const flows = parseList(String(v.flows));
+      const { flows, bad } = parseFlows(String(v.flows));
       const value = npv(n(v, 'r'), flows);
+      const rate = irr(flows);
+      const changes = signChanges(flows);
       return {
         rows: [
           { label: 'NPV', value: f.money(value, 2), tone: value >= 0 ? 'ok' : 'bad' },
-          { label: 'IRR', value: irr(flows) === null ? 'Needs money out and money in' : f.pct(irr(flows)) },
+          {
+            label: 'IRR',
+            value: rate !== null ? f.pct(rate) : changes === 0 ? 'Needs money out and money in' : changes > 1 ? 'More than one IRR possible: use NPV' : 'No single rate found',
+          },
         ],
+        note: badNote(bad),
       };
     },
     source: 'NPV = Σ CFₜ ÷ (1 + r)ᵗ; IRR is the rate that makes NPV zero (solved numerically).',
@@ -978,17 +1019,16 @@ export const TOOLS: ToolDef[] = [
     fields: [
       {
         key: 'rows', label: 'One line per cash flow: date, amount', kind: 'text',
-        def: '2023-01-01, -10000\n2024-01-01, -10000\n2026-11-01, 24500', hint: 'Invested amounts are negative; today’s value is positive',
+        def: '2023-01-01, -10,000\n2024-01-01, -10,000\n2026-11-01, 24,500', hint: 'Dates as YYYY-MM-DD. Invested amounts are negative; today’s value is positive.',
       },
     ],
     compute: (v, f) => {
-      const flows = String(v.rows)
-        .split(/\n+/)
-        .map((line) => line.split(','))
-        .filter((p) => p.length >= 2)
-        .map((p) => ({ date: p[0].trim(), amount: Number(p[1].trim()) }));
+      const { flows, bad } = parseDatedFlows(String(v.rows));
       const r = xirr(flows);
-      return { rows: [{ label: 'XIRR', value: r === null ? 'Needs at least one negative and one positive dated amount' : f.pct(r), tone: 'ok' }] };
+      return {
+        rows: [{ label: 'XIRR', value: r === null ? 'Needs at least one negative and one positive dated amount' : f.pct(r), tone: 'ok' }],
+        note: badNote(bad),
+      };
     },
     source: 'Same method as spreadsheet XIRR: Σ CFᵢ ÷ (1 + r)^(days ÷ 365) = 0.',
   },

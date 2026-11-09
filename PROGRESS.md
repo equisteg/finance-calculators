@@ -11,7 +11,7 @@
 | 4b Payments | ✅ code / ⏳ live | `apps/api` (Razorpay + Play verify); live keys NEEDS HUMAN |
 | 5 SEO | ✅ basic | metadata, canonical, robots, sitemap, JSON-LD |
 | 6 Security | ✅ CI | secret guards, Gitleaks, Semgrep, OSV in `ci.yml` |
-| 7 Testing | ✅ | 91 cases + 13 NFRs (`tests/cases/test-cases.xlsx`), unit + E2E automation |
+| 7 Testing | ✅ | 94 cases + 13 NFRs (`tests/cases/test-cases.xlsx`), unit + E2E automation |
 | 8 Performance | ⏳ | Lighthouse/k6 configs copied; routes to tune |
 | 9 Release | ⏳ | `docs/USER_MANUAL.md`; Play listing pending |
 

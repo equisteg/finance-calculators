@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { formatMoney } from '@finealth/finance-core';
-import { TOOLS, CATEGORIES, type Fmt, type Values } from './toolCatalog';
+import { TOOLS, CATEGORIES, TOOL_BY_SLUG, parseAmount, parseDatedFlows, parseFlows, type Fmt, type Values } from './toolCatalog';
 
 const fmt = (currency: string): Fmt => ({
   money: (n, d = 0) => formatMoney(n, currency, d),
@@ -44,5 +44,26 @@ describe('tools library', () => {
       const r = t.compute(junk, fmt(t.currency ?? 'USD'));
       for (const row of r.rows) expect(row.value).not.toMatch(/NaN|Infinity|undefined/);
     }
+  });
+});
+
+describe('cash-flow parsing (review fix)', () => {
+  it('keeps grouping commas inside numbers, including Indian style', () => {
+    expect(parseAmount('-1,00,000')).toBe(-100000);
+    expect(parseAmount('10 000.5')).toBe(10000.5);
+    expect(parseAmount('abc')).toBeNull();
+    expect(parseFlows('\n-10,000\n3,000;4,000\n').flows).toEqual([-10000, 3000, 4000]);
+    expect(parseFlows('-10,000\nabc\n3,000').bad).toEqual([2]);
+  });
+  it('splits dated lines on the first comma only and reports bad lines', () => {
+    const r = parseDatedFlows('2023-01-01, -1,00,000\n2026-02-30, 5\n2026-01-01, 1,20,000');
+    expect(r.flows).toEqual([{ date: '2023-01-01', amount: -100000 }, { date: '2026-01-01', amount: 120000 }]);
+    expect(r.bad).toEqual([2]);
+  });
+  it('NPV tool tells the user about lines it skipped and about multiple IRRs', () => {
+    const t = TOOL_BY_SLUG['npv-irr-calculator'];
+    const out = t.compute({ flows: '-100\n230\n-132\nxyz', r: 10 }, fmt('USD'));
+    expect(out.note).toMatch(/Line 4/);
+    expect(out.rows[1].value).toMatch(/More than one IRR/);
   });
 });
