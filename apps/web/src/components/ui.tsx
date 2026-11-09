@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useId, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { formatMoney } from '@finealth/finance-core';
 import { useCurrency } from '@/app/context/CurrencyContext';
 import AdSenseBanner from './AdSenseBanner';
@@ -21,7 +21,82 @@ export function useMoney(): { currency: ToolCurrency; money: Money } {
   return { currency, money: (n: number) => formatMoney(n, currency) };
 }
 
-/** Frame for every planning tool: heading, the tool, the disclaimer, then one ad slot below the result. */
+export interface Kpi {
+  label: string;
+  value: string;
+  tone?: 'ok' | 'bad' | 'pro';
+}
+
+/**
+ * Closes the gaps at the end of grid rows: for every `.fieldgrid` and `.fitgrid` inside `root`, picks the column count
+ * that leaves the fewest empty cells and stretches the last item of each run across what is left.
+ */
+export function fitRows(root: ParentNode): void {
+  root.querySelectorAll<HTMLElement>('.fieldgrid, .fitgrid').forEach((el) => {
+    const kids = Array.from(el.children) as HTMLElement[];
+    kids.forEach((c) => {
+      if (c.dataset.fit) {
+        c.style.gridColumn = '';
+        delete c.dataset.fit;
+      }
+    });
+    el.style.gridTemplateColumns = '';
+    if (!kids.length) return;
+    const css = getComputedStyle(el);
+    const tracks = css.gridTemplateColumns.split(' ').filter(Boolean);
+    const max = Math.max(1, tracks.length);
+    const full = (c: HTMLElement) => getComputedStyle(c).gridColumnStart === '1' && getComputedStyle(c).gridColumnEnd === '-1';
+    const stretch = (run: HTMLElement[], cols: number) => {
+      const spare = (cols - (run.length % cols)) % cols;
+      if (run.length && spare) {
+        const last = run[run.length - 1];
+        last.style.gridColumn = `span ${spare + 1}`;
+        last.dataset.fit = '1';
+      }
+    };
+    if (kids.some(full)) {
+      let run: HTMLElement[] = [];
+      for (const c of kids) {
+        if (full(c)) {
+          stretch(run, max);
+          run = [];
+        } else run.push(c);
+      }
+      stretch(run, max);
+      return;
+    }
+    const rows = Math.ceil(kids.length / max);
+    const cols = Math.ceil(kids.length / rows);
+    el.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+    stretch(kids, cols);
+  });
+}
+
+function useFitRows() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = ref.current;
+    if (!root || typeof ResizeObserver === 'undefined') return;
+    let raf = 0;
+    const run = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => fitRows(root));
+    };
+    const ro = new ResizeObserver(run);
+    ro.observe(root);
+    const mo = new MutationObserver(run);
+    mo.observe(root, { childList: true, subtree: true });
+    run();
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      mo.disconnect();
+    };
+  }, []);
+  return ref;
+}
+
+/** Frame for every planning tool: heading with key figures, the tool, the disclaimer, then one ad slot below the result. */
 export function ToolPage(props: {
   eyebrow: string;
   title: string;
@@ -29,10 +104,12 @@ export function ToolPage(props: {
   children: ReactNode;
   actions?: ReactNode;
   icon?: { name: GlyphName; tone: Tone };
+  kpis?: Kpi[];
 }) {
+  const ref = useFitRows();
   return (
-    <div className="fade-up">
-      <div className="glass glass-strong p-5 sm:p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-5">
+    <div className="fade-up" ref={ref}>
+      <div className="tool-head glass glass-strong p-5 sm:p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="flex items-start gap-4 min-w-0">
           {props.icon && (
             <span className="hidden sm:inline-grid shrink-0">
@@ -45,7 +122,21 @@ export function ToolPage(props: {
             <div className="text-zinc-400 mt-2 max-w-2xl leading-relaxed">{props.intro}</div>
           </div>
         </div>
-        {props.actions && <div className="no-print flex flex-wrap gap-2 md:justify-end shrink-0">{props.actions}</div>}
+        {(props.actions || props.kpis?.length) && (
+          <div className="flex flex-col gap-3 md:items-end md:w-[min(26rem,45%)] shrink-0 min-w-0">
+            {props.kpis && props.kpis.length > 0 && (
+              <div className="kpis fitgrid w-full" data-testid="tool-kpis">
+                {props.kpis.map((k) => (
+                  <div key={k.label} className={`kpi ${k.tone ?? ''}`}>
+                    <span className="kpi-label">{k.label}</span>
+                    <b>{k.value}</b>
+                  </div>
+                ))}
+              </div>
+            )}
+            {props.actions && <div className="no-print flex flex-wrap gap-2 md:justify-end">{props.actions}</div>}
+          </div>
+        )}
       </div>
       {props.children}
       <Disclaimer />

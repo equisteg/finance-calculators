@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useAdsAllowed } from './ProProvider';
+import { SHOW_AD_PLACEHOLDERS } from '@/lib/ads';
 
 interface AdSenseBannerProps {
   client: string;
@@ -33,7 +34,17 @@ export default function AdSenseBanner({ client, slot, format = 'auto', responsiv
     }
   }, [slot, allowed]);
 
-  if (!slot || !allowed) return null;
+  if (!allowed) return null;
+  if (!slot) {
+    // No ad unit yet: show where the ad goes on dev and staging builds only, never on production.
+    if (!SHOW_AD_PLACEHOLDERS) return null;
+    return (
+      <aside className={`no-print ad-placeholder my-6 ${className}`} aria-label="Advertisement" data-testid="ad-placeholder">
+        <b>Advertisement</b>
+        <span>An AdSense unit shows here once its slot id is set. Free plan only; Pro loads no ads.</span>
+      </aside>
+    );
+  }
 
   return (
     <div className={`no-print overflow-hidden text-center my-6 min-h-[100px] ${className}`} aria-label="Advertisement">

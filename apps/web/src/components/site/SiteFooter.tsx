@@ -4,7 +4,7 @@ import { Logo } from './SiteHeader';
 
 export function SiteFooter() {
   return (
-    <footer className="no-print mt-16 pb-10 text-sm text-zinc-400">
+    <footer className="no-print mt-4 sm:mt-6 pb-10 text-sm text-zinc-400">
       <div className="wrap"><div className="glass p-6 sm:p-8 grid gap-8 grid-cols-2 md:grid-cols-[2fr_1fr_1fr]">
         <div className="grid gap-3 col-span-2 md:col-span-1 content-start">
           <Logo />

@@ -63,6 +63,11 @@ export function DebtPlanner() {
       icon={AREA_ICON['/debt-payoff/']}
       eyebrow="Snowball vs avalanche · month by month"
       title="Debt Payoff Planner"
+      kpis={[
+        { label: 'Total owed', value: money(active.reduce((sum, d) => sum + d.balance, 0)) },
+        { label: 'Debt-free in', value: chosen.feasible ? months(chosen.months) : 'Not yet', tone: chosen.feasible ? 'ok' : 'bad' },
+        { label: 'Monthly budget', value: money(budget) },
+      ]}
       intro="Add your debts and what you can pay each month. See your debt-free date, the interest you save, and which order clears them fastest."
       actions={
         isPro ? (

@@ -17,10 +17,12 @@
 
 ## NEEDS HUMAN
 1. Create `development`, `staging`, `production` branches and make `development` the default (repo has only `main`).
-2. Razorpay: live keys, yearly plans (₹399 / US$14.99), website review (Terms, Privacy, Refund, Contact are live on the site), international payments for USD.
+2. Razorpay: live keys, yearly plans (₹199 / US$7.99), website review (Terms, Privacy, Refund, Contact are live on the site), international payments for USD.
 3. Generate the licence key pair (`npm run licence:keys`) and set `LICENCE_SIGNING_KEY` (Worker secret) and `NEXT_PUBLIC_LICENCE_PUBLIC_KEY`.
 4. Buy the product domain in the company Cloudflare account; set `CANONICAL_HOST` and `NEXT_PUBLIC_SITE_URL`.
 5. Set `NEXT_PUBLIC_BUSINESS_ADDRESS` and confirm the support email.
 6. GST invoicing for web sales (Razorpay is not a merchant of record).
 7. Legal review of Privacy, Terms and Refund pages (Terms rewritten 9 Nov 2026 with stronger no-advice, accuracy and liability wording; still needs a lawyer, RSK-006).
+9. AdSense: create four display ad units (Ads → By ad unit → Display ads) named finealth-top, finealth-mid, finealth-bottom, finealth-calculator; put their slot ids in `NEXT_PUBLIC_ADSENSE_SLOT_TOP/MID/BOTTOM/CALCULATOR` (GitHub → Settings → Secrets and variables → Actions → Variables) and redeploy. Until then no ads show on the live site. Set `NEXT_PUBLIC_AD_PLACEHOLDERS=1` on dev/staging only.
+10. Play Console: set the new prices (monthly ₹29 / US$0.99, yearly ₹199 / US$7.99, lifetime ₹499 / US$19.99) to match `apps/api/src/config/skus.ts`.
 8. Yearly: re-check every statutory rate in `packages/finance-core/src/finance.ts` and `world.ts` after each country's budget and update `RATES_LAST_CHECKED` (RSK-005).

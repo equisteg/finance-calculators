@@ -22,6 +22,11 @@ export function PrepaymentTool() {
       icon={AREA_ICON['/loan-prepayment/']}
       eyebrow="Reduce tenure or reduce EMI?"
       title="Loan Prepayment Optimiser"
+      kpis={[
+        { label: 'EMI now', value: money(r.emi) },
+        { label: 'Best saving', value: money(Math.max(r.reduceTenure.interestSaved, r.reduceEmi.interestSaved)), tone: 'ok' },
+        { label: 'Better choice', value: r.better === 'reduceTenure' ? 'Shorter loan' : 'Lower EMI' },
+      ]}
       intro="Paying part of a loan early? Compare keeping your EMI and finishing sooner with keeping the end date and paying less each month."
     >
       <div className="grid gap-6 items-start">

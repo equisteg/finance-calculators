@@ -15,3 +15,7 @@ export const AD_SLOTS = {
   bottom: process.env.NEXT_PUBLIC_ADSENSE_SLOT_BOTTOM ?? '',
   calculator: process.env.NEXT_PUBLIC_ADSENSE_SLOT_CALCULATOR ?? '',
 } as const;
+
+/** Dev and staging builds show a labelled box where each ad goes until its slot id is set. Never set on production. */
+export const SHOW_AD_PLACEHOLDERS =
+  process.env.NEXT_PUBLIC_AD_PLACEHOLDERS === '1' || process.env.NODE_ENV === 'development';

@@ -61,7 +61,7 @@ function ToolBody({ slug }: { slug: string }) {
   }
 
   return (
-    <ToolPage eyebrow={`${def.region} · ${def.category}`} title={def.title} intro={def.summary} icon={toolIcon(def.slug, def.category)}>
+    <ToolPage eyebrow={`${def.region} · ${def.category}`} title={def.title} intro={def.summary} icon={toolIcon(def.slug, def.category)} kpis={result.rows.slice(0, 2).map((x) => ({ label: x.label, value: x.value, tone: x.tone === 'ok' ? 'ok' : undefined }))}>
       <div className="grid gap-6 items-start">
         <div className="grid gap-3 content-start">
         <Panel title="Your numbers">
@@ -129,7 +129,7 @@ function ToolBody({ slug }: { slug: string }) {
 
         <div className="grid gap-4 content-start scroll-mt-32" id="tool-result">
           <Panel title="Result" testId="tool-result">
-            <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(10rem,100%),1fr))]">
+            <div className="fitgrid grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(10rem,100%),1fr))]">
               {result.rows.map((r, i) => (
                 <Stat key={r.label} label={r.label} value={r.value} tone={r.tone} sub={r.sub} testId={i === 0 ? 'tool-primary' : undefined} />
               ))}

@@ -14,9 +14,9 @@ export const CURRENCIES = ['INR', 'USD'] as const;
 export type Currency = (typeof CURRENCIES)[number];
 
 export const SKUS: Record<WebPlan, { description: string; price: Record<Currency, number> }> = {
-  pro_lifetime: { description: 'Finealth Pro, lifetime', price: { INR: 99900, USD: 2900 } },
-  // ₹399 / US$14.99 per year: shown at checkout; the Razorpay plan does the actual charging.
-  pro_yearly: { description: 'Finealth Pro, yearly', price: { INR: 39900, USD: 1499 } },
+  pro_lifetime: { description: 'Finealth Pro, lifetime', price: { INR: 49900, USD: 1999 } },
+  // ₹199 / US$7.99 per year: shown at checkout; the Razorpay plan does the actual charging.
+  pro_yearly: { description: 'Finealth Pro, yearly', price: { INR: 19900, USD: 799 } },
 };
 
 /** Notes put on every order and subscription; verify refuses anything without them. */

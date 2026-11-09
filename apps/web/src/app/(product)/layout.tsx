@@ -7,7 +7,7 @@ export default function ProductLayout({ children }: { children: React.ReactNode 
     <div className="min-h-screen text-zinc-100">
       <SiteHeader />
       <ProNotice />
-      <main className="wrap py-8 sm:py-12">{children}</main>
+      <main className="wrap pt-8 pb-4 sm:pt-12 sm:pb-6">{children}</main>
       <SiteFooter />
     </div>
   );

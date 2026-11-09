@@ -35,14 +35,14 @@ export interface PlanPrice {
   inr: string;
   intl: string;
   note: string;
-  /** Monthly is sold only on Google Play: fixed web checkout fees would eat most of a ₹49 sale. */
+  /** Monthly is sold only on Google Play: fixed web checkout fees would eat most of a ₹29 sale. */
   androidOnly?: boolean;
 }
 
 export const PLAN_PRICES: PlanPrice[] = [
-  { plan: 'pro_monthly', label: 'Monthly', inr: '₹49', intl: 'US$1.99', note: 'per month, cancel any time', androidOnly: true },
-  { plan: 'pro_yearly', label: 'Yearly', inr: '₹399', intl: 'US$14.99', note: 'per year · about ₹33 a month' },
-  { plan: 'pro_lifetime', label: 'Lifetime', inr: '₹999', intl: 'US$29', note: 'one payment, yours forever' },
+  { plan: 'pro_monthly', label: 'Monthly', inr: '₹29', intl: 'US$0.99', note: 'per month, cancel any time', androidOnly: true },
+  { plan: 'pro_yearly', label: 'Yearly', inr: '₹199', intl: 'US$7.99', note: 'per year · about ₹17 a month' },
+  { plan: 'pro_lifetime', label: 'Lifetime', inr: '₹499', intl: 'US$19.99', note: 'one payment, yours forever' },
 ];
 
 /** How many items a free user may use; Pro has no limit. */

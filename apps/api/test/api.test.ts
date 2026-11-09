@@ -102,7 +102,7 @@ const payment = (over: Record<string, unknown> = {}) => ({
   id: PAY,
   entity: 'payment',
   status: 'captured',
-  amount: 99900,
+  amount: 49900,
   currency: 'INR',
   order_id: ORDER,
   amount_refunded: 0,
@@ -115,7 +115,7 @@ const order = (over: Record<string, unknown> = {}) => ({
   id: ORDER,
   entity: 'order',
   status: 'paid',
-  amount: 99900,
+  amount: 49900,
   currency: 'INR',
   notes: { product: 'finealth', plan: 'pro_lifetime' },
   ...over,
@@ -270,25 +270,25 @@ describe('POST /api/v1/checkout (Razorpay)', () => {
     const res = await post('/api/v1/checkout', { plan: 'pro_lifetime', currency: 'INR', amount: 100 });
     expect(res.status).toBe(200);
     const text = await res.text();
-    expect(JSON.parse(text)).toEqual({ provider: 'razorpay', keyId: KEY_ID, plan: 'pro_lifetime', currency: 'INR', amount: 99900, orderId: ORDER, name: 'Finealth', description: 'Finealth Pro, lifetime' });
+    expect(JSON.parse(text)).toEqual({ provider: 'razorpay', keyId: KEY_ID, plan: 'pro_lifetime', currency: 'INR', amount: 49900, orderId: ORDER, name: 'Finealth', description: 'Finealth Pro, lifetime' });
     expect(text).not.toContain(KEY_SECRET);
     const sent = JSON.parse(String((calls('POST', '/orders')[0]![1] as RequestInit).body));
-    expect(sent).toMatchObject({ amount: 99900, currency: 'INR', notes: { product: 'finealth', plan: 'pro_lifetime' } });
+    expect(sent).toMatchObject({ amount: 49900, currency: 'INR', notes: { product: 'finealth', plan: 'pro_lifetime' } });
     expect(sent.receipt).toMatch(/^fh-[0-9a-f]{24}$/);
     expect(logs.join('\n')).not.toContain(KEY_SECRET);
   });
 
-  it('lifetime in USD → 2900 cents', async () => {
+  it('lifetime in USD → 1999 cents', async () => {
     rz({ 'POST /orders': { id: ORDER } });
     const res = await post('/api/v1/checkout', { plan: 'pro_lifetime', currency: 'USD' });
-    expect(await res.json()).toMatchObject({ amount: 2900, currency: 'USD', orderId: ORDER });
-    expect(JSON.parse(String((calls('POST', '/orders')[0]![1] as RequestInit).body))).toMatchObject({ amount: 2900, currency: 'USD' });
+    expect(await res.json()).toMatchObject({ amount: 1999, currency: 'USD', orderId: ORDER });
+    expect(JSON.parse(String((calls('POST', '/orders')[0]![1] as RequestInit).body))).toMatchObject({ amount: 1999, currency: 'USD' });
   });
 
   it('yearly → subscription from the configured plan id (TC-A-008)', async () => {
     rz({ 'POST /subscriptions': { id: SUB, status: 'created' } });
     const inr = await post('/api/v1/checkout', { plan: 'pro_yearly', currency: 'INR' });
-    expect(await inr.json()).toEqual({ provider: 'razorpay', keyId: KEY_ID, plan: 'pro_yearly', currency: 'INR', amount: 39900, subscriptionId: SUB, name: 'Finealth', description: 'Finealth Pro, yearly' });
+    expect(await inr.json()).toEqual({ provider: 'razorpay', keyId: KEY_ID, plan: 'pro_yearly', currency: 'INR', amount: 19900, subscriptionId: SUB, name: 'Finealth', description: 'Finealth Pro, yearly' });
     expect(JSON.parse(String((calls('POST', '/subscriptions')[0]![1] as RequestInit).body))).toEqual({
       plan_id: PLAN_INR,
       total_count: 10,
@@ -409,7 +409,7 @@ describe('POST /api/v1/checkout/confirm', () => {
     rz({
       [`GET /subscriptions/${SUB}`]: subscription(),
       [`GET /invoices?subscription_id=${SUB}`]: { items: [] }, // the first invoice may not be listed yet
-      [`GET /payments/${FIRST_PAY}`]: payment({ id: FIRST_PAY, amount: 39900, order_id: null, notes: [] }),
+      [`GET /payments/${FIRST_PAY}`]: payment({ id: FIRST_PAY, amount: 19900, order_id: null, notes: [] }),
     });
     const res = await post('/api/v1/checkout/confirm', { razorpay_payment_id: FIRST_PAY, razorpay_subscription_id: SUB, razorpay_signature: await hmac(`${FIRST_PAY}|${SUB}`) });
     expect(res.status).toBe(200);
@@ -427,7 +427,7 @@ describe('POST /api/v1/checkout/confirm', () => {
     expect(res.status).toBe(200);
     const cap = calls('POST', `/payments/${PAY}/capture`);
     expect(cap).toHaveLength(1);
-    expect(JSON.parse(String((cap[0]![1] as RequestInit).body))).toEqual({ amount: 99900, currency: 'INR' });
+    expect(JSON.parse(String((cap[0]![1] as RequestInit).body))).toEqual({ amount: 49900, currency: 'INR' });
     expect(patched(`/payments/${PAY}`)).toBe(1);
   });
 
@@ -530,8 +530,8 @@ describe('POST /api/v1/licence/verify — lifetime (pay_…)', () => {
     expect(await claimsOf(res)).toMatchObject({ plan: 'pro_lifetime' });
   });
 
-  it('USD lifetime at 2900 cents is valid', async () => {
-    rz(life({ amount: 2900, currency: 'USD' }, { amount: 2900, currency: 'USD' }));
+  it('USD lifetime at 1999 cents is valid', async () => {
+    rz(life({ amount: 1999, currency: 'USD' }, { amount: 1999, currency: 'USD' }));
     expect((await post('/api/v1/licence/verify', { key: PAY })).status).toBe(200);
   });
 
@@ -557,7 +557,7 @@ describe('POST /api/v1/licence/verify — lifetime (pay_…)', () => {
 
   it('refunded (full, partial, status refunded) → 403 refunded (TC-A-012)', async () => {
     for (const over of [
-      { status: 'refunded', amount_refunded: 99900, refund_status: 'full' },
+      { status: 'refunded', amount_refunded: 49900, refund_status: 'full' },
       { amount_refunded: 100, refund_status: 'partial' },
       { amount_refunded: 1 },
       { refund_status: 'partial' },
@@ -722,7 +722,7 @@ describe('POST /api/v1/licence/verify — lifetime (pay_…)', () => {
 });
 
 describe('POST /api/v1/licence/verify — yearly (sub_…)', () => {
-  const subPayment = (over: Record<string, unknown> = {}) => payment({ id: FIRST_PAY, amount: 39900, order_id: null, invoice_id: 'inv_First1234567', notes: [], ...over });
+  const subPayment = (over: Record<string, unknown> = {}) => payment({ id: FIRST_PAY, amount: 19900, order_id: null, invoice_id: 'inv_First1234567', notes: [], ...over });
   const subRoutes = (s: Record<string, unknown> = {}, p: Record<string, unknown> = {}) => ({
     [`GET /subscriptions/${SUB}`]: subscription(s),
     [`GET /invoices?subscription_id=${SUB}`]: { items: [{ status: 'paid', payment_id: FIRST_PAY, paid_at: now() - 60 }] },
@@ -780,7 +780,7 @@ describe('POST /api/v1/licence/verify — yearly (sub_…)', () => {
 
   it('latest paid charge refunded (full / partial / status) → 403 refunded even while the subscription is active (PAY-2)', async () => {
     const LATER = 'pay_SubSecond1234A';
-    for (const over of [{ status: 'refunded', amount_refunded: 39900, refund_status: 'full' }, { amount_refunded: 100 }, { refund_status: 'partial' }]) {
+    for (const over of [{ status: 'refunded', amount_refunded: 19900, refund_status: 'full' }, { amount_refunded: 100 }, { refund_status: 'partial' }]) {
       rz({
         ...subRoutes(),
         [`GET /invoices?subscription_id=${SUB}`]: { items: [{ status: 'paid', payment_id: FIRST_PAY, paid_at: now() - 400 * DAY }, { status: 'paid', payment_id: LATER, paid_at: now() - DAY }] },

@@ -8,7 +8,7 @@ date: "2026-11-03"
 # 1. Purpose & scope
 Finealth turns a few numbers a person already knows (income, spending, debts, savings, insurance) into a financial health score and a plan: which debt to clear first, the monthly saving each goal needs, and the chance retirement savings last. It also keeps the 20+ free calculators (SIP, EMI, compound interest, India/US/UK tax, GST/VAT, mortgage, FIRE) that bring search traffic.
 
-Business model: freemium. Calculators, the health score and basic plans are free with ads. **Pro** (₹399 / US$14.99 a year, ₹999 / US$29 lifetime, ₹49 / US$1.99 a month on Android) adds the full report, unlimited debts and goals, what-if scenarios, Monte Carlo retirement odds, progress snapshots, CSV export and no ads. Market research and pricing rationale: `docs/competitor-analysis.md`.
+Business model: freemium. Calculators, the health score and basic plans are free with ads. **Pro** (₹199 / US$7.99 a year, ₹499 / US$19.99 lifetime, ₹29 / US$0.99 a month on Android) adds the full report, unlimited debts and goals, what-if scenarios, Monte Carlo retirement odds, progress snapshots, CSV export and no ads. Market research and pricing rationale: `docs/competitor-analysis.md`.
 
 Out of scope for v1: bank linking or account aggregation, investment product recommendations (regulated advice), user accounts, cloud sync.
 

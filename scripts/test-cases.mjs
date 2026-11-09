@@ -37,6 +37,7 @@ export const REQS = {
   'REQ-019': 'Global tools library (/tools)',
   'REQ-020': 'Country tax engines (AU, CA, SG, NZ, US joint, India detail)',
   'REQ-021': 'Payment acknowledgement and strengthened disclaimers',
+  'REQ-022': 'Gap-free tool layouts with key figures in the heading',
 };
 const m = (req) => `${req} ${REQS[req]}`;
 
@@ -91,7 +92,7 @@ const rows = [
   ['TC-037', m('REQ-010'), W, N, 'Free plan', 'Open My Plan', '—', 'Progress behind Pro gate; backup still available', 'P2', 'N — manual'],
   ['TC-038', m('REQ-010'), W, X, 'Pro, no snapshots', 'Open My Plan', '—', '"No snapshots yet" with link to Health Check', 'P3', 'N — manual'],
   // REQ-011 pricing / checkout
-  ['TC-039', m('REQ-011'), W, P, 'Pricing page', 'Read plans', '—', 'Free ₹0, Yearly ₹399, Lifetime ₹999; Monthly noted as Android only', 'P1', `Y — ${E2E}product.spec.ts FH-04`],
+  ['TC-039', m('REQ-011'), W, P, 'Pricing page', 'Read plans', '—', 'Free ₹0, Yearly ₹199, Lifetime ₹499; Monthly noted as Android only', 'P1', `Y — ${E2E}product.spec.ts FH-04`],
   ['TC-040', m('REQ-011'), W, N, 'Razorpay not enabled', 'Look at buy buttons', 'NEXT_PUBLIC_RAZORPAY_ENABLED unset', 'Buttons disabled "Coming soon"', 'P1', `Y — ${E2E}product.spec.ts FH-04`],
   ['TC-041', m('REQ-011'), W, P, 'Test keys, Razorpay test mode', 'Buy Lifetime with test card', 'rzp_test', 'Pro active, licence key shown with Copy button', 'P1', `Y — ${WL}checkout.test.ts (mocked); real Razorpay NEEDS HUMAN`],
   ['TC-042', m('REQ-011'), W, X, 'Paid, tab closed before confirm', 'Reopen site', '—', 'Pending confirm retried in background; Pro switches on', 'P2', `Y — ${WL}checkout.test.ts`],
@@ -121,7 +122,7 @@ const rows = [
   ['TC-060', m('REQ-017'), W, N, 'NEXT_PUBLIC_NOINDEX=1 (staging)', 'Fetch /robots.txt', '—', 'Disallow: /', 'P2', 'N — manual'],
   ['TC-061', m('REQ-017'), W, X, 'Any tool page', 'Read <title> and canonical', '—', 'Unique title "… · Finealth" and canonical with trailing slash', 'P3', 'N — manual'],
   // REQ-018 API
-  ['TC-062', m('REQ-018'), W, P, 'Worker with test keys', 'POST /api/v1/checkout lifetime INR', '{plan:"pro_lifetime",currency:"INR"}', 'Order created at server price 99900 paise with notes product=finealth', 'P1', `Y — ${API}`],
+  ['TC-062', m('REQ-018'), W, P, 'Worker with test keys', 'POST /api/v1/checkout lifetime INR', '{plan:"pro_lifetime",currency:"INR"}', 'Order created at server price 49900 paise with notes product=finealth', 'P1', `Y — ${API}`],
   ['TC-063', m('REQ-018'), W, N, 'Worker', 'POST /licence/verify with refunded payment', 'pay_ refunded', '400 refunded', 'P1', `Y — ${API}`],
   ['TC-064', m('REQ-018'), W, X, 'Razorpay 5xx', 'Verify key', '—', '503 unavailable, never invalid_key; retried once', 'P1', `Y — ${API}`],
   ['TC-065', m('REQ-015'), B, P, 'Old regime, below 60', 'Enter 80D self 40,000 and parents 60,000 (parent 60+)', 'gross 15,00,000; 80C 1,50,000', '80D allowed 75,000 (25,000 + 50,000); taxable 12,25,000; tax 1,87,200', 'P1', `Y — ${FC}world.test.ts; ${E2E}product.spec.ts FH-14`],
@@ -154,6 +155,10 @@ const rows = [
   ['TC-092', m('REQ-019'), B, X, 'True cost / flat-rate / IRR tools', 'Long series', '7, 20, 30-year loans; 100-period IRR', 'A rate is always found (no "Check the inputs")', 'P1', `Y — ${FC}tools.test.ts`],
   ['TC-093', m('REQ-019'), B, N, 'NPV / XIRR tools', 'Paste Indian-style amounts, a blank first line, a junk line and 2026-02-30', '-1,00,000 / "xyz" / 2026-02-30', 'Amounts read whole; the bad lines are named in a note and left out', 'P1', `Y — ${WL}toolCatalog.test.ts`],
   ['TC-094', m('REQ-019'), B, X, 'NPV / IRR tool', 'Flows that change sign twice', '-100, 230, -132', 'IRR shows "More than one IRR possible: use NPV"', 'P2', `Y — ${WL}toolCatalog.test.ts`],
+  ['TC-095', m('REQ-022'), W, P, 'Health Check, example household', 'Open /health-check/', '—', 'Heading shows Score 75/100, monthly surplus and net worth beside the title', 'P2', `Y — ${E2E}product.spec.ts FH-17`],
+  ['TC-096', m('REQ-022'), W, X, 'Health Check at 1280 px', 'Look at the input rows', '10 inputs', 'Rows are filled edge to edge: no empty cell at the end of a row', 'P2', `Y — ${E2E}product.spec.ts FH-18`],
+  ['TC-098', m('REQ-022'), W, N, 'Health Check, spending above income', 'Set spending to 1,20,000', 'income 1,00,000', 'Monthly surplus figure in the heading turns red and shows a negative amount; nothing spills out of its tile', 'P2', 'N — manual'],
+  ['TC-097', m('REQ-013'), W, P, 'Free plan, no ad slot id set', 'Open a tool page on a production build', '—', 'No ad box and no ad script; on dev/staging (NEXT_PUBLIC_AD_PLACEHOLDERS=1) a labelled "Advertisement" box shows after the disclaimer', 'P2', 'N — manual'],
 ];
 
 // Non-functional requirements with measurable thresholds (template rule: every NFR has rows).

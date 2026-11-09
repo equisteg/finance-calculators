@@ -20,7 +20,7 @@
 - Health score with ranked, sourced actions (not just a number).
 - Private: no account, no bank link, data never leaves the device.
 - India-first maths (₹, lakh formatting, EMI/SIP conventions) with US/UK/EU support.
-- Price well below every paid competitor (₹399/yr).
+- Price well below every paid competitor (₹199/yr, against ₹499/yr for ET Money premium and US$95-109/yr for Copilot, Monarch and YNAB).
 
 ## Scope decisions (non-goals)
 Bank linking, product recommendations, budgeting/transaction tracking, cloud sync, shared household accounts.

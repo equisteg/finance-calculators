@@ -6,7 +6,7 @@ import { financialHealth, FREE_LIMITS, type HealthInput } from '@finealth/financ
 import { isHealthInput, isSnapshotList, KEYS, load, save, type Snapshot } from '@/lib/storage';
 import { usePersistent } from '@/lib/usePersistent';
 import { usePro } from '../ProProvider';
-import { Bar, NumberField, Panel, ProGate, ScoreRing, ToolPage, useMoney, type ToolCurrency } from '../ui';
+import { Bar, NumberField, Panel, ProGate, ScoreRing, Stat, ToolPage, useMoney, type ToolCurrency } from '../ui';
 import { AREA_ICON } from '../GlassIcon';
 
 /** Example household per currency so the first visit shows a real result. */
@@ -64,6 +64,11 @@ export function HealthCheck() {
       icon={AREA_ICON['/health-check/']}
       eyebrow="Free · 2 minutes · nothing leaves your device"
       title="Financial Health Check"
+      kpis={[
+        { label: 'Score', value: `${report.score}/100`, tone: report.score >= 60 ? 'ok' : 'bad' },
+        { label: 'Surplus / month', value: money(report.metrics.monthlySurplus), tone: report.metrics.monthlySurplus >= 0 ? 'ok' : 'bad' },
+        { label: 'Net worth', value: money(netWorth) },
+      ]}
       intro={
         <>
           Answer ten questions and get a score out of 100, built from six rules of thumb that money professionals use.
@@ -100,15 +105,16 @@ export function HealthCheck() {
             <NumberField label="Your age" value={input.age} onChange={(n) => set({ age: n })} max={100} step={1} testId="in-age" />
             <NumberField label="People who depend on you" value={input.dependents} onChange={(n) => set({ dependents: n })} max={20} step={1} />
             <NumberField label="Term life cover" hint="Total sum assured" value={input.lifeCover} onChange={(n) => set({ lifeCover: n })} />
-            <div>
+            <div className="nf min-w-0">
               <span className="label">Health insurance</span>
-              <div className="flex gap-2" role="group" aria-label="Health insurance">
+              <div className="grid grid-cols-2 gap-2" role="group" aria-label="Health insurance">
                 {[true, false].map((v) => (
-                  <button key={String(v)} type="button" aria-pressed={input.hasHealthCover === v} className={`btn btn-sm ${input.hasHealthCover === v ? 'btn-primary' : 'btn-secondary'}`} onClick={() => set({ hasHealthCover: v })}>
+                  <button key={String(v)} type="button" aria-pressed={input.hasHealthCover === v} className={`btn ${input.hasHealthCover === v ? 'btn-primary' : 'btn-secondary'}`} onClick={() => set({ hasHealthCover: v })}>
                     {v ? 'Yes' : 'No'}
                   </button>
                 ))}
               </div>
+              <span aria-hidden="true" />
             </div>
           </div>
           {stored !== null && (
@@ -119,7 +125,8 @@ export function HealthCheck() {
         </Panel>
 
         <div className="grid gap-6 content-start print-dark-text">
-          <Panel testId="health-result">
+          <div className="grid gap-6 md:grid-cols-2 items-stretch">
+          <Panel testId="health-result" className="grid gap-5 content-start">
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <ScoreRing score={report.score} label={report.grade} />
               <div className="grid gap-2 text-center sm:text-left">
@@ -132,6 +139,22 @@ export function HealthCheck() {
                     : `You are short by ${money(-report.metrics.monthlySurplus)} a month.`}
                 </p>
                 <p className="m-0 text-xs tabular-nums text-zinc-500">Net worth estimate: {money(netWorth)} (savings + investments − costly debt)</p>
+              </div>
+            </div>
+            <div className="fitgrid grid gap-2.5">
+              <Stat label="Savings rate" value={`${Math.round(report.metrics.savingsRate * 100)} %`} tone={report.metrics.savingsRate >= 0.2 ? 'ok' : 'bad'} />
+              <Stat label="Emergency fund" value={`${report.metrics.emergencyMonths.toFixed(1)} mo`} tone={report.metrics.emergencyMonths >= 6 ? 'ok' : 'bad'} />
+              <Stat label="Loan payments" value={`${Math.round(report.metrics.debtToIncome * 100)} % of pay`} tone={report.metrics.debtToIncome > 0.36 ? 'bad' : report.metrics.debtToIncome <= 0.1 ? 'ok' : undefined} />
+            </div>
+            <div className="grid gap-1.5" aria-label="Score scale">
+              <div className="score-track relative h-2.5 rounded-full">
+                <i className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-[#05060a] bg-white" style={{ left: `${report.score}%` }} />
+              </div>
+              <div className="grid grid-cols-[40fr_20fr_20fr_20fr] text-[11px] text-zinc-500">
+                <span>Needs attention</span>
+                <span>Fair</span>
+                <span>Good</span>
+                <span>Excellent</span>
               </div>
             </div>
           </Panel>
@@ -154,7 +177,14 @@ export function HealthCheck() {
                 ))}
               </ol>
             )}
+            {!isPro && report.actions.length > 1 && (
+              <p className="mt-4 mb-0 text-sm text-zinc-400">
+                {report.actions.length - 1} more {report.actions.length === 2 ? 'action is' : 'actions are'} ranked in the full report, worth up to +
+                {report.actions.slice(1).reduce((sum, a) => sum + a.pointsAvailable, 0)} points.
+              </p>
+            )}
           </Panel>
+          </div>
 
           <ProGate
             feature={`Full report: all six pillars and ${Math.max(0, report.actions.length - 1)} more actions`}
@@ -162,7 +192,7 @@ export function HealthCheck() {
             testId="health-pro-gate"
           >
             <Panel title="Six pillars" testId="health-pillars">
-              <ul className="grid gap-4">
+              <ul className="grid gap-4 md:grid-cols-2 md:gap-x-8">
                 {report.pillars.map((p) => (
                   <li key={p.id} className="grid gap-1.5">
                     <div className="flex items-baseline justify-between gap-3">

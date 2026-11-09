@@ -43,6 +43,11 @@ export function RetirementPlanner() {
       icon={AREA_ICON['/retirement-planner/']}
       eyebrow="Projection free · Monte Carlo odds with Pro"
       title="Retirement Planner"
+      kpis={[
+        { label: 'Years to go', value: `${Math.max(0, input.retireAge - input.currentAge)} yr` },
+        { label: `At ${input.retireAge}`, value: money(p.corpusAtRetirement), tone: p.onTrack ? 'ok' : undefined },
+        { label: 'Verdict', value: p.onTrack ? 'Lasts' : `Runs out at ${p.runsOutAt}`, tone: p.onTrack ? 'ok' : 'bad' },
+      ]}
       intro="See how much you will have when you stop working, how much you need, and (with Pro) the chance your money lasts when markets go up and down."
     >
       <div className="grid gap-6 items-start">

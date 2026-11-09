@@ -96,6 +96,29 @@ test.describe('FH :: global tools library and disclaimers', () => {
     await expect(page.getByTestId('buy-yearly')).toBeDisabled();
   });
 
+  test('FH-17 tool heading shows the key figures beside the title', async ({ page }) => {
+    await page.goto('/health-check/');
+    const kpis = page.getByTestId('tool-kpis');
+    await expect(kpis).toContainText('75/100');
+    await expect(kpis).toContainText('Net worth');
+  });
+
+  test('FH-18 input rows have no empty cell at the end on desktop', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/health-check/');
+    await page.waitForTimeout(300);
+    const gaps = await page.$$eval('.fieldgrid, .fitgrid', (grids) =>
+      grids.map((g) => {
+        const kids = Array.from(g.children) as HTMLElement[];
+        if (!kids.length) return 0;
+        const right = g.getBoundingClientRect().right;
+        const last = kids[kids.length - 1].getBoundingClientRect().right;
+        return Math.round(right - last);
+      })
+    );
+    for (const gap of gaps) expect(gap).toBeLessThanOrEqual(2);
+  });
+
   test('FH-16 terms carry the no-advice, accuracy and liability sections', async ({ page }) => {
     await page.goto('/terms/');
     for (const h of ['Information, not advice', 'Accuracy and estimates', 'Limitation of liability', 'Your statutory rights']) {

@@ -58,6 +58,11 @@ export function GoalPlanner() {
       icon={AREA_ICON['/goal-planner/']}
       eyebrow="Inflation-adjusted · priority funding"
       title="Goal Planner"
+      kpis={[
+        { label: 'Goals planned', value: `${active.length} of ${goals.length}` },
+        { label: 'Need each month', value: money(plan.totalNeeded) },
+        { label: plan.surplus >= 0 ? 'Left over' : 'Short by', value: money(Math.abs(plan.surplus)), tone: plan.surplus >= 0 ? 'ok' : 'bad' },
+      ]}
       intro="Tell us what you are saving for. We work out what it will really cost after inflation and the monthly saving that gets you there."
       actions={
         isPro ? (
@@ -128,7 +133,7 @@ export function GoalPlanner() {
         <div className="grid gap-6 content-start">
           <Panel title="Your monthly saving budget">
             <NumberField label="I can save each month" value={budget} onChange={setBudget} testId="in-goal-budget" />
-            <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(10rem,100%),1fr))] mt-4">
+            <div className="fitgrid grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(10rem,100%),1fr))] mt-4">
               <Stat label="Needed for these goals" value={money(plan.totalNeeded)} testId="goals-needed" />
               <Stat
                 label={plan.surplus >= 0 ? 'Left over' : 'Shortfall'}

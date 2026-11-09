@@ -62,7 +62,7 @@ function fakeRazorpay(onOpen: (o: RazorpayOptions) => void) {
   return { Ctor, opened };
 }
 
-const orderStart = reply(200, { provider: 'razorpay', keyId: 'rzp_test_abc123', plan: 'pro_lifetime', currency: 'INR', amount: 99900, orderId: ORDER, name: 'Finealth', description: 'Finealth Pro Lifetime' });
+const orderStart = reply(200, { provider: 'razorpay', keyId: 'rzp_test_abc123', plan: 'pro_lifetime', currency: 'INR', amount: 49900, orderId: ORDER, name: 'Finealth', description: 'Finealth Pro Lifetime' });
 const paid: RazorpayResponse = { razorpay_payment_id: PAY, razorpay_order_id: ORDER, razorpay_signature: 'sig' };
 
 async function deps(routes: Record<string, Route>, onOpen: (o: RazorpayOptions) => void = (o) => o.handler(paid)) {
@@ -87,7 +87,7 @@ describe('startCheckout', () => {
     expect(t.calls[0]).toEqual({ path: '/api/v1/checkout', body: { plan: 'pro_lifetime', currency: 'INR' } });
     expect(t.calls[1]!.body).toEqual({ razorpay_payment_id: PAY, razorpay_order_id: ORDER, razorpay_signature: 'sig' });
     const o = t.opened[0]!;
-    expect(o).toMatchObject({ key: 'rzp_test_abc123', order_id: ORDER, amount: 99900, currency: 'INR', theme: { color: '#2453FF' } });
+    expect(o).toMatchObject({ key: 'rzp_test_abc123', order_id: ORDER, amount: 49900, currency: 'INR', theme: { color: '#2453FF' } });
     expect(o.subscription_id).toBeUndefined();
     // We never prefill or collect contact details: Razorpay asks for them.
     expect(o).not.toHaveProperty('prefill');
@@ -98,7 +98,7 @@ describe('startCheckout', () => {
     const token = await signLicence(claims({ plan: 'pro_yearly' }), k.sign);
     const t = await deps(
       {
-        '/api/v1/checkout': () => reply(200, { provider: 'razorpay', keyId: 'rzp_test_abc123', plan: 'pro_yearly', currency: 'USD', amount: 1499, subscriptionId: SUB, name: 'Finealth', description: 'Pro Yearly' }),
+        '/api/v1/checkout': () => reply(200, { provider: 'razorpay', keyId: 'rzp_test_abc123', plan: 'pro_yearly', currency: 'USD', amount: 799, subscriptionId: SUB, name: 'Finealth', description: 'Pro Yearly' }),
         '/api/v1/checkout/confirm': () => reply(200, { token, key: SUB, plan: 'pro_yearly' }),
       },
       (o) => o.handler({ razorpay_payment_id: PAY, razorpay_subscription_id: SUB, razorpay_signature: 'sig' }),

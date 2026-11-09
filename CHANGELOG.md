@@ -2,6 +2,9 @@
 
 ## Unreleased — 2026-11-09
 ### Added
+- Aggressive pricing after a market check (Indian money apps ₹149 a month or ₹499 a year; global budgeting apps US$95-110 a year): Pro yearly ₹199 / US$7.99, Lifetime ₹499 / US$19.99, Monthly ₹29 / US$0.99 on Android.
+- Gap-free tool layouts: every tool heading shows its 2-3 key figures; input and result rows fill edge to edge (the last item stretches); the health score and top priority sit side by side at equal height, with savings rate, emergency months, loan-to-pay and a score scale.
+- Ad placeholders: dev and staging builds (`NEXT_PUBLIC_AD_PLACEHOLDERS=1`) show a labelled "Advertisement" box wherever an AdSense slot id is still unset; production shows nothing until the slot ids exist. Pro users still load no ads.
 - Tools library at `/tools/` with 36 new calculators: India (detailed regime, HRA, gratuity, PPF), US federal (single and married jointly), Australia, Canada (tax and GST/HST/PST), Singapore, New Zealand, world VAT/GST for 67 countries (Pakistan excluded), and universal tools (inflation, real return, CAGR, Rule of 72, simple interest, RD, savings goal, retirement corpus, NPV/IRR, XIRR, card payoff, affordability, true loan cost, flat rate, rent vs buy, 50/30/20, emergency fund, net worth, percentage, discount, tip, margin, break-even, salary).
 - Every tool shows its formula source, what it leaves out, the rates-last-checked date and an official calculator link.
 - Pricing: an "estimates only, not advice" acknowledgement must be ticked before the buy buttons work.
