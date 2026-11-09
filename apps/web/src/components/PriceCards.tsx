@@ -14,7 +14,7 @@ const FREE_FEATURES = [
   'Debt payoff planner for up to 3 debts (snowball vs avalanche)',
   'Goal planner for one goal, inflation-adjusted',
   'Retirement projection and loan prepayment optimiser',
-  '20+ calculators: SIP, EMI, tax, GST, mortgage, FIRE and more',
+  '55+ calculators: tax for 7 countries, VAT/GST for 60+, SIP, EMI, NPV/IRR, XIRR and more',
   'JSON backup and restore; nothing leaves your device',
 ];
 
@@ -97,6 +97,7 @@ export function PriceCards() {
   const [inr, setInr] = useState(false);
   const [busy, setBusy] = useState<WebPlan | null>(null);
   const [result, setResult] = useState<CheckoutResult | null>(null);
+  const [agreed, setAgreed] = useState(false);
   useEffect(() => {
     // ₹ when the site currency is INR or the browser locale is Indian (en-IN, hi-IN …); US$ everywhere else.
     // eslint-disable-next-line react-hooks/set-state-in-effect -- navigator.language exists only in the browser
@@ -126,7 +127,12 @@ export function PriceCards() {
       );
     }
     return (
-      <button type="button" className={`btn w-full ${primary ? 'btn-primary' : 'btn-secondary'}`} disabled={busy !== null} aria-busy={busy === plan} onClick={() => onBuy(plan)} data-testid={TESTID[plan]}>
+      <button
+        type="button"
+        className={`btn w-full ${primary ? 'btn-primary' : 'btn-secondary'}`}
+        disabled={busy !== null || !agreed}
+        title={agreed ? undefined : 'Tick the box above the plans first'}
+        aria-busy={busy === plan} onClick={() => onBuy(plan)} data-testid={TESTID[plan]}>
         {busy === plan ? 'Opening secure checkout…' : label}
       </button>
     );
@@ -149,6 +155,16 @@ export function PriceCards() {
           </button>
         </div>
       </div>
+      {!isPro && (
+        <label className="notice notice-warn mb-4 flex items-start gap-3 text-[0.95rem] cursor-pointer" data-testid="pay-ack">
+          <input type="checkbox" className="mt-1 shrink-0" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} data-testid="pay-ack-box" />
+          <span>
+            I understand that Finealth and Finealth Pro give <strong>estimates for information only</strong>, not financial, investment, tax or legal
+            advice; that results can contain errors and tax rates can change; and that I will check important decisions with the official source or a
+            qualified professional. I agree to the <Link href="/terms/">Terms</Link> and the <Link href="/refund/">Refund &amp; cancellation policy</Link>.
+          </span>
+        </label>
+      )}
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="card p-6 flex flex-col">
           <h2 className="text-xl font-bold">Free</h2>

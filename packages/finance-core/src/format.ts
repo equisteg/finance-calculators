@@ -14,6 +14,10 @@ const LOCALE_BY_CURRENCY: Record<string, string> = {
   USD: "en-US",
   EUR: "en-IE",
   GBP: "en-GB",
+  AUD: "en-AU",
+  CAD: "en-CA",
+  NZD: "en-NZ",
+  SGD: "en-SG",
 };
 
 export function localeFor(currency: string): string {

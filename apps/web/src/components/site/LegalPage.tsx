@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export const LEGAL_UPDATED = '3 November 2026';
+export const LEGAL_UPDATED = '9 November 2026';
 
 export function LegalPage({ title, children }: { title: string; children: ReactNode }) {
   return (

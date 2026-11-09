@@ -103,6 +103,7 @@ describe("Finealth homepage", () => {
       "/sip-calculator",
       "/emi-calculator",
       "/compound-interest",
+      "/tools",
     ]);
   });
 });

@@ -68,7 +68,16 @@ Enter the loan balance, interest rate, months left and the part-payment. Finealt
 Check your lender's prepayment charges before you pay.
 
 # 8. Calculators
-The **Calculators** page has 20+ tools: SIP and step-up SIP, EMI, FD/RD, income tax (India new vs old regime), CTC to in-hand, GST, US paycheck and mortgage, UK take-home and stamp duty, EU VAT, compound interest and more. They are free.
+The **Calculators** page has regional tools: SIP and step-up SIP, EMI, FD, income tax (India new vs old regime), CTC to in-hand, GST, US paycheck and mortgage, UK take-home and stamp duty, EU VAT and compound interest.
+
+**All tools** (`/tools/`) adds 36 more, grouped by topic:
+- **Tax & salary:** India old vs new regime in detail (age, 80D for self and parents, HRA, other deductions), HRA exemption, gratuity, US federal tax (single or married jointly), Australia, Canada, Singapore and New Zealand income tax, salary converter.
+- **Saving & investing:** inflation, real return, CAGR, Rule of 72, simple interest, RD, PPF, savings goal, retirement corpus, XIRR.
+- **Borrowing:** credit card payoff, loan affordability, true cost of a loan with fees, flat rate vs reducing rate.
+- **Housing:** rent vs buy, UK stamp duty with surcharges.
+- **Everyday and business:** 50/30/20 budget, emergency fund, net worth, percentages, discounts, tips, VAT/GST for 60+ countries, Canada GST/HST/PST, NPV and IRR, margin and markup, break-even.
+
+Under every result you see **how it is worked out**, what it does **not cover**, and for tax tools the date we **last checked the rates** with a link to the official calculator. All tools are free and run in your browser. Results are estimates, not advice: confirm anything important with the official source or a professional, and use **Tell us** to report a mistake.
 
 # 9. My Plan, backup and your data
 - **My Plan** (Pro) shows your saved snapshots, your score over time and **Export CSV**.
@@ -80,9 +89,10 @@ Your numbers live only in your browser. Clearing your browser's site data also d
 # 10. Finealth Pro
 ## 10.1 Buying
 1. Go to **Pricing** and choose ₹ INR or US$ USD.
-2. Choose **Yearly** or **Lifetime** and pay securely with Razorpay (card, UPI, net banking).
-3. Pro switches on at once: ads disappear and every Pro feature unlocks.
-4. **Copy your licence key** shown on screen (it starts with `pay_` or `sub_`). It is also in your Razorpay receipt email.
+2. Tick the box to confirm you understand Finealth gives estimates for information only, not advice, and that you agree to the Terms and Refund policy. The buy buttons stay off until you tick it.
+3. Choose **Yearly** or **Lifetime** and pay securely with Razorpay (card, UPI, net banking).
+4. Pro switches on at once: ads disappear and every Pro feature unlocks.
+5. **Copy your licence key** shown on screen (it starts with `pay_` or `sub_`). It is also in your Razorpay receipt email.
 
 Monthly Pro is sold only in the Android app through Google Play.
 

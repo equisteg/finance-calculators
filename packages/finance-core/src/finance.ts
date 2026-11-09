@@ -12,8 +12,13 @@
  *            GST 2.0 slabs effective 22 Sep 2025 (12% and 28% abolished)
  *   US     - Federal brackets and standard deduction for 2026 (IRS Rev. Proc. 2025-32),
  *            Social Security wage base 2026
- *   UK     - Income tax and Class 1 NI for 2026/27 (England, Wales & NI)
- *            SDLT residential rates from 1 April 2025 (England & NI)
+ *   UK     - Income tax and Class 1 NI for 2026/27 (England, Wales & NI; Scotland has
+ *            its own income tax bands and is not modelled)
+ *            SDLT residential rates from 1 April 2025 (England & NI), with the 5%
+ *            additional-dwelling and 2% non-resident surcharges
+ *   EU     - Standard VAT rates for all 27 member states, 2026
+ *   Other countries and the world VAT table live in world.ts; universal tools in tools.ts.
+ *   Rates last checked: 9 Nov 2026 (RATES_LAST_CHECKED in world.ts).
  */
 
 /* ------------------------------------------------------------------ */
@@ -292,7 +297,9 @@ const INDIA_OLD_STANDARD_DEDUCTION = 50_000;
 const INDIA_NEW_REBATE_LIMIT = 1_200_000;
 const INDIA_OLD_REBATE_LIMIT = 500_000;
 const INDIA_80C_CAP = 150_000;
-const INDIA_80D_CAP = 100_000;
+/** s.80D: ₹25,000 for self/family (₹50,000 if a senior citizen) plus the same again for parents. */
+const INDIA_80D_SELF_CAP = 25_000;
+const INDIA_80D_SENIOR_CAP = 50_000;
 const HEALTH_AND_EDUCATION_CESS = 0.04;
 
 /**
@@ -353,26 +360,54 @@ export function indiaNewRegimeTax(grossSalary: number): IndiaRegimeResult {
 
 export interface IndiaOldRegimeDeductions {
   section80C: number;
+  /** Health insurance premium for self, spouse and children. */
   section80D: number;
+  /** Health insurance premium for parents (separate cap). */
+  section80DParents?: number;
+  /** True when the taxpayer (or spouse) is 60 or over: higher 80D cap. */
+  selfSenior?: boolean;
+  /** True when a parent is 60 or over. */
+  parentsSenior?: boolean;
   hraExemption: number;
+  /** Other deductions you can prove (80CCD(1B) up to ₹50,000, 24(b) home-loan interest, 80E, 80G...). */
+  other?: number;
 }
 
-/** Old regime for a salaried individual below 60. */
+/** Old-regime basic exemption by age: below 60 ₹2.5L, 60-79 ₹3L, 80+ ₹5L. */
+export type IndiaAgeBand = "below60" | "60to79" | "80plus";
+
+export function indiaOldRegimeBands(age: IndiaAgeBand = "below60"): TaxBand[] {
+  if (age === "below60") return INDIA_OLD_REGIME_BANDS;
+  const exemption = age === "60to79" ? 300_000 : 500_000;
+  return [{ upTo: exemption, rate: 0 }, ...INDIA_OLD_REGIME_BANDS.filter((b) => b.upTo > exemption)];
+}
+
+/** Deductible 80D amount after the separate caps for self/family and parents. */
+export function india80D(d: IndiaOldRegimeDeductions): number {
+  const selfCap = d.selfSenior ? INDIA_80D_SENIOR_CAP : INDIA_80D_SELF_CAP;
+  const parentsCap = d.parentsSenior ? INDIA_80D_SENIOR_CAP : INDIA_80D_SELF_CAP;
+  return Math.min(clampMin0(d.section80D), selfCap) + Math.min(clampMin0(d.section80DParents ?? 0), parentsCap);
+}
+
+/** Old regime for a resident salaried individual. */
 export function indiaOldRegimeTax(
   grossSalary: number,
-  deductions: IndiaOldRegimeDeductions
+  deductions: IndiaOldRegimeDeductions,
+  age: IndiaAgeBand = "below60"
 ): IndiaRegimeResult {
   const totalDeductions =
     INDIA_OLD_STANDARD_DEDUCTION +
     Math.min(clampMin0(deductions.section80C), INDIA_80C_CAP) +
-    Math.min(clampMin0(deductions.section80D), INDIA_80D_CAP) +
-    clampMin0(deductions.hraExemption);
+    india80D(deductions) +
+    clampMin0(deductions.hraExemption) +
+    clampMin0(deductions.other ?? 0);
 
+  const bands = indiaOldRegimeBands(age);
   const taxableIncome = clampMin0(grossSalary - totalDeductions);
-  let tax = progressiveTax(taxableIncome, INDIA_OLD_REGIME_BANDS);
+  let tax = progressiveTax(taxableIncome, bands);
   if (taxableIncome <= INDIA_OLD_REBATE_LIMIT) tax = 0;
 
-  const surcharge = indiaSurcharge(taxableIncome, tax, INDIA_OLD_REGIME_BANDS, [
+  const surcharge = indiaSurcharge(taxableIncome, tax, bands, [
     { above: 5_000_000, rate: 0.1 },
     { above: 10_000_000, rate: 0.15 },
     { above: 20_000_000, rate: 0.25 },
@@ -394,10 +429,12 @@ export interface IndiaRegimeComparison {
 
 export function compareIndiaRegimes(
   grossSalary: number,
-  deductions: IndiaOldRegimeDeductions
+  deductions: IndiaOldRegimeDeductions,
+  age: IndiaAgeBand = "below60"
 ): IndiaRegimeComparison {
+  // New-regime slabs are the same at every age.
   const newTax = indiaNewRegimeTax(grossSalary).totalTax;
-  const oldTax = indiaOldRegimeTax(grossSalary, deductions).totalTax;
+  const oldTax = indiaOldRegimeTax(grossSalary, deductions, age).totalTax;
   return {
     newTax,
     oldTax,
@@ -447,6 +484,39 @@ export function ctcToInHand(
   };
 }
 
+/**
+ * HRA exemption (old regime), the least of: HRA received; rent paid minus 10%
+ * of basic + DA; 50% of basic + DA in a 50% city (Delhi, Mumbai, Kolkata,
+ * Chennai) or 40% elsewhere. All amounts for the same period.
+ */
+export function indiaHraExemption(basicPlusDa: number, hraReceived: number, rentPaid: number, fiftyPctCity: boolean) {
+  const basic = clampMin0(basicPlusDa);
+  const limits = {
+    hraReceived: clampMin0(hraReceived),
+    rentMinus10PctBasic: clampMin0(clampMin0(rentPaid) - basic * 0.1),
+    pctOfBasic: basic * (fiftyPctCity ? 0.5 : 0.4),
+  };
+  const exempt = Math.min(limits.hraReceived, limits.rentMinus10PctBasic, limits.pctOfBasic);
+  return { exempt: Math.round(exempt), taxable: Math.round(limits.hraReceived - exempt), limits };
+}
+
+/** Ceiling on gratuity under the Payment of Gratuity Act and the s.10(10) tax exemption for non-government staff. */
+export const INDIA_GRATUITY_CAP = 2_000_000;
+
+/**
+ * Gratuity for an employee covered by the Payment of Gratuity Act:
+ * 15 days' wages per completed year, wages / 26 per day, so
+ * last monthly (basic + DA) x 15 / 26 x years. A final part-year of more
+ * than 6 months counts as a full year. Five years' service is needed except
+ * on death or disablement (and one year for fixed-term staff under the
+ * Code on Social Security).
+ */
+export function indiaGratuity(lastMonthlyBasicPlusDa: number, years: number, months = 0) {
+  const completed = Math.floor(clampMin0(years)) + (clampMin0(months) > 6 ? 1 : 0);
+  const amount = (clampMin0(lastMonthlyBasicPlusDa) * 15 * completed) / 26;
+  return { yearsCounted: completed, gratuity: Math.round(Math.min(amount, INDIA_GRATUITY_CAP)), capped: amount > INDIA_GRATUITY_CAP };
+}
+
 /* ------------------------------------------------------------------ */
 /* India: GST (GST 2.0, effective 22 Sep 2025)                         */
 /* ------------------------------------------------------------------ */
@@ -491,10 +561,13 @@ export function consumptionTax(amount: number, ratePct: number, taxInclusive: bo
   return { base, tax, total: round2(base + tax) };
 }
 
-/** Standard VAT rates, 2026. */
+/** Standard VAT rates in all 27 EU member states, 2026 (European Commission "VAT rates" table). */
 export const EU_STANDARD_VAT_RATES: Record<string, { name: string; rate: number }> = {
   AT: { name: "Austria", rate: 20 },
   BE: { name: "Belgium", rate: 21 },
+  BG: { name: "Bulgaria", rate: 20 },
+  CY: { name: "Cyprus", rate: 19 },
+  CZ: { name: "Czechia", rate: 21 },
   DE: { name: "Germany", rate: 19 },
   DK: { name: "Denmark", rate: 25 },
   EE: { name: "Estonia", rate: 24 },
@@ -502,15 +575,20 @@ export const EU_STANDARD_VAT_RATES: Record<string, { name: string; rate: number 
   FI: { name: "Finland", rate: 25.5 },
   FR: { name: "France", rate: 20 },
   GR: { name: "Greece", rate: 24 },
+  HR: { name: "Croatia", rate: 25 },
   HU: { name: "Hungary", rate: 27 },
   IE: { name: "Ireland", rate: 23 },
   IT: { name: "Italy", rate: 22 },
+  LT: { name: "Lithuania", rate: 21 },
   LU: { name: "Luxembourg", rate: 17 },
+  LV: { name: "Latvia", rate: 21 },
+  MT: { name: "Malta", rate: 18 },
   NL: { name: "Netherlands", rate: 21 },
   PL: { name: "Poland", rate: 23 },
   PT: { name: "Portugal", rate: 23 },
   RO: { name: "Romania", rate: 21 },
   SE: { name: "Sweden", rate: 25 },
+  SI: { name: "Slovenia", rate: 22 },
   SK: { name: "Slovakia", rate: 23 },
 };
 
@@ -528,9 +606,24 @@ export const US_FEDERAL_BANDS_2026_SINGLE: TaxBand[] = [
   { upTo: Infinity, rate: 0.37 },
 ];
 
+/** Married filing jointly, 2026 (IRS Rev. Proc. 2025-32). */
+export const US_FEDERAL_BANDS_2026_JOINT: TaxBand[] = [
+  { upTo: 24_800, rate: 0.1 },
+  { upTo: 100_800, rate: 0.12 },
+  { upTo: 211_400, rate: 0.22 },
+  { upTo: 403_550, rate: 0.24 },
+  { upTo: 512_450, rate: 0.32 },
+  { upTo: 768_700, rate: 0.35 },
+  { upTo: Infinity, rate: 0.37 },
+];
+
 const US_STANDARD_DEDUCTION_2026_SINGLE = 16_100;
+const US_STANDARD_DEDUCTION_2026_JOINT = 32_200;
 const US_SOCIAL_SECURITY_WAGE_BASE_2026 = 184_500;
 const US_ADDITIONAL_MEDICARE_THRESHOLD_SINGLE = 200_000;
+const US_ADDITIONAL_MEDICARE_THRESHOLD_JOINT = 250_000;
+
+export type UsFilingStatus = "single" | "joint";
 
 export interface UsPaycheck {
   federalTax: number;
@@ -541,19 +634,24 @@ export interface UsPaycheck {
 }
 
 /**
- * Annual take-home for a single filer taking the standard deduction.
+ * Annual take-home taking the standard deduction, wages only, no credits.
  * State tax is an estimate: the state's headline rate applied to federal
  * taxable income, since most states start from that base.
+ * For a joint return, `grossAnnual` is the couple's combined wages; Social
+ * Security is capped per earner but is applied here to the combined wages up
+ * to one wage base, which understates it when two earners together exceed it.
  */
-export function usPaycheck(grossAnnual: number, stateRatePct: number): UsPaycheck {
+export function usPaycheck(grossAnnual: number, stateRatePct: number, status: UsFilingStatus = "single"): UsPaycheck {
   const gross = clampMin0(grossAnnual);
-  const taxable = clampMin0(gross - US_STANDARD_DEDUCTION_2026_SINGLE);
+  const joint = status === "joint";
+  const taxable = clampMin0(gross - (joint ? US_STANDARD_DEDUCTION_2026_JOINT : US_STANDARD_DEDUCTION_2026_SINGLE));
 
-  const federalTax = progressiveTax(taxable, US_FEDERAL_BANDS_2026_SINGLE);
-  const stateTax = (taxable * stateRatePct) / 100;
+  const federalTax = progressiveTax(taxable, joint ? US_FEDERAL_BANDS_2026_JOINT : US_FEDERAL_BANDS_2026_SINGLE);
+  const stateTax = (taxable * clampMin0(stateRatePct)) / 100;
   const socialSecurity = Math.min(gross, US_SOCIAL_SECURITY_WAGE_BASE_2026) * 0.062;
   const medicare =
-    gross * 0.0145 + clampMin0(gross - US_ADDITIONAL_MEDICARE_THRESHOLD_SINGLE) * 0.009;
+    gross * 0.0145 +
+    clampMin0(gross - (joint ? US_ADDITIONAL_MEDICARE_THRESHOLD_JOINT : US_ADDITIONAL_MEDICARE_THRESHOLD_SINGLE)) * 0.009;
 
   const total = federalTax + stateTax + socialSecurity + medicare;
   return {
@@ -631,6 +729,8 @@ const SDLT_FIRST_TIME_BUYER_BANDS: TaxBand[] = [
 const SDLT_FIRST_TIME_BUYER_PRICE_CAP = 500_000;
 const SDLT_ADDITIONAL_DWELLING_SURCHARGE = 0.05;
 const SDLT_ADDITIONAL_DWELLING_MIN_PRICE = 40_000;
+/** Non-UK-resident surcharge from 1 April 2021, on top of every other rate. */
+const SDLT_NON_RESIDENT_SURCHARGE = 0.02;
 
 export type SdltBuyer = "standard" | "first-time" | "additional";
 
@@ -641,7 +741,7 @@ export interface SdltResult {
   reliefUnavailable: boolean;
 }
 
-export function stampDutyLandTax(price: number, buyer: SdltBuyer): SdltResult {
+export function stampDutyLandTax(price: number, buyer: SdltBuyer, nonResident = false): SdltResult {
   const value = clampMin0(price);
   let tax: number;
   let reliefUnavailable = false;
@@ -655,6 +755,8 @@ export function stampDutyLandTax(price: number, buyer: SdltBuyer): SdltResult {
       tax += value * SDLT_ADDITIONAL_DWELLING_SURCHARGE;
     }
   }
+
+  if (nonResident) tax += value * SDLT_NON_RESIDENT_SURCHARGE;
 
   const rounded = Math.floor(tax); // HMRC rounds SDLT down to the pound
   return {

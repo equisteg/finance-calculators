@@ -45,3 +45,61 @@ test.describe('FH :: planning tools (free plan)', () => {
     await expect(page.getByTestId('buy-yearly')).toBeDisabled();
   });
 });
+
+test.describe('FH :: global tools library and disclaimers', () => {
+  test('FH-10 tools index lists every category with the estimates-only notice', async ({ page }) => {
+    await page.goto('/tools/');
+    await expect(page.getByTestId('tools-disclaimer')).toBeVisible();
+    await expect(page.getByTestId('tool-card-australia-income-tax-calculator')).toBeVisible();
+    await expect(page.getByTestId('tool-card-world-vat-gst-calculator')).toBeVisible();
+    await expect(page.getByText(/pakistan/i)).toHaveCount(0);
+  });
+
+  test('FH-11 Australia tax tool: A$90,000 gives the golden result, source and last-checked date', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto('/tools/australia-income-tax-calculator/');
+    await expect(page.getByTestId('tool-result')).toContainText('$17,520');
+    await expect(page.getByTestId('tool-result')).toContainText('$1,800');
+    await expect(page.getByTestId('tool-source')).toContainText('Rates last checked');
+    await expect(page.getByTestId('disclaimer')).toBeVisible();
+    expect(errors).toEqual([]);
+  });
+
+  test('FH-12 PPF tool matches the published ₹40,68,209 for ₹1.5L over 15 years at 7.1%', async ({ page }) => {
+    await page.goto('/tools/ppf-calculator/');
+    await expect(page.getByTestId('tool-primary')).toHaveText('₹40,68,209');
+  });
+
+  test('FH-13 world VAT tool switches country and handles tax-inclusive prices', async ({ page }) => {
+    await page.goto('/tools/world-vat-gst-calculator/');
+    await page.getByTestId('in-c').selectOption('DE');
+    await page.getByTestId('in-amt').fill('119');
+    await page.getByTestId('in-incl').check();
+    await expect(page.getByTestId('tool-result')).toContainText('19.00');
+    await expect(page.getByTestId('tool-result')).toContainText('100.00');
+  });
+
+  test('FH-14 India regime tool applies separate 80D caps', async ({ page }) => {
+    await page.goto('/tools/india-tax-regime-calculator/');
+    await page.getByTestId('in-d80').fill('40000');
+    await page.getByTestId('in-d80p').fill('60000');
+    await page.getByTestId('in-psen').check();
+    await expect(page.getByTestId('tool-result')).toContainText('₹75,000');
+  });
+
+  test('FH-15 pricing asks for the estimates-only acknowledgement before any purchase', async ({ page }) => {
+    await page.goto('/pricing/');
+    await expect(page.getByTestId('pay-ack')).toBeVisible();
+    await expect(page.getByTestId('pay-ack')).toContainText('not financial, investment, tax or legal advice');
+    await expect(page.getByTestId('pay-ack-box')).not.toBeChecked();
+    await expect(page.getByTestId('buy-yearly')).toBeDisabled();
+  });
+
+  test('FH-16 terms carry the no-advice, accuracy and liability sections', async ({ page }) => {
+    await page.goto('/terms/');
+    for (const h of ['Information, not advice', 'Accuracy and estimates', 'Limitation of liability', 'Your statutory rights']) {
+      await expect(page.getByRole('heading', { name: new RegExp(h) })).toBeVisible();
+    }
+  });
+});

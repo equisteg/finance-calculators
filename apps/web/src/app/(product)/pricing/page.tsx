@@ -13,7 +13,8 @@ const FAQ = [
   ['Do you see my financial data?', 'No. Everything you enter stays in your browser. Our server only ever sees your licence ID when it checks your purchase.'],
   ['Do you link to my bank?', 'No, on purpose. You type in the numbers that matter, which keeps your data private and the app free of bank-access fees.'],
   ['Can I cancel?', 'Yes. Yearly renews once a year until you cancel, and Pro stays on until the end of the paid year. See the refund policy for details.'],
-  ['Is this financial advice?', 'No. Finealth explains common rules of thumb and does the maths. It does not recommend products or tell you what to buy.'],
+  ['Is this financial advice?', 'No. Finealth explains common rules of thumb and does the maths. It does not recommend products or tell you what to buy. Pro buys software features, not advice.'],
+  ['How accurate are the results?', 'Formulas are tested against independent calculations and tax rates show the date we last checked them, but every result is an estimate and can contain errors. Confirm important figures with the official source or a professional.'],
 ];
 
 export default function Page() {

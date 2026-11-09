@@ -11,7 +11,7 @@
 | 4b Payments | ✅ code / ⏳ live | `apps/api` (Razorpay + Play verify); live keys NEEDS HUMAN |
 | 5 SEO | ✅ basic | metadata, canonical, robots, sitemap, JSON-LD |
 | 6 Security | ✅ CI | secret guards, Gitleaks, Semgrep, OSV in `ci.yml` |
-| 7 Testing | ✅ | 64 cases + 12 NFRs (`tests/cases/test-cases.xlsx`), unit + E2E automation |
+| 7 Testing | ✅ | 91 cases + 13 NFRs (`tests/cases/test-cases.xlsx`), unit + E2E automation |
 | 8 Performance | ⏳ | Lighthouse/k6 configs copied; routes to tune |
 | 9 Release | ⏳ | `docs/USER_MANUAL.md`; Play listing pending |
 
@@ -22,4 +22,5 @@
 4. Buy the product domain in the company Cloudflare account; set `CANONICAL_HOST` and `NEXT_PUBLIC_SITE_URL`.
 5. Set `NEXT_PUBLIC_BUSINESS_ADDRESS` and confirm the support email.
 6. GST invoicing for web sales (Razorpay is not a merchant of record).
-7. Legal review of Privacy, Terms and Refund pages.
+7. Legal review of Privacy, Terms and Refund pages (Terms rewritten 9 Nov 2026 with stronger no-advice, accuracy and liability wording; still needs a lawyer, RSK-006).
+8. Yearly: re-check every statutory rate in `packages/finance-core/src/finance.ts` and `world.ts` after each country's budget and update `RATES_LAST_CHECKED` (RSK-005).

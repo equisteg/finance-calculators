@@ -44,7 +44,8 @@ export function Disclaimer() {
   return (
     <p className="notice notice-warn mt-8 text-sm" data-testid="disclaimer">
       <strong>Information only.</strong> These are estimates from the numbers you entered and common rules of thumb. They
-      are not financial, tax, investment or legal advice. Check important decisions with a qualified professional.
+      are not financial, tax, investment or legal advice, may contain errors, and tax rates and rules change. Check important
+      decisions with the official source or a qualified professional. <Link href="/terms/" className="underline">Terms</Link>
     </p>
   );
 }

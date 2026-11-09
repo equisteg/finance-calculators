@@ -13,6 +13,7 @@ export const NAV = [
   { href: '/retirement-planner/', label: 'Retirement' },
   { href: '/loan-prepayment/', label: 'Prepayment' },
   { href: '/', label: 'Calculators' },
+  { href: '/tools/', label: 'All tools' },
 ];
 
 export function SiteHeader() {

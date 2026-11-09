@@ -22,6 +22,7 @@ export function SiteFooter() {
           <Link href="/debt-payoff/">Debt Planner</Link>
           <Link href="/goal-planner/">Goal Planner</Link>
           <Link href="/retirement-planner/">Retirement Planner</Link>
+          <Link href="/tools/">All money tools</Link>
           <Link href="/pricing/">Pricing</Link>
         </nav>
         <nav aria-label="Company" className="grid gap-1.5 content-start">
@@ -35,7 +36,9 @@ export function SiteFooter() {
       </div>
       <p className="wrap mt-8 text-xs text-zinc-500">
         Finealth gives general information and estimates only. It is not financial, tax, investment or legal advice, and
-        it does not recommend any product. Check important decisions with a qualified professional.
+        it does not recommend any product. Results depend on the numbers you enter and on rules and rates that change; they
+        may contain errors and are provided &quot;as is&quot; without warranty. Check important decisions with the official
+        source or a qualified professional. See the <Link href="/terms/">Terms</Link>.
       </p>
     </footer>
   );

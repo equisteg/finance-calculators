@@ -649,18 +649,18 @@ export default function Home() {
                 {activeToolId === "tax_in" && (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl text-xs font-mono">
                     <NumberField label="Section 80C (max ₹1.5L)" value={inSec80C} onChange={setInSec80C} />
-                    <NumberField label="Section 80D" value={inSec80D} onChange={setInSec80D} />
+                    <NumberField label="80D self & family (max ₹25k)" value={inSec80D} onChange={setInSec80D} />
                     <NumberField label="HRA Exempt" value={inHraExempt} onChange={setInHraExempt} />
                   </div>
                 )}
 
                 <p className="text-[11px] font-mono text-zinc-500">
                   {activeToolId === "tax_in" &&
-                    "Tax year 2026-27, salaried individual under 60. Includes 87A rebate, surcharge and 4% cess."}
+                    "Tax year 2026-27, salaried individual under 60. Includes 87A rebate, surcharge and 4% cess. For age, parents' 80D and other deductions use the detailed regime calculator in All tools."}
                   {activeToolId === "paycheck_us" &&
                     "2026 tax year, single filer, standard deduction. State tax is an estimate at the state's headline rate."}
                   {activeToolId === "paye_uk" &&
-                    "2026/27, England, Wales & Northern Ireland. Includes the personal allowance taper above £100,000."}
+                    "2026/27, England, Wales & Northern Ireland (Scotland has different bands). Includes the personal allowance taper above £100,000; excludes pension, student loan and tax-code adjustments."}
                 </p>
               </div>
 
@@ -928,11 +928,12 @@ export default function Home() {
         </section>
 
         {/* Standalone calculators */}
-        <nav aria-label="Standalone calculators" className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <nav aria-label="Standalone calculators" className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {[
             { href: "/sip-calculator", title: "SIP Wealth Compounder", blurb: "Monthly investing with a return breakdown" },
             { href: "/emi-calculator", title: "EMI & Debt Schedule", blurb: "Loan installment and interest split" },
             { href: "/compound-interest", title: "Compound Interest Engine", blurb: "Growth with yearly additions" },
+            { href: "/tools", title: "All money tools", blurb: "Tax for 7 countries, world VAT/GST, NPV/IRR, XIRR and 30+ more" },
           ].map((link) => (
             <Link
               key={link.href}
@@ -945,12 +946,20 @@ export default function Home() {
           ))}
         </nav>
 
+        <p className="notice notice-warn mt-8 text-sm" data-testid="disclaimer">
+          <strong>Information only.</strong> Every figure here is an estimate from the numbers you enter and the published rules
+          and rates for the period shown under each calculator. It is not financial, tax, investment or legal advice, may contain
+          errors, and rates change in each budget. Check important decisions with the official source or a qualified
+          professional. <Link href="/terms/" className="underline">Terms</Link>
+        </p>
+
         <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.bottom} className="my-6" />
       </main>
 
       <footer className="border-t border-white/[0.08] mt-16 py-8 text-center text-xs font-mono text-zinc-500 px-4 grid gap-3">
         <nav aria-label="Footer" className="flex flex-wrap justify-center gap-4 text-zinc-400">
           <Link href="/health-check/">Health Check</Link>
+          <Link href="/tools/">All tools</Link>
           <Link href="/pricing/">Pricing</Link>
           <Link href="/about/">About</Link>
           <Link href="/privacy/">Privacy</Link>
@@ -959,7 +968,7 @@ export default function Home() {
           <Link href="/contact/">Contact</Link>
         </nav>
         <span>
-          Finealth Financial Suite · A product by <a href="https://equisteg.com" className="underline">Equisteg</a> · Indicative figures, not financial advice
+          Finealth Financial Suite · A product by <a href="https://equisteg.com" className="underline">Equisteg</a> · Estimates only, not financial, tax or legal advice
         </span>
       </footer>
     </div>
