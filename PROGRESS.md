@@ -19,7 +19,7 @@
 1. Create `development`, `staging`, `production` branches and make `development` the default (repo has only `main`).
 2. Razorpay: live keys, yearly plans (₹199 / US$7.99), website review (Terms, Privacy, Refund, Contact are live on the site), international payments for USD.
 3. Generate the licence key pair (`npm run licence:keys`) and set `LICENCE_SIGNING_KEY` (Worker secret) and `NEXT_PUBLIC_LICENCE_PUBLIC_KEY`.
-4. Buy the product domain in the company Cloudflare account; set `CANONICAL_HOST` and `NEXT_PUBLIC_SITE_URL`.
+4. Domain is `finealth.teiqtools.com` (code already uses it). In Cloudflare: Workers & Pages → finealth → Settings → Domains & Routes → Add → Custom domain → `finealth.teiqtools.com` (the teiqtools.com zone must be in the same account). Then add `google.com, pub-1503863859594756, DIRECT, f08c47fec0942fa0` to `https://teiqtools.com/ads.txt` (AdSense checks the root domain) and add `teiqtools.com` under AdSense → Sites.
 5. Set `NEXT_PUBLIC_BUSINESS_ADDRESS` and confirm the support email.
 6. GST invoicing for web sales (Razorpay is not a merchant of record).
 7. Legal review of Privacy, Terms and Refund pages (Terms rewritten 9 Nov 2026 with stronger no-advice, accuracy and liability wording; still needs a lawyer, RSK-006).

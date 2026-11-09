@@ -219,3 +219,7 @@ img, svg, video, canvas { max-width: 100%; }
   .planner-card { align-content: start; }
 }
 .btn-lg { padding: 0.8rem 1.3rem !important; font-size: 0.95rem !important; border-radius: 0.95rem !important; }
+@layer components {
+  .popular-grid { grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr)); }
+  .steps-grid { grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr)); }
+}

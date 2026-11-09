@@ -1,8 +1,12 @@
 // Public build-time config. Each NEXT_PUBLIC_* must be read literally so Next can inline it. Never put a secret here.
 const clean = (v: string | undefined) => (v ?? '').trim();
 
+export const PRODUCTION_HOST = 'finealth.teiqtools.com';
+export const PRODUCTION_URL = `https://${PRODUCTION_HOST}`;
+
 export const config = {
-  siteUrl: (clean(process.env.NEXT_PUBLIC_SITE_URL) || 'http://localhost:3000').replace(/\/$/, ''),
+  /** Production home: a subdomain of TEIQTools.com (founder decision 9 Nov 2026). Dev builds fall back to localhost. */
+  siteUrl: (clean(process.env.NEXT_PUBLIC_SITE_URL) || (process.env.NODE_ENV === 'production' ? PRODUCTION_URL : 'http://localhost:3000')).replace(/\/$/, ''),
   noindex: clean(process.env.NEXT_PUBLIC_NOINDEX) === '1',
   contactEmail: clean(process.env.NEXT_PUBLIC_CONTACT_EMAIL) || 'support@equisteg.com',
   playUrl: clean(process.env.NEXT_PUBLIC_PLAY_URL),

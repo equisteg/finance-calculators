@@ -16,6 +16,10 @@ export function SiteFooter() {
             <a href={EQUISTEG_URL} className="link">
               Equisteg
             </a>
+            {' · '}more free tools at{' '}
+            <a href="https://teiqtools.com" className="link">
+              TEIQTools.com
+            </a>
           </p>
         </div>
         <nav aria-label="Product" className="grid gap-2 content-start [&>a]:transition [&>a:hover]:text-white">

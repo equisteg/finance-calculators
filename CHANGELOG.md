@@ -2,6 +2,8 @@
 
 ## Unreleased — 2026-11-09
 ### Added
+- Production domain is now `finealth.teiqtools.com`, a subdomain of TEIQTools.com (founder decision): canonical URLs, sitemap, robots and the Worker's host redirect use it (RSK-010). The footer links to TEIQTools.com.
+- Home page: popular calculators and a three-step "How it works" section.
 - New home page: a premium hero (headline, two clear actions, trust chips) beside a live example score card from the real engine, five planner cards, and the same nav rail as the rest of the site.
 - Two-tone glass icons with depth lighting, and new, more accurate icons: prepayment (calendar with fast-forward), tax (receipt with %), bank (RD), piggy bank (PPF), stamp duty, 50/30/20 (pie), Rule of 72 (hourglass), inflation, price tag (discount, margin, sales tax).
 - No empty cells: the tools library, pricing comparison, calculator results (money multiplied, payments) and bullion charts (value labels, growth since the first year) fill every row; the Lifetime card lists what it includes.

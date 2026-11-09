@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 import { financialHealth, PLAN_PRICES } from '@finealth/finance-core';
 import { exampleHealth } from '../tools/HealthCheck';
-import { AREA_ICON, GlassIcon, type GlyphName, type Tone } from '../GlassIcon';
+import { AREA_ICON, GlassIcon, toolIcon, type GlyphName, type Tone } from '../GlassIcon';
+import { TOOLS } from '@/lib/toolCatalog';
 import { ScoreRing, Stat, useMoney } from '../ui';
 
 const TRUST: Array<{ icon: GlyphName; tone: Tone; text: string }> = [
@@ -118,5 +119,79 @@ export function PlannerCards() {
         );
       })}
     </nav>
+  );
+}
+
+const POPULAR = [
+  'india-tax-regime-calculator',
+  'world-vat-gst-calculator',
+  'xirr-calculator',
+  'rent-vs-buy-calculator',
+  'budget-50-30-20-calculator',
+  'rule-of-72',
+  'ppf-calculator',
+  'uk-stamp-duty-calculator',
+];
+
+/** Eight of the most useful library tools, one tap away from the home page. */
+export function PopularTools() {
+  const tools = POPULAR.map((slug) => TOOLS.find((t) => t.slug === slug)).filter((t): t is (typeof TOOLS)[number] => Boolean(t));
+  return (
+    <section className="glass p-5 sm:p-7 mb-8" aria-label="Popular calculators" data-testid="popular-tools">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-3">
+          <GlassIcon name="grid" tone="teal" size={34} />
+          <h2 className="text-xl font-serif font-semibold text-white m-0">Popular calculators</h2>
+        </div>
+        <Link href="/tools/" className="text-sm font-semibold text-emerald-300">
+          All {TOOLS.length} tools →
+        </Link>
+      </div>
+      <div className="fitgrid popular-grid grid gap-3">
+        {tools.map((t) => {
+          const icon = toolIcon(t.slug, t.category);
+          return (
+            <Link key={t.slug} href={`/tools/${t.slug}/`} className="card lift flex items-center gap-3 p-3.5 min-w-0">
+              <GlassIcon name={icon.name} tone={icon.tone} size={40} />
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-white leading-snug">{t.title}</span>
+                <span className="block text-xs text-zinc-500 mt-0.5">
+                  {t.region} · {t.category}
+                </span>
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+const STEPS: Array<{ icon: GlyphName; tone: Tone; title: string; text: string }> = [
+  { icon: 'wallet', tone: 'teal', title: '1. Type ten numbers', text: 'Income, spending, savings and loans. They stay in your browser.' },
+  { icon: 'health', tone: 'emerald', title: '2. Get your score', text: 'Six rules of thumb money professionals use, scored out of 100.' },
+  { icon: 'plan', tone: 'violet', title: '3. Follow the plan', text: 'Ranked actions, debt order, goal savings and retirement odds.' },
+];
+
+/** Three steps from numbers to a plan. */
+export function HowItWorks() {
+  return (
+    <section className="glass p-5 sm:p-7 mt-8" aria-label="How it works">
+      <div className="flex items-center gap-3 mb-4">
+        <GlassIcon name="spark" tone="emerald" size={34} />
+        <h2 className="text-xl font-serif font-semibold text-white m-0">How it works</h2>
+      </div>
+      <div className="fitgrid steps-grid grid gap-3">
+        {STEPS.map((s) => (
+          <div key={s.title} className="stat !p-4 flex items-start gap-3">
+            <GlassIcon name={s.icon} tone={s.tone} size={40} />
+            <div className="min-w-0">
+              <span className="block font-semibold text-white">{s.title}</span>
+              <span className="block text-sm text-zinc-400 mt-1 leading-snug">{s.text}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

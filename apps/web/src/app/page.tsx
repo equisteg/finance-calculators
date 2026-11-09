@@ -11,7 +11,7 @@ import {
 import AdSenseBanner from "../components/AdSenseBanner";
 import { AREA_ICON, GlassIcon } from "../components/GlassIcon";
 import { NAV } from "../components/site/SiteHeader";
-import { HomeHero, PlannerCards } from "../components/site/HomeHero";
+import { HomeHero, HowItWorks, PlannerCards, PopularTools } from "../components/site/HomeHero";
 import { useFitRows } from "../components/ui";
 import { ADSENSE_CLIENT, AD_SLOTS } from "@/lib/ads";
 import { formatMoney, formatNumber } from "@finealth/finance-core";
@@ -316,6 +316,7 @@ export default function Home() {
         {/* Product entry points: the free health check and the planners (Pro features live there) */}
         <HomeHero />
         <PlannerCards />
+        <PopularTools />
 
         <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.top} />
 
@@ -968,6 +969,8 @@ export default function Home() {
           ))}
         </nav>
 
+        <HowItWorks />
+
         <p className="notice notice-warn mt-8 text-sm" data-testid="disclaimer">
           <strong>Information only.</strong> Every figure here is an estimate from the numbers you enter and the published rules
           and rates for the period shown under each calculator. It is not financial, tax, investment or legal advice, may contain
@@ -990,7 +993,7 @@ export default function Home() {
           <Link href="/contact/">Contact</Link>
         </nav>
         <span>
-          Finealth Financial Suite · A product by <a href="https://equisteg.com" className="underline">Equisteg</a> · Estimates only, not financial, tax or legal advice
+          Finealth Financial Suite · A product by <a href="https://equisteg.com" className="underline">Equisteg</a> · More free tools at <a href="https://teiqtools.com" className="underline">TEIQTools.com</a> · Estimates only, not financial, tax or legal advice
         </span>
       </footer>
     </div>

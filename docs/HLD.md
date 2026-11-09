@@ -19,6 +19,7 @@ Out of scope for v1: bank linking or account aggregation, investment product rec
 | D2 | No bank linking | Bank sync needs paid aggregators (Plaid, Account Aggregator) and regulated data handling; breaks the zero-cost rule |
 | D3 | Monorepo per Equisteg template v4 (npm workspaces + Turborepo) | One engine (`packages/finance-core`) shared by web and mobile; same tooling as InvoiceKit |
 | D4 | Web = Next.js 16 static export served by a Cloudflare Worker (static assets) | Pre-rendered pages for SEO and AdSense; free hosting |
+| D4a | Production at `finealth.teiqtools.com`, a subdomain of TEIQTools.com (founder decision 9 Nov 2026, RSK-010) | No separate domain to buy or renew; canonical URLs, sitemap and CORS use the subdomain, and the Worker 301s every other host |
 | D5 | No-signup Pro with a stateless licence Worker (same protocol as InvoiceKit) | No accounts, no database; Razorpay / Google Play are the only purchase records |
 | D6 | Pro gating on the client, licence verified with an Ed25519 signature | Features are local maths; tampering only unlocks UI on the attacker's own device (accepted risk RSK-001) |
 | D7 | Mobile stays a Capacitor wrapper of the static export for now | Ships today; move to Expo (template stack) is RSK-002 / next PR |

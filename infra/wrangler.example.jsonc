@@ -104,8 +104,8 @@
       ],
       "vars": {
         "ENVIRONMENT": "production",
-        // The product's own domain, e.g. finealth.app. The Worker 301s any other host on /api/*.
-        "CANONICAL_HOST": "<domain>",
+        // Finealth lives on a subdomain of TEIQTools.com (founder decision 9 Nov 2026). The Worker 301s any other host on /api/*.
+        "CANONICAL_HOST": "finealth.teiqtools.com",
         "ALLOWED_ORIGINS": "",
         // RAZORPAY_KEY_ID (rzp_live_ only; a rzp_test_ key is refused), RAZORPAY_PLAN_ID_YEARLY_INR and
         // RAZORPAY_PLAN_ID_YEARLY_USD are set in the Cloudflare dashboard (keep_vars), not here.
