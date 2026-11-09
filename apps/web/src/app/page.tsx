@@ -9,6 +9,7 @@ import {
   type PriorityAsset,
 } from "./context/CurrencyContext";
 import AdSenseBanner from "../components/AdSenseBanner";
+import { GlassIcon } from "../components/GlassIcon";
 import { ADSENSE_CLIENT, AD_SLOTS } from "@/lib/ads";
 import { formatMoney, formatNumber } from "@finealth/finance-core";
 import {
@@ -251,26 +252,30 @@ export default function Home() {
       : "sm:grid-cols-2 lg:grid-cols-4";
 
   return (
-    <div className="min-h-screen bg-[#050508] text-zinc-100 selection:bg-emerald-500/30">
+    <div className="min-h-screen text-zinc-100">
       {/* Universal Header */}
-      <header className="border-b border-white/[0.08] bg-[#08080c]/90 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 ring-4 ring-emerald-400/20" />
-            <span className="text-xl font-black tracking-tight text-white font-mono">
-              FINEALTH
-            </span>
-            <span className="text-[10px] font-mono uppercase bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded tracking-widest hidden sm:inline-block">
+      <header className="border-b border-white/[0.07] bg-[#05060a]/70 backdrop-blur-xl backdrop-saturate-150 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link href="/health-check/" className="flex items-center gap-2.5 shrink-0" aria-label="Finealth home">
+              <GlassIcon name="spark" tone="emerald" size={34} />
+              <span className="hidden min-[420px]:block text-[17px] font-serif font-semibold tracking-tight text-white">Finealth</span>
+            </Link>
+            <span data-testid="engine-badge" className="text-[10px] font-semibold uppercase bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full tracking-widest hidden md:inline-block whitespace-nowrap">
               STATUTORY ENGINE
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 shrink-0">
+            <Link href="/tools/" className="btn btn-secondary btn-sm hidden sm:inline-flex">
+              <GlassIcon name="grid" tone="teal" size={20} />
+              All tools
+            </Link>
             <select
               aria-label="Jurisdiction"
               value={baseCurrency}
               onChange={(e) => setBaseCurrency(e.target.value)}
-              className="bg-[#121216] text-white border border-white/[0.15] text-xs font-mono rounded-lg px-3 py-1.5 outline-none hover:border-emerald-500/50 transition cursor-pointer"
+              className="input !w-auto max-w-[9.5rem] sm:max-w-none !py-1.5 !text-xs !rounded-lg cursor-pointer"
             >
               <option value="INR">🇮🇳 India (INR ₹)</option>
               <option value="USD">🇺🇸 United States (USD $)</option>
@@ -282,7 +287,7 @@ export default function Home() {
               onClick={manualRefresh}
               disabled={isSyncing}
               title="Refresh exchange rates"
-              className="inline-flex items-center gap-1.5 text-xs font-mono bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] px-3 py-1.5 rounded-lg transition text-zinc-300 hover:text-white"
+              className="btn btn-secondary btn-sm !px-2.5"
             >
               <span className={isSyncing ? "animate-spin" : ""}>⟳</span>
               <span className="hidden md:inline">{lastUpdated}</span>
@@ -293,9 +298,10 @@ export default function Home() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         {/* Product entry points: the free health check and the planners (Pro features live there) */}
-        <section aria-label="Plan your money" className="mb-6 grid gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.06] p-5 sm:grid-cols-[1fr_auto] sm:items-center">
+        <section aria-label="Plan your money" className="glass glass-strong fade-up mb-6 grid gap-4 p-5 sm:p-6 md:grid-cols-[auto_1fr_auto] md:items-center !border-emerald-400/25">
+          <GlassIcon name="health" tone="emerald" size={52} />
           <div>
-            <h2 className="text-lg font-bold text-white">How healthy are your finances?</h2>
+            <h2 className="text-xl font-serif font-semibold text-white">How healthy are your finances?</h2>
             <p className="text-sm text-zinc-300 mt-1">
               Get a score out of 100 in two minutes, then a plan for your debts, goals and retirement. No login, nothing leaves your device.
             </p>
@@ -312,13 +318,13 @@ export default function Home() {
         {/* Region & Benchmark Header */}
         <div className="mb-8 pt-2">
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono text-emerald-400">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-300 max-w-full flex-wrap">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               JURISDICTION: {activeProfile.flag} {activeProfile.name.toUpperCase()} ({activeProfile.currencyCode}) • EXCHANGE: {activeProfile.primaryExchange}
             </div>
 
             {currency === "INR" && (
-              <div className="inline-flex items-center gap-2 bg-[#141418] border border-white/[0.1] px-3 py-1 rounded-full text-xs font-mono text-white">
+              <div className="chip !text-xs max-w-full">
                 <span className="text-zinc-400">CITY SPREAD:</span>
                 <select
                   aria-label="City"
@@ -336,7 +342,7 @@ export default function Home() {
             )}
 
             {currency === "USD" && (
-              <div className="inline-flex items-center gap-2 bg-[#141418] border border-white/[0.1] px-3 py-1 rounded-full text-xs font-mono text-white">
+              <div className="chip !text-xs max-w-full">
                 <span className="text-zinc-400">STATE TAX MATRIX:</span>
                 <select
                   aria-label="US state"
@@ -354,7 +360,7 @@ export default function Home() {
             )}
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight font-serif">
+          <h1 className="heading-xl">
             Financial & Bullion Markets in {currency === "INR" ? selectedIndianCity : activeProfile.name}
           </h1>
           <p className="text-xs sm:text-sm text-zinc-400 mt-1.5 font-light">
@@ -367,19 +373,20 @@ export default function Home() {
           {activeProfile.priorityAssets.map((asset) => (
             <div
               key={asset.id}
-              className="bg-[#0c0c10] border border-white/[0.08] hover:border-emerald-500/30 transition-all rounded-2xl p-5 flex flex-col justify-between"
+              data-testid="asset-card"
+              className="card lift p-5 flex flex-col justify-between"
             >
               <div>
-                <div className="flex justify-between items-start mb-2 gap-2">
+                <div className="flex flex-wrap justify-between items-start mb-2 gap-x-2 gap-y-1">
                   <div>
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-400/90 block">
+                    <span className="text-[10px] tabular-nums uppercase tracking-widest text-emerald-400/90 block">
                       {asset.category}
                     </span>
                     <h3 className="text-lg font-bold text-white mt-0.5">{asset.name}</h3>
-                    <p className="text-xs text-zinc-400 font-mono">{asset.unit}</p>
+                    <p className="text-xs text-zinc-400 tabular-nums">{asset.unit}</p>
                   </div>
                   <span
-                    className={`text-xs font-mono font-bold whitespace-nowrap ${
+                    className={`shrink-0 text-xs tabular-nums font-bold whitespace-nowrap ${
                       asset.changePct >= 0 ? "text-emerald-400" : "text-rose-400"
                     }`}
                   >
@@ -387,17 +394,17 @@ export default function Home() {
                   </span>
                 </div>
 
-                <div className="my-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                  <span className="text-[9px] font-mono uppercase tracking-wider text-zinc-500 block mb-0.5">
+                <div className="my-3 stat !p-3">
+                  <span className="text-[9px] tabular-nums uppercase tracking-wider text-zinc-500 block mb-0.5">
                     REFERENCE BENCHMARK
                   </span>
-                  <div className="text-2xl font-extrabold text-white font-mono">
+                  <div className="stat-value text-white">
                     {formatAssetValue(asset, priceFor(asset))}
                   </div>
                 </div>
               </div>
 
-              <div className="text-[11px] font-mono text-zinc-500 pt-2 border-t border-white/[0.06]">
+              <div className="text-[11px] tabular-nums text-zinc-500 pt-2 border-t border-white/[0.06]">
                 {asset.taxNote}
               </div>
             </div>
@@ -405,12 +412,12 @@ export default function Home() {
         </section>
 
         {/* Graphical Trajectory Curves */}
-        <section className="mb-12 bg-[#0c0c10] border border-white/[0.08] rounded-2xl p-5 sm:p-7">
+        <section className="mb-12 glass p-5 sm:p-7">
           <div className="mb-5">
             <h2 className="text-lg sm:text-xl font-bold text-white">
               Multi-Decade Inception Historical Trajectory
             </h2>
-            <p className="text-xs text-zinc-400 mt-1 font-mono">
+            <p className="text-xs text-zinc-400 mt-1 tabular-nums">
               Historical pricing milestones from {activeProfile.name} records.
             </p>
           </div>
@@ -424,13 +431,13 @@ export default function Home() {
                 return (
                   <div
                     key={`curve-${asset.id}`}
-                    className="bg-white/[0.01] border border-white/[0.05] rounded-xl p-5"
+                    className="stat !p-5"
                   >
-                    <div className="flex justify-between items-center mb-4 gap-3">
+                    <div className="flex flex-wrap justify-between items-center mb-4 gap-x-3 gap-y-1">
                       <h3 className="text-sm font-bold text-white">
                         {asset.name} ({asset.unit})
                       </h3>
-                      <span className="text-[11px] font-mono text-emerald-400 text-right">
+                      <span className="text-[11px] text-emerald-300/90">
                         Source: {asset.sourceAuthority}
                       </span>
                     </div>
@@ -442,15 +449,14 @@ export default function Home() {
                           <div
                             key={pt.year}
                             className="flex-1 flex flex-col items-center gap-1 group relative h-full justify-end"
+                            title={`${pt.year}: ${pt.priceFormatted}`}
                           >
-                            <div className="absolute -top-7 opacity-0 group-hover:opacity-100 transition pointer-events-none bg-zinc-900 border border-white/20 text-[10px] font-mono text-emerald-400 px-1.5 py-0.5 rounded whitespace-nowrap z-20">
-                              {pt.priceFormatted}
-                            </div>
+                            <span className="sr-only">{`${pt.year}: ${pt.priceFormatted}`}</span>
                             <div
                               style={{ height: `${heightPct}%` }}
-                              className="w-full bg-emerald-500/20 group-hover:bg-emerald-500/50 border-t-2 border-emerald-400 rounded-t transition-all"
+                              className="w-full rounded-t-md bg-gradient-to-t from-emerald-500/10 to-emerald-400/50 group-hover:to-emerald-300/80 border-t-2 border-emerald-300 transition-all"
                             />
-                            <span className="text-[10px] font-mono text-zinc-400 mt-2">{pt.year}</span>
+                            <span className="text-[10px] tabular-nums text-zinc-400 mt-2">{pt.year}</span>
                           </div>
                         );
                       })}
@@ -464,27 +470,24 @@ export default function Home() {
         <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.mid} className="my-4" />
 
         {/* WORKSPACE TOOLS SECTION */}
-        <section className="bg-[#0c0c10] border border-white/[0.08] rounded-2xl p-5 sm:p-7">
+        <section className="glass p-5 sm:p-7">
           <div className="mb-6">
             <h2 className="text-xl sm:text-2xl font-bold text-white">
               {activeProfile.name} Specific Tools & Financial Engines
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 mt-1 font-mono">
+            <p className="text-xs sm:text-sm text-zinc-400 mt-1 tabular-nums">
               Calibrated statutory tools for {activeProfile.name} currency and laws.
             </p>
           </div>
 
           {/* Region Tool Tab Selector */}
-          <div className="flex flex-wrap gap-2 mb-8 border-b border-white/[0.06] pb-4">
+          <div className="rail mb-8 border-b border-white/[0.06] pb-4">
             {regionalTools.map((tool) => (
               <button
                 key={tool.id}
                 onClick={() => setActiveToolId(tool.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-mono transition ${
-                  activeToolId === tool.id
-                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold"
-                    : "bg-white/[0.02] text-zinc-400 hover:text-white border border-white/[0.05]"
-                }`}
+                aria-pressed={activeToolId === tool.id}
+                className="chip !text-xs"
               >
                 {tool.label}
               </button>
@@ -493,8 +496,8 @@ export default function Home() {
 
           {/* 1. LOAN & MORTGAGE ENGINE */}
           {LOAN_TOOLS.includes(activeToolId) && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+              <div className="md:col-span-7 space-y-6">
                 <SliderField
                   label="Borrowing Principal"
                   display={money(loanPrincipal)}
@@ -532,16 +535,16 @@ export default function Home() {
                 )}
               </div>
 
-              <div className="lg:col-span-5 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 flex flex-col justify-between">
+              <div className="md:col-span-5 glass glass-strong p-6 flex flex-col justify-between">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">
+                  <span className="text-[10px] tabular-nums uppercase tracking-widest text-zinc-500 block mb-1">
                     {activeToolId === "mortgage_us" ? "TOTAL MONTHLY PITI" : "MONTHLY INSTALLMENT"}
                   </span>
-                  <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono mb-4">
+                  <div className="text-3xl sm:text-4xl font-extrabold text-white tabular-nums mb-4">
                     {money(activeToolId === "mortgage_us" ? piti.totalMonthly : loan.emi)}
                   </div>
 
-                  <div className="space-y-3 border-t border-white/[0.06] pt-4 text-xs font-mono">
+                  <div className="space-y-3 border-t border-white/[0.06] pt-4 text-xs tabular-nums">
                     <ResultRow label="Principal Amount:" value={money(loanPrincipal)} />
                     <ResultRow label="Total Interest Payable:" value={`+${money(loan.totalInterest)}`} tone="negative" />
                     {activeToolId === "mortgage_us" && (
@@ -576,8 +579,8 @@ export default function Home() {
 
           {/* 2. SIP & RETIREMENT ENGINE */}
           {GROWTH_TOOLS.includes(activeToolId) && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+              <div className="md:col-span-7 space-y-6">
                 <SliderField
                   label="Monthly Investment"
                   display={money(sipMonthlyDeposit)}
@@ -616,16 +619,16 @@ export default function Home() {
                 />
               </div>
 
-              <div className="lg:col-span-5 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 flex flex-col justify-between">
+              <div className="md:col-span-5 glass glass-strong p-6 flex flex-col justify-between">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">
+                  <span className="text-[10px] tabular-nums uppercase tracking-widest text-zinc-500 block mb-1">
                     PROJECTED WEALTH CORPUS
                   </span>
-                  <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono mb-4">
+                  <div className="text-3xl sm:text-4xl font-extrabold text-white tabular-nums mb-4">
                     {money(stepUpResults.maturity)}
                   </div>
 
-                  <div className="space-y-3 border-t border-white/[0.06] pt-4 text-xs font-mono">
+                  <div className="space-y-3 border-t border-white/[0.06] pt-4 text-xs tabular-nums">
                     <ResultRow label="Total Invested Capital:" value={money(stepUpResults.invested)} />
                     <ResultRow label="Compound Wealth Generated:" value={`+${money(stepUpResults.gains)}`} tone="positive" />
                   </div>
@@ -636,8 +639,8 @@ export default function Home() {
 
           {/* 3. INCOME TAX ENGINES */}
           {INCOME_TAX_TOOLS.includes(activeToolId) && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+              <div className="md:col-span-7 space-y-6">
                 <SliderField
                   label="Annual Gross Income"
                   display={money(grossAnnualIncome)}
@@ -647,14 +650,14 @@ export default function Home() {
                 />
 
                 {activeToolId === "tax_in" && (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl text-xs font-mono">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 stat text-xs">
                     <NumberField label="Section 80C (max ₹1.5L)" value={inSec80C} onChange={setInSec80C} />
                     <NumberField label="80D self & family (max ₹25k)" value={inSec80D} onChange={setInSec80D} />
                     <NumberField label="HRA Exempt" value={inHraExempt} onChange={setInHraExempt} />
                   </div>
                 )}
 
-                <p className="text-[11px] font-mono text-zinc-500">
+                <p className="text-[11px] tabular-nums text-zinc-500">
                   {activeToolId === "tax_in" &&
                     "Tax year 2026-27, salaried individual under 60. Includes 87A rebate, surcharge and 4% cess. For age, parents' 80D and other deductions use the detailed regime calculator in All tools."}
                   {activeToolId === "paycheck_us" &&
@@ -664,16 +667,16 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="lg:col-span-5 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 flex flex-col justify-between">
+              <div className="md:col-span-5 glass glass-strong p-6 flex flex-col justify-between">
                 {activeToolId === "tax_in" && (
                   <div>
-                    <div className="inline-block bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-mono px-2 py-0.5 rounded uppercase font-bold mb-2">
+                    <div className="inline-block bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] tabular-nums px-2 py-0.5 rounded uppercase font-bold mb-2">
                       RECOMMENDATION: {indianTax.recommended}
                     </div>
-                    <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono mb-4">
+                    <div className="text-3xl sm:text-4xl font-extrabold text-white tabular-nums mb-4">
                       {money(Math.min(indianTax.newTax, indianTax.oldTax))}
                     </div>
-                    <div className="space-y-2 border-t border-white/[0.06] pt-3 text-xs font-mono">
+                    <div className="space-y-2 border-t border-white/[0.06] pt-3 text-xs tabular-nums">
                       <ResultRow label="New Regime Tax (Sec 115BAC):" value={money(indianTax.newTax)} />
                       <ResultRow label="Old Regime Tax (with 80C/80D):" value={money(indianTax.oldTax)} />
                       <div className="flex justify-between text-emerald-400 border-t border-white/[0.06] pt-2 font-bold">
@@ -686,13 +689,13 @@ export default function Home() {
 
                 {activeToolId === "paycheck_us" && (
                   <div>
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">
+                    <span className="text-[10px] tabular-nums uppercase tracking-widest text-zinc-500 block mb-1">
                       NET MONTHLY PAYCHECK
                     </span>
-                    <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono mb-4">
+                    <div className="text-3xl sm:text-4xl font-extrabold text-white tabular-nums mb-4">
                       {money(usPay.netMonthly)}
                     </div>
-                    <div className="space-y-2 border-t border-white/[0.06] pt-3 text-xs font-mono">
+                    <div className="space-y-2 border-t border-white/[0.06] pt-3 text-xs tabular-nums">
                       <ResultRow label="Federal Income Tax:" value={`-${money(usPay.federalTax)}`} tone="negative" />
                       <ResultRow label={`${usState?.name ?? ""} State Tax (est.):`} value={`-${money(usPay.stateTax)}`} tone="negative" />
                       <ResultRow label="FICA (SS + Medicare):" value={`-${money(usPay.fica)}`} tone="negative" />
@@ -706,13 +709,13 @@ export default function Home() {
 
                 {activeToolId === "paye_uk" && (
                   <div>
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">
+                    <span className="text-[10px] tabular-nums uppercase tracking-widest text-zinc-500 block mb-1">
                       NET TAKE-HOME PAY
                     </span>
-                    <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono mb-4">
+                    <div className="text-3xl sm:text-4xl font-extrabold text-white tabular-nums mb-4">
                       {money(ukPay.netMonthly)}/mo
                     </div>
-                    <div className="space-y-2 border-t border-white/[0.06] pt-3 text-xs font-mono">
+                    <div className="space-y-2 border-t border-white/[0.06] pt-3 text-xs tabular-nums">
                       <ResultRow label="Personal Allowance:" value={money(ukPay.personalAllowance)} />
                       <ResultRow label="PAYE Income Tax:" value={`-${money(ukPay.incomeTax)}`} tone="negative" />
                       <ResultRow label="National Insurance (NI):" value={`-${money(ukPay.nationalInsurance)}`} tone="negative" />
@@ -725,8 +728,8 @@ export default function Home() {
 
           {/* 4a. INDIA GST */}
           {activeToolId === "gst_in" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+              <div className="md:col-span-7 space-y-6">
                 <SliderField
                   label="Transaction / Invoice Base"
                   display={money(invoiceAmount)}
@@ -754,8 +757,8 @@ export default function Home() {
 
           {/* 4b. EU VAT */}
           {activeToolId === "vat_eu" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+              <div className="md:col-span-7 space-y-6">
                 <SliderField
                   label="Transaction / Invoice Base"
                   display={money(invoiceAmount)}
@@ -764,14 +767,14 @@ export default function Home() {
                   {...rangeFor("invoiceAmount", currency)}
                 />
                 <div>
-                  <label className="text-xs font-mono text-zinc-400 block mb-2" htmlFor="vat-country">
+                  <label className="text-xs tabular-nums text-zinc-400 block mb-2" htmlFor="vat-country">
                     Member State (standard rate)
                   </label>
                   <select
                     id="vat-country"
                     value={vatCountry}
                     onChange={(e) => setVatCountry(e.target.value)}
-                    className="w-full bg-[#121216] text-white border border-white/[0.15] text-xs font-mono rounded-lg px-3 py-2 outline-none"
+                    className="input !text-xs !rounded-lg"
                   >
                     {Object.entries(EU_STANDARD_VAT_RATES).map(([code, entry]) => (
                       <option key={code} value={code}>
@@ -793,8 +796,8 @@ export default function Home() {
 
           {/* 4c. US SALES TAX */}
           {activeToolId === "salestax_us" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+              <div className="md:col-span-7 space-y-6">
                 <SliderField
                   label="Purchase Price (pre-tax)"
                   display={money(invoiceAmount)}
@@ -802,7 +805,7 @@ export default function Home() {
                   onChange={setInvoiceAmount}
                   {...rangeFor("invoiceAmount", currency)}
                 />
-                <p className="text-[11px] font-mono text-zinc-500">
+                <p className="text-[11px] tabular-nums text-zinc-500">
                   Uses {usState?.name}&apos;s average combined state + local rate of {salesTaxRate}%. Change the state in the
                   STATE TAX MATRIX selector above. Actual rates vary by city and county.
                 </p>
@@ -818,8 +821,8 @@ export default function Home() {
 
           {/* 4d. UK STAMP DUTY */}
           {activeToolId === "sdlt_uk" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+              <div className="md:col-span-7 space-y-6">
                 <SliderField
                   label="Property Purchase Price"
                   display={money(sdltPrice)}
@@ -830,7 +833,7 @@ export default function Home() {
                   step={5_000}
                 />
                 <ChoiceField label="Buyer Type" options={SDLT_BUYERS} selected={sdltBuyer} onSelect={setSdltBuyer} />
-                <p className="text-[11px] font-mono text-zinc-500">
+                <p className="text-[11px] tabular-nums text-zinc-500">
                   Residential rates from 1 April 2025, England & Northern Ireland. Scotland (LBTT) and Wales (LTT) differ.
                 </p>
               </div>
@@ -850,8 +853,8 @@ export default function Home() {
 
           {/* 5. FD MATURITY */}
           {activeToolId === "fdrd_in" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+              <div className="md:col-span-7 space-y-6">
                 <SliderField
                   label="Deposit Principal"
                   display={money(fdPrincipal)}
@@ -891,8 +894,8 @@ export default function Home() {
 
           {/* 6. CTC TO IN-HAND */}
           {activeToolId === "ctc_in" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-7 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+              <div className="md:col-span-7 space-y-6">
                 <SliderField
                   label="Annual Cost to Company (CTC)"
                   display={money(ctcAmount)}
@@ -911,7 +914,7 @@ export default function Home() {
                   max={1_000_000}
                   step={25_000}
                 />
-                <p className="text-[11px] font-mono text-zinc-500">
+                <p className="text-[11px] tabular-nums text-zinc-500">
                   Assumes basic at 40% of fixed pay, 12% PF each side, 4.81% gratuity, ₹2,500 professional tax and the
                   new tax regime.
                 </p>
@@ -930,18 +933,21 @@ export default function Home() {
         {/* Standalone calculators */}
         <nav aria-label="Standalone calculators" className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { href: "/sip-calculator", title: "SIP Wealth Compounder", blurb: "Monthly investing with a return breakdown" },
-            { href: "/emi-calculator", title: "EMI & Debt Schedule", blurb: "Loan installment and interest split" },
-            { href: "/compound-interest", title: "Compound Interest Engine", blurb: "Growth with yearly additions" },
-            { href: "/tools", title: "All money tools", blurb: "Tax for 7 countries, world VAT/GST, NPV/IRR, XIRR and 30+ more" },
+            { href: "/sip-calculator", title: "SIP Wealth Compounder", blurb: "Monthly investing with a return breakdown", icon: "coins" as const, tone: "emerald" as const },
+            { href: "/emi-calculator", title: "EMI & Debt Schedule", blurb: "Loan installment and interest split", icon: "debt" as const, tone: "rose" as const },
+            { href: "/compound-interest", title: "Compound Interest Engine", blurb: "Growth with yearly additions", icon: "trend" as const, tone: "sky" as const },
+            { href: "/tools", title: "All money tools", blurb: "Tax for 7 countries, world VAT/GST, NPV/IRR, XIRR and 30+ more", icon: "grid" as const, tone: "teal" as const },
           ].map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="block bg-[#0c0c10] border border-white/[0.08] hover:border-emerald-500/40 rounded-xl p-4 transition"
+              className="card lift flex items-center gap-3 p-4"
             >
-              <span className="text-sm font-bold text-white block">{link.title} →</span>
-              <span className="text-xs font-mono text-zinc-400">{link.blurb}</span>
+              <GlassIcon name={link.icon} tone={link.tone} size={42} />
+              <span className="min-w-0">
+                <span className="text-sm font-bold text-white block">{link.title}</span>
+                <span className="text-xs text-zinc-400 block leading-snug mt-0.5">{link.blurb}</span>
+              </span>
             </Link>
           ))}
         </nav>
@@ -956,7 +962,7 @@ export default function Home() {
         <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.bottom} className="my-6" />
       </main>
 
-      <footer className="border-t border-white/[0.08] mt-16 py-8 text-center text-xs font-mono text-zinc-500 px-4 grid gap-3">
+      <footer className="border-t border-white/[0.08] mt-16 py-8 text-center text-xs tabular-nums text-zinc-500 px-4 grid gap-3">
         <nav aria-label="Footer" className="flex flex-wrap justify-center gap-4 text-zinc-400">
           <Link href="/health-check/">Health Check</Link>
           <Link href="/tools/">All tools</Link>
@@ -991,9 +997,9 @@ function SliderField(props: {
 }) {
   return (
     <div>
-      <div className="flex justify-between text-xs font-mono text-zinc-400 mb-2">
+      <div className="flex flex-wrap justify-between gap-x-3 text-xs text-zinc-400 mb-2">
         <span>{props.label}</span>
-        <span className={props.accent ? "text-emerald-400 font-bold" : "text-white font-bold"}>{props.display}</span>
+        <span className={`tabular-nums ${props.accent ? "text-emerald-300 font-bold" : "text-white font-bold"}`}>{props.display}</span>
       </div>
       <input
         type="range"
@@ -1003,7 +1009,7 @@ function SliderField(props: {
         step={props.step}
         value={props.value}
         onChange={(e) => props.onChange(Number(e.target.value))}
-        className="w-full accent-emerald-400"
+        className="w-full accent-emerald-400 h-1.5 cursor-pointer"
       />
     </div>
   );
@@ -1012,14 +1018,14 @@ function SliderField(props: {
 function NumberField(props: { label: string; value: number; onChange: (value: number) => void; step?: number }) {
   return (
     <label className="block">
-      <span className="text-[10px] font-mono text-zinc-400 block mb-1">{props.label}</span>
+      <span className="label !text-[10px]">{props.label}</span>
       <input
         type="number"
         min={0}
         step={props.step ?? 1}
         value={props.value}
         onChange={(e) => props.onChange(Math.max(0, Number(e.target.value) || 0))}
-        className="w-full bg-[#121216] border border-white/[0.1] rounded px-2 py-1 text-xs text-white"
+        className="input !py-1.5 !text-xs !rounded-lg"
       />
     </label>
   );
@@ -1033,17 +1039,14 @@ function ChoiceField<T extends string | number>(props: {
 }) {
   return (
     <div>
-      <span className="text-xs font-mono text-zinc-400 block mb-2">{props.label}</span>
+      <span className="label">{props.label}</span>
       <div className="flex flex-wrap gap-2">
         {props.options.map((option) => (
           <button
             key={option.id}
             onClick={() => props.onSelect(option.id)}
-            className={`flex-1 min-w-[5rem] py-2 px-2 rounded-xl text-xs font-mono font-bold transition ${
-              props.selected === option.id
-                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                : "bg-white/[0.02] text-zinc-400 border border-white/[0.06]"
-            }`}
+            aria-pressed={props.selected === option.id}
+            className="chip !text-xs flex-1 justify-center min-w-[4.5rem] !whitespace-normal text-center"
           >
             {option.label}
           </button>
@@ -1055,12 +1058,12 @@ function ChoiceField<T extends string | number>(props: {
 
 function InclusiveToggle(props: { checked: boolean; onChange: (checked: boolean) => void }) {
   return (
-    <label className="text-xs font-mono text-zinc-400 flex items-center gap-2 cursor-pointer">
+    <label className="text-xs text-zinc-300 flex items-center gap-2 cursor-pointer">
       <input
         type="checkbox"
         checked={props.checked}
         onChange={(e) => props.onChange(e.target.checked)}
-        className="accent-emerald-400"
+        className="check"
       />
       Price is Already Tax-Inclusive
     </label>
@@ -1077,30 +1080,30 @@ const TONE_CLASS = {
 function ResultRow(props: { label: string; value: string; tone?: keyof typeof TONE_CLASS }) {
   return (
     <div className="flex justify-between gap-3 text-zinc-400">
-      <span>{props.label}</span>
-      <span className={TONE_CLASS[props.tone ?? "neutral"]}>{props.value}</span>
+      <span className="min-w-0">{props.label}</span>
+      <span className={`text-right tabular-nums ${TONE_CLASS[props.tone ?? "neutral"]}`}>{props.value}</span>
     </div>
   );
 }
 
 function TotalRow(props: { label: string; value: string }) {
   return (
-    <div className="flex justify-between gap-3 text-emerald-400 border-t border-white/[0.06] pt-2 font-bold">
-      <span>{props.label}</span>
-      <span>{props.value}</span>
+    <div className="flex justify-between gap-3 text-emerald-300 border-t border-white/[0.06] pt-2 font-bold">
+      <span className="min-w-0">{props.label}</span>
+      <span className="text-right tabular-nums">{props.value}</span>
     </div>
   );
 }
 
 function ResultPanel(props: { heading: string; amount: string; children: React.ReactNode }) {
   return (
-    <div className="lg:col-span-5 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 flex flex-col justify-between">
+    <div className="md:col-span-5 glass glass-strong p-6 flex flex-col justify-between">
       <div>
-        <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400 block mb-1">
           {props.heading}
         </span>
-        <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono mb-4">{props.amount}</div>
-        <div className="space-y-3 border-t border-white/[0.06] pt-4 text-xs font-mono">{props.children}</div>
+        <div className="stat-value !text-[clamp(1.6rem,1.2rem+1.6vw,2.4rem)] gradient-text mb-4">{props.amount}</div>
+        <div className="space-y-3 border-t border-white/[0.06] pt-4 text-xs">{props.children}</div>
       </div>
     </div>
   );

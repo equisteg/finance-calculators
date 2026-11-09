@@ -12,6 +12,7 @@
 - Rate solver (true loan cost, flat rate, IRR) now handles long loans and 100+ periods; NPV/XIRR read "1,00,000"-style amounts, reject impossible dates and name lines they skip (found in specialist review).
 - India old regime now applies senior (60-79) and super-senior (80+) exemptions when the age is given.
 ### Changed
+- Premium glass redesign: new design system (glass cards, gradient buttons, focus glow, Fraunces + Inter), original glassy icon tiles for every area, category and tool, horizontal layouts (inputs beside results from tablet up, two-column inputs on phones, horizontal tool cards, one scrolling nav rail instead of a hamburger menu). An overflow audit at 360/768/1280 px finds no text or icon outside its box.
 - Terms rewritten: no-advice and no-regulator-registration statement, accuracy and estimates, no warranty, limitation of liability, indemnity, statutory rights, grievance contact. Refund policy explains how calculation errors are handled. Stronger disclaimer on every result, the calculators page and the footer.
 - UK take-home now says Scotland is not covered; India tax note points to the detailed calculator.
 

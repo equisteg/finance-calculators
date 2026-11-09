@@ -6,6 +6,7 @@ import { isRetirementInput, KEYS } from '@/lib/storage';
 import { usePersistent } from '@/lib/usePersistent';
 import { usePro } from '../ProProvider';
 import { NumberField, Panel, ProGate, Stat, ToolPage, useMoney, type ToolCurrency } from '../ui';
+import { AREA_ICON } from '../GlassIcon';
 
 export function exampleRetirement(currency: ToolCurrency): RetirementInput {
   const inr = currency === 'INR';
@@ -39,13 +40,14 @@ export function RetirementPlanner() {
 
   return (
     <ToolPage
+      icon={AREA_ICON['/retirement-planner/']}
       eyebrow="Projection free · Monte Carlo odds with Pro"
       title="Retirement Planner"
       intro="See how much you will have when you stop working, how much you need, and (with Pro) the chance your money lasts when markets go up and down."
     >
-      <div className="grid gap-6 lg:grid-cols-12">
-        <Panel title="Your plan" className="lg:col-span-5">
-          <div className="grid gap-4 grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-12 items-start">
+        <Panel title="Your plan" className="md:col-span-5">
+          <div className="grid gap-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
             <NumberField label="Age now" value={input.currentAge} onChange={(n) => set({ currentAge: n })} step={1} max={100} />
             <NumberField label="Retire at" value={input.retireAge} onChange={(n) => set({ retireAge: n })} step={1} max={100} />
             <NumberField label="Plan until age" value={input.planToAge} onChange={(n) => set({ planToAge: n })} step={1} max={110} />
@@ -59,7 +61,7 @@ export function RetirementPlanner() {
           </div>
         </Panel>
 
-        <div className="lg:col-span-7 grid gap-6 content-start">
+        <div className="md:col-span-7 grid gap-6 content-start">
           <Panel testId="retirement-result">
             <div className="grid gap-3 sm:grid-cols-2">
               <Stat label={`At age ${input.retireAge} you will have`} value={money(p.corpusAtRetirement)} testId="ret-corpus" />

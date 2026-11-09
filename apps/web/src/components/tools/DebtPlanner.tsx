@@ -6,6 +6,7 @@ import { download, isDebtList, KEYS, newId } from '@/lib/storage';
 import { usePersistent } from '@/lib/usePersistent';
 import { usePro } from '../ProProvider';
 import { LineChart, NumberField, Panel, ProGate, Stat, ToolPage, useMoney, type ToolCurrency } from '../ui';
+import { AREA_ICON } from '../GlassIcon';
 
 export function exampleDebts(currency: ToolCurrency): Debt[] {
   const k = currency === 'INR' ? 1 : 1 / 20;
@@ -58,6 +59,7 @@ export function DebtPlanner() {
 
   return (
     <ToolPage
+      icon={AREA_ICON['/debt-payoff/']}
       eyebrow="Snowball vs avalanche · month by month"
       title="Debt Payoff Planner"
       intro="Add your debts and what you can pay each month. See your debt-free date, the interest you save, and which order clears them fastest."
@@ -69,8 +71,8 @@ export function DebtPlanner() {
         ) : undefined
       }
     >
-      <div className="grid gap-6 lg:grid-cols-12">
-        <div className="lg:col-span-5 grid gap-6 content-start">
+      <div className="grid gap-6 md:grid-cols-12 items-start">
+        <div className="md:col-span-5 grid gap-6 content-start">
           <Panel title="Your debts">
             <ul className="grid gap-4">
               {debts.map((d, i) => {
@@ -119,7 +121,7 @@ export function DebtPlanner() {
           </Panel>
         </div>
 
-        <div className="lg:col-span-7 grid gap-6 content-start">
+        <div className="md:col-span-7 grid gap-6 content-start">
           {!chosen.feasible ? (
             <p className="notice notice-danger" role="alert" data-testid="debt-infeasible">
               {chosen.reason}

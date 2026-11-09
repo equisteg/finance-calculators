@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { comparePrepayment } from '@finealth/finance-core';
 import { NumberField, Panel, Stat, ToolPage, useMoney } from '../ui';
+import { AREA_ICON } from '../GlassIcon';
 
 const span = (m: number) => (!Number.isFinite(m) ? 'never' : m < 12 ? `${m} months` : `${Math.floor(m / 12)} yr ${m % 12} mo`);
 
@@ -18,13 +19,14 @@ export function PrepaymentTool() {
 
   return (
     <ToolPage
+      icon={AREA_ICON['/loan-prepayment/']}
       eyebrow="Reduce tenure or reduce EMI?"
       title="Loan Prepayment Optimiser"
       intro="Paying part of a loan early? Compare keeping your EMI and finishing sooner with keeping the end date and paying less each month."
     >
-      <div className="grid gap-6 lg:grid-cols-12">
-        <Panel title="Your loan" className="lg:col-span-5">
-          <div className="grid gap-4 grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-12 items-start">
+        <Panel title="Your loan" className="md:col-span-5">
+          <div className="grid gap-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
             <NumberField label="Balance today" value={outstanding} onChange={setOutstanding} testId="in-outstanding" />
             <NumberField label="Interest rate" suffix="%" value={apr} onChange={setApr} max={40} />
             <NumberField label="Months left" value={monthsLeft} onChange={(n) => setMonthsLeft(Math.min(480, n))} step={1} max={480} />
@@ -34,7 +36,7 @@ export function PrepaymentTool() {
           <p className="hint mt-4">Current EMI: {money(r.emi)} · Interest left if you change nothing: {money(r.baseline.totalInterest)}</p>
         </Panel>
 
-        <div className="lg:col-span-7 grid gap-6 content-start sm:grid-cols-2">
+        <div className="md:col-span-7 grid gap-6 content-start sm:grid-cols-2">
           <Panel title="Keep EMI, finish sooner" testId="prepay-tenure" className={r.better === 'reduceTenure' ? '!border-emerald-400/60' : ''}>
             <div className="grid gap-3">
               <Stat label="Interest saved" value={money(r.reduceTenure.interestSaved)} tone="ok" testId="tenure-saved" />

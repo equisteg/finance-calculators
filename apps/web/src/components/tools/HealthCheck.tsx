@@ -7,6 +7,7 @@ import { isHealthInput, isSnapshotList, KEYS, load, save, type Snapshot } from '
 import { usePersistent } from '@/lib/usePersistent';
 import { usePro } from '../ProProvider';
 import { Bar, NumberField, Panel, ProGate, ScoreRing, ToolPage, useMoney, type ToolCurrency } from '../ui';
+import { AREA_ICON } from '../GlassIcon';
 
 /** Example household per currency so the first visit shows a real result. */
 export function exampleHealth(currency: ToolCurrency): HealthInput {
@@ -60,6 +61,7 @@ export function HealthCheck() {
 
   return (
     <ToolPage
+      icon={AREA_ICON['/health-check/']}
       eyebrow="Free · 2 minutes · nothing leaves your device"
       title="Financial Health Check"
       intro={
@@ -86,9 +88,9 @@ export function HealthCheck() {
           Snapshot saved on this device. See your progress on <Link href="/my-plan/" className="link">My Plan</Link>.
         </p>
       )}
-      <div className="grid gap-6 lg:grid-cols-12">
-        <Panel title="Your numbers (per month unless stated)" className="lg:col-span-5 no-print">
-          <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-12 items-start">
+        <Panel title="Your numbers (per month unless stated)" className="md:col-span-5 no-print">
+          <div className="grid gap-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
             <NumberField label="Take-home income" value={input.monthlyIncome} onChange={(n) => set({ monthlyIncome: n })} testId="in-income" />
             <NumberField label="Spending" hint="Everything except loan payments" value={input.monthlyExpenses} onChange={(n) => set({ monthlyExpenses: n })} testId="in-expenses" />
             <NumberField label="Loan & card payments" hint="EMIs and minimum card payments" value={input.monthlyDebtPayments} onChange={(n) => set({ monthlyDebtPayments: n })} testId="in-debtpay" />
@@ -116,7 +118,7 @@ export function HealthCheck() {
           )}
         </Panel>
 
-        <div className="lg:col-span-7 grid gap-6 content-start print-dark-text">
+        <div className="md:col-span-7 grid gap-6 content-start print-dark-text">
           <Panel testId="health-result">
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <ScoreRing score={report.score} label={report.grade} />

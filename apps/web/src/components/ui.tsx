@@ -7,6 +7,7 @@ import { useCurrency } from '@/app/context/CurrencyContext';
 import AdSenseBanner from './AdSenseBanner';
 import { ADSENSE_CLIENT, AD_SLOTS } from '@/lib/ads';
 import { usePro } from './ProProvider';
+import { GlassIcon, type GlyphName, type Tone } from './GlassIcon';
 
 export type Money = (n: number) => string;
 
@@ -21,16 +22,30 @@ export function useMoney(): { currency: ToolCurrency; money: Money } {
 }
 
 /** Frame for every planning tool: heading, the tool, the disclaimer, then one ad slot below the result. */
-export function ToolPage(props: { eyebrow: string; title: string; intro: ReactNode; children: ReactNode; actions?: ReactNode }) {
+export function ToolPage(props: {
+  eyebrow: string;
+  title: string;
+  intro: ReactNode;
+  children: ReactNode;
+  actions?: ReactNode;
+  icon?: { name: GlyphName; tone: Tone };
+}) {
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/[0.08] pb-6 mb-8">
-        <div>
-          <span className="eyebrow block mb-2">{props.eyebrow}</span>
-          <h1 className="text-3xl sm:text-4xl font-serif font-bold text-white">{props.title}</h1>
-          <div className="text-zinc-400 mt-2 max-w-2xl">{props.intro}</div>
+    <div className="fade-up">
+      <div className="glass glass-strong p-5 sm:p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div className="flex items-start gap-4 min-w-0">
+          {props.icon && (
+            <span className="hidden sm:inline-grid shrink-0">
+              <GlassIcon name={props.icon.name} tone={props.icon.tone} size={56} />
+            </span>
+          )}
+          <div className="min-w-0">
+            <span className="eyebrow block mb-1.5">{props.eyebrow}</span>
+            <h1 className="heading-xl">{props.title}</h1>
+            <div className="text-zinc-400 mt-2 max-w-2xl leading-relaxed">{props.intro}</div>
+          </div>
         </div>
-        {props.actions && <div className="no-print flex flex-wrap gap-2">{props.actions}</div>}
+        {props.actions && <div className="no-print flex flex-wrap gap-2 md:justify-end shrink-0">{props.actions}</div>}
       </div>
       {props.children}
       <Disclaimer />
@@ -42,18 +57,21 @@ export function ToolPage(props: { eyebrow: string; title: string; intro: ReactNo
 /** Shown under every result (finance category rule): readable size and contrast, never hidden. */
 export function Disclaimer() {
   return (
-    <p className="notice notice-warn mt-8 text-sm" data-testid="disclaimer">
-      <strong>Information only.</strong> These are estimates from the numbers you entered and common rules of thumb. They
-      are not financial, tax, investment or legal advice, may contain errors, and tax rates and rules change. Check important
-      decisions with the official source or a qualified professional. <Link href="/terms/" className="underline">Terms</Link>
-    </p>
+    <div className="notice notice-warn mt-8 text-sm flex items-start gap-3" data-testid="disclaimer">
+      <GlassIcon name="info" tone="amber" size={32} />
+      <p className="m-0 min-w-0 leading-relaxed">
+        <strong>Information only.</strong> These are estimates from the numbers you entered and common rules of thumb. They
+        are not financial, tax, investment or legal advice, may contain errors, and tax rates and rules change. Check important
+        decisions with the official source or a qualified professional. <Link href="/terms/" className="underline">Terms</Link>
+      </p>
+    </div>
   );
 }
 
 export function Panel(props: { title?: string; children: ReactNode; className?: string; testId?: string }) {
   return (
-    <section className={`card p-5 sm:p-6 ${props.className ?? ''}`} data-testid={props.testId}>
-      {props.title && <h2 className="text-sm font-mono uppercase tracking-wider text-zinc-400 mb-4">{props.title}</h2>}
+    <section className={`card p-5 sm:p-6 min-w-0 ${props.className ?? ''}`} data-testid={props.testId}>
+      {props.title && <h2 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400 mb-4">{props.title}</h2>}
       {props.children}
     </section>
   );
@@ -108,12 +126,12 @@ export function NumberField(props: {
 export function Stat(props: { label: string; value: string; tone?: 'ok' | 'warn' | 'bad'; testId?: string; sub?: string }) {
   const tone = props.tone === 'ok' ? 'text-emerald-300' : props.tone === 'warn' ? 'text-amber-300' : props.tone === 'bad' ? 'text-red-300' : 'text-white';
   return (
-    <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4">
-      <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 block">{props.label}</span>
-      <span className={`block mt-1 text-xl sm:text-2xl font-bold font-mono ${tone}`} data-testid={props.testId}>
+    <div className="stat">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-400 block leading-snug">{props.label}</span>
+      <span className={`stat-value ${tone}`} data-testid={props.testId}>
         {props.value}
       </span>
-      {props.sub && <span className="block mt-1 text-xs text-zinc-400">{props.sub}</span>}
+      {props.sub && <span className="block mt-1 text-xs text-zinc-400 leading-snug">{props.sub}</span>}
     </div>
   );
 }
@@ -124,7 +142,9 @@ export function ProGate(props: { feature: string; detail: string; children: Reac
   if (isPro) return <>{props.children}</>;
   if (status.state === 'checking') return <div className="card p-6 min-h-[160px] animate-pulse" aria-busy="true" />;
   return (
-    <div className="card p-6 border-dashed !border-amber-400/40" data-testid={props.testId ?? 'pro-gate'}>
+    <div className="card p-6 !border-amber-300/30 flex flex-col sm:flex-row sm:items-start gap-4" data-testid={props.testId ?? 'pro-gate'}>
+      <GlassIcon name="spark" tone="amber" size={44} />
+      <div className="min-w-0 flex-1">
       <span className="pill pill-pro">Pro</span>
       <h3 className="mt-3 text-lg font-bold text-white">{props.feature}</h3>
       <p className="mt-1 text-zinc-400">{props.detail}</p>
@@ -135,6 +155,7 @@ export function ProGate(props: { feature: string; detail: string; children: Reac
         <Link href="/pro/" className="btn btn-ghost">
           I already have Pro
         </Link>
+      </div>
       </div>
     </div>
   );

@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Fraunces, Inter } from 'next/font/google';
 import './globals.css';
 import { CurrencyProvider } from './context/CurrencyContext';
 import { ProProvider } from '@/components/ProProvider';
 import { AdLoader } from '@/components/AdLoader';
 import { config } from '@/lib/config';
 
-const inter = Inter({ subsets: ['latin'], display: 'swap' });
+const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-sans' });
+const fraunces = Fraunces({ subsets: ['latin'], display: 'swap', variable: '--font-display', axes: ['opsz'] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(config.siteUrl),
@@ -33,8 +34,8 @@ const orgJsonLd = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} antialiased bg-[#050508] text-white`}>
+    <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
+      <body className={`${inter.className} antialiased text-white`}>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
         <ProProvider>
           <AdLoader />

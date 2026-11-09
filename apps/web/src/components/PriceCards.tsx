@@ -173,7 +173,7 @@ export function PriceCards() {
           <ul className="mt-5 grid content-start gap-2 text-[0.95rem] flex-1">
             {FREE_FEATURES.map((f) => (
               <li key={f} className="flex gap-2">
-                <span className="text-ok font-bold" aria-hidden="true">✓</span>
+                <span className="text-ok font-bold shrink-0" aria-hidden="true">✓</span>
                 {f}
               </li>
             ))}
@@ -192,11 +192,11 @@ export function PriceCards() {
           <p className="text-sub">{inr ? yearly.note : 'per year'}</p>
           <ul className="mt-5 grid content-start gap-2 text-[0.95rem] flex-1">
             <li className="flex gap-2 font-semibold">
-              <span className="text-ok" aria-hidden="true">✓</span>Everything in Free, plus:
+              <span className="text-ok shrink-0" aria-hidden="true">✓</span>Everything in Free, plus:
             </li>
             {PRO_FEATURES.map((f) => (
               <li key={f.id} className="flex gap-2">
-                <span className="text-ok font-bold" aria-hidden="true">✓</span>
+                <span className="text-ok font-bold shrink-0" aria-hidden="true">✓</span>
                 <span>
                   <strong>{f.title}.</strong> <span className="text-sub">{f.detail}</span>
                 </span>

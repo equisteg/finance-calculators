@@ -6,6 +6,7 @@ import { download, isGoalList, KEYS, newId } from '@/lib/storage';
 import { usePersistent } from '@/lib/usePersistent';
 import { usePro } from '../ProProvider';
 import { Bar, NumberField, Panel, Stat, ToolPage, useMoney, type ToolCurrency } from '../ui';
+import { AREA_ICON } from '../GlassIcon';
 
 export function exampleGoals(currency: ToolCurrency): Goal[] {
   const k = currency === 'INR' ? 1 : 1 / 20;
@@ -54,6 +55,7 @@ export function GoalPlanner() {
 
   return (
     <ToolPage
+      icon={AREA_ICON['/goal-planner/']}
       eyebrow="Inflation-adjusted · priority funding"
       title="Goal Planner"
       intro="Tell us what you are saving for. We work out what it will really cost after inflation and the monthly saving that gets you there."
@@ -65,8 +67,8 @@ export function GoalPlanner() {
         ) : undefined
       }
     >
-      <div className="grid gap-6 lg:grid-cols-12">
-        <div className="lg:col-span-7 grid gap-4 content-start">
+      <div className="grid gap-6 md:grid-cols-12 items-start">
+        <div className="md:col-span-7 grid gap-4 content-start">
           {goals.map((g, i) => {
             const p = plan.goals[i];
             const locked = i >= limit;
@@ -123,7 +125,7 @@ export function GoalPlanner() {
           )}
         </div>
 
-        <div className="lg:col-span-5 grid gap-6 content-start">
+        <div className="md:col-span-5 grid gap-6 content-start">
           <Panel title="Your monthly saving budget">
             <NumberField label="I can save each month" value={budget} onChange={setBudget} testId="in-goal-budget" />
             <div className="grid gap-3 sm:grid-cols-2 mt-4">

@@ -31,17 +31,17 @@ test.describe("FN-W :: Finealth Web Application", () => {
     await page.goto("/");
 
     // --- Dark slate ground -------------------------------------------------
-    // globals.css sets --background: #050508 and layout.tsx repeats it as bg-[#050508].
+    // globals.css sets --bg: #05060a on body.
     const bodyBg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    expect(bodyBg, "body must paint the slate/dark ground").toBe("rgb(5, 5, 8)");
+    expect(bodyBg, "body must paint the slate/dark ground").toBe("rgb(5, 6, 10)");
 
     // --- Tailwind actually compiled ---------------------------------------
     // If the stylesheet failed to build, utility classes resolve to nothing and
     // the page degrades to unstyled text. Probe a known utility.
-    const brandMark = page.locator("header span.bg-emerald-400").first();
+    const brandMark = page.getByTestId("engine-badge");
     await expect(brandMark).toBeVisible();
-    const markBg = await brandMark.evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(markBg, "Tailwind utilities must resolve (bg-emerald-400)").toBe("rgb(52, 211, 153)");
+    const markColor = await brandMark.evaluate((el) => getComputedStyle(el).color);
+    expect(markColor, "Tailwind utilities must resolve (text-emerald-300)").toBe("rgb(110, 231, 183)");
 
     // --- Foreground is readable against that ground ------------------------
     const heading = page.getByRole("heading", { level: 1 });
@@ -54,7 +54,7 @@ test.describe("FN-W :: Finealth Web Application", () => {
 
     // --- No unstyled text artifacts ---------------------------------------
     // exact:true, else the footer's "Finealth Financial Suite ..." also matches.
-    await expect(page.getByText("FINEALTH", { exact: true })).toBeVisible();
+    await expect(page.locator("header").getByText("Finealth", { exact: true })).toBeVisible();
     await expect(page.getByText("STATUTORY ENGINE", { exact: true })).toBeVisible();
 
     // First-party only: the AdSense 400s belong to FN-W06, not here.
@@ -89,7 +89,7 @@ test.describe("FN-W :: Finealth Web Application", () => {
 
     // NB exact:true throughout -- the trajectory section below repeats each
     // asset as "<name> (<unit>)", so a substring match is ambiguous.
-    const card = (name: string) => page.locator("div.rounded-2xl", { hasText: name }).first();
+    const card = (name: string) => page.getByTestId("asset-card").filter({ hasText: name }).first();
 
     // --- Gold 24K ----------------------------------------------------------
     await expect(
@@ -154,7 +154,7 @@ test.describe("FN-W :: Finealth Web Application", () => {
     await page.goto("/");
 
     for (const index of ["NIFTY 50", "BSE SENSEX"]) {
-      const card = page.locator("div.rounded-2xl").filter({ hasText: index }).first();
+      const card = page.getByTestId("asset-card").filter({ hasText: index }).first();
       await expect(card, `${index} card is present`).toBeVisible();
 
       // Index points, not a currency figure.
