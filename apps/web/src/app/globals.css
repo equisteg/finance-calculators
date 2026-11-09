@@ -117,8 +117,23 @@ img, svg, video, canvas { max-width: 100%; }
   .check { @apply h-4 w-4 shrink-0 rounded accent-emerald-400; }
 
   /* Result tiles: values shrink to fit and wrap inside the tile, never outside it */
-  .stat { @apply rounded-2xl p-4 min-w-0; background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.07); }
-  .stat-value { @apply block mt-1 font-bold tabular-nums leading-tight; font-size: clamp(1.1rem, 0.9rem + 1vw, 1.6rem); overflow-wrap: anywhere; }
+  .stat { container-type: inline-size; @apply rounded-2xl p-4 min-w-0; background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.07); }
+  /* Sized to the tile (cqi), so a long figure shrinks instead of breaking mid-number. */
+  .stat-value { @apply block mt-1 font-bold tabular-nums leading-tight; font-size: clamp(0.95rem, 11.5cqi, 1.6rem); letter-spacing: -0.01em; overflow-wrap: normal; word-break: normal; }
+
+  /* Input grids: label, box and hint share rows across a line (subgrid), so boxes line up even when one label wraps */
+  .fieldgrid > .nf { display: grid; grid-row: span 3; grid-template-rows: subgrid; row-gap: 0; }
+  .fieldgrid > .nf > .label { align-self: end; }
+
+  /* Answer bar that stays in view on phones: solid enough that nothing shows through */
+  .stickybar { border-radius: 1.1rem; background: rgba(12, 16, 20, 0.94); border: 1px solid rgba(52, 211, 153, 0.35); box-shadow: 0 -4px 30px -6px rgba(0, 0, 0, 0.8), 0 10px 30px -12px rgba(16, 185, 129, 0.35); -webkit-backdrop-filter: blur(20px) saturate(150%); backdrop-filter: blur(20px) saturate(150%); }
+
+  /* Range slider: glass track, emerald fill via accent, large thumb for touch */
+  .range { -webkit-appearance: none; appearance: none; height: 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.1); accent-color: var(--accent); cursor: pointer; }
+  .range::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #6ee7b7, #34d399); border: 3px solid #05060a; box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.6), 0 6px 16px -4px rgba(52, 211, 153, 0.7); transition: transform 0.15s var(--ease); }
+  .range::-webkit-slider-thumb:hover { transform: scale(1.1); }
+  .range::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #34d399; border: 3px solid #05060a; box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.6); }
+  .range:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 
   /* Horizontal rails: scroll sideways on small screens instead of stacking */
   .rail { display: flex; gap: 0.5rem; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }

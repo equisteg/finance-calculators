@@ -33,12 +33,13 @@ export default function EmiCalculator() {
 
   return (
     <CalculatorShell
+      icon={{ name: 'debt', tone: 'rose' }}
       eyebrow="Model 02 · Amortization"
       title="EMI & Debt Schedule"
       subtitle="Equated monthly installment on a diminishing-balance loan."
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <div className="lg:col-span-7 bg-[#0c0c10] border border-white/[0.08] rounded-2xl p-6 sm:p-8 space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-12 items-start gap-6 items-start">
+        <div className="md:col-span-7 card p-6 sm:p-8 space-y-8">
           <CalculatorSlider
             label="Borrowing Principal"
             display={money(principal)}
@@ -74,11 +75,11 @@ export default function EmiCalculator() {
           />
         </div>
 
-        <div className="lg:col-span-5 bg-[#0c0c10] border border-white/[0.08] rounded-2xl p-6 sm:p-8">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-400 block">
+        <div className="md:col-span-5 card glass-strong p-6 sm:p-8">
+          <span className="text-[11px] tabular-nums uppercase tracking-widest text-zinc-400 block">
             Equated Monthly Installment
           </span>
-          <div className="text-3xl sm:text-4xl font-bold text-white font-mono mt-2">{money(loan.emi)}</div>
+          <div className="mt-2 font-bold tabular-nums gradient-text text-[clamp(1.8rem,1.2rem+2vw,2.6rem)] leading-tight">{money(loan.emi)}</div>
 
           <BreakdownDonut
             share={loan.principalShare}
@@ -88,18 +89,18 @@ export default function EmiCalculator() {
             secondLabel="Interest"
           />
 
-          <div className="space-y-3 border-t border-white/[0.06] pt-4 text-sm font-mono">
-            <div className="flex justify-between text-zinc-400">
+          <div className="space-y-3 border-t border-white/[0.06] pt-4 text-sm tabular-nums">
+            <div className="flex justify-between gap-3 text-zinc-400">
               <span>Principal Borrowed</span>
-              <span className="text-white">{money(principal)}</span>
+              <span className="text-white shrink-0 whitespace-nowrap text-right font-semibold">{money(principal)}</span>
             </div>
-            <div className="flex justify-between text-zinc-400">
+            <div className="flex justify-between gap-3 text-zinc-400">
               <span>Total Interest Paid</span>
-              <span className="text-rose-400">+{money(loan.totalInterest)}</span>
+              <span className="text-rose-400 shrink-0 whitespace-nowrap text-right font-semibold">+{money(loan.totalInterest)}</span>
             </div>
             <div className="flex justify-between border-t border-white/[0.06] pt-3 font-bold">
               <span className="text-zinc-300">Aggregate Payback</span>
-              <span className="text-emerald-400">{money(loan.totalPayment)}</span>
+              <span className="text-emerald-400 shrink-0 whitespace-nowrap text-right font-semibold">{money(loan.totalPayment)}</span>
             </div>
           </div>
         </div>

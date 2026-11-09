@@ -47,7 +47,7 @@ export function RetirementPlanner() {
     >
       <div className="grid gap-6 md:grid-cols-12 items-start">
         <Panel title="Your plan" className="md:col-span-5">
-          <div className="grid gap-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+          <div className="fieldgrid grid gap-x-4 gap-y-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
             <NumberField label="Age now" value={input.currentAge} onChange={(n) => set({ currentAge: n })} step={1} max={100} />
             <NumberField label="Retire at" value={input.retireAge} onChange={(n) => set({ retireAge: n })} step={1} max={100} />
             <NumberField label="Plan until age" value={input.planToAge} onChange={(n) => set({ planToAge: n })} step={1} max={110} />

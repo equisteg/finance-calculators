@@ -62,8 +62,9 @@ function ToolBody({ slug }: { slug: string }) {
   return (
     <ToolPage eyebrow={`${def.region} · ${def.category}`} title={def.title} intro={def.summary} icon={toolIcon(def.slug, def.category)}>
       <div className="grid gap-6 md:grid-cols-12 items-start">
-        <Panel title="Your numbers" className="md:col-span-5">
-          <div className="grid gap-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+        <div className="md:col-span-5 grid gap-3 content-start">
+        <Panel title="Your numbers">
+          <div className="fieldgrid grid gap-x-4 gap-y-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
             {def.fields.map((f) => {
               const testId = `in-${f.key}`;
               if (f.kind === 'select')
@@ -115,8 +116,19 @@ function ToolBody({ slug }: { slug: string }) {
             })}
           </div>
         </Panel>
+        {/* Phones: the answer stays in view while you change the inputs above. */}
+        {result.rows[0] && (
+          <a href="#tool-result" className="md:hidden sticky bottom-3 z-30 stickybar flex items-center justify-between gap-3 px-4 py-3 no-print" aria-label={`${result.rows[0].label}: ${result.rows[0].value}. See the full result`}>
+            <span className="min-w-0">
+              <span className="label !mb-0 block truncate">{result.rows[0].label}</span>
+              <span className="block text-lg font-bold tabular-nums text-white truncate">{result.rows[0].value}</span>
+            </span>
+            <span className="shrink-0 text-xs font-semibold text-emerald-300">Full result ↓</span>
+          </a>
+        )}
+        </div>
 
-        <div className="md:col-span-7 grid gap-4 content-start">
+        <div className="md:col-span-7 grid gap-4 content-start scroll-mt-32" id="tool-result">
           <Panel title="Result" testId="tool-result">
             <div className="grid gap-3 grid-cols-2">
               {result.rows.map((r, i) => (

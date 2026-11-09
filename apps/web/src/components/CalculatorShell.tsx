@@ -3,8 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { useCurrency } from "@/app/context/CurrencyContext";
-import AdSenseBanner from "./AdSenseBanner";
-import { ADSENSE_CLIENT, AD_SLOTS } from "@/lib/ads";
+import { ToolPage } from "./ui";
+import type { GlyphName, Tone } from "./GlassIcon";
 
 export type CalculatorCurrency = "INR" | "USD" | "EUR" | "GBP";
 
@@ -24,62 +24,38 @@ export function useCalculatorCurrency(): CalculatorCurrency {
 }
 
 /**
- * Shared frame for the standalone calculator routes: back link, heading,
- * currency switch (bound to the same jurisdiction as the dashboard) and an ad
- * slot, on the site's dark theme.
+ * Shared frame for the standalone calculators (SIP, EMI, compound interest):
+ * the same glass page header, disclaimer and ad slot as every other tool, with
+ * the currency switch as a row of chips.
  */
 export default function CalculatorShell(props: {
   eyebrow: string;
   title: string;
   subtitle: string;
+  icon?: { name: GlyphName; tone: Tone };
   children: React.ReactNode;
 }) {
   const { setBaseCurrency } = useCurrency();
   const currency = useCalculatorCurrency();
 
   return (
-    <div className="min-h-screen bg-[#050508] text-zinc-100">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
-        <Link href="/" className="text-xs font-mono text-emerald-400 hover:underline mb-6 inline-block">
-          &larr; Back to Dashboard
-        </Link>
-
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-white/[0.08] pb-8 mb-10 gap-4">
-          <div>
-            <span className="text-xs font-mono uppercase tracking-[0.2em] text-zinc-500 block mb-2">
-              {props.eyebrow}
-            </span>
-            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-white">{props.title}</h1>
-            <p className="text-sm text-zinc-400 mt-2">{props.subtitle}</p>
-          </div>
-
-          <div
-            role="group"
-            aria-label="Currency"
-            className="flex flex-wrap items-center gap-1 bg-white/[0.03] p-1 rounded-lg border border-white/[0.08] self-start sm:self-auto"
-          >
-            {CURRENCY_OPTIONS.map((option) => (
-              <button
-                key={option.code}
-                onClick={() => setBaseCurrency(option.code)}
-                aria-pressed={currency === option.code}
-                className={`px-3 py-1 text-xs font-mono rounded-md transition ${
-                  currency === option.code
-                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                    : "text-zinc-400 hover:text-white border border-transparent"
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+    <ToolPage
+      eyebrow={props.eyebrow}
+      title={props.title}
+      intro={props.subtitle}
+      icon={props.icon}
+      actions={
+        <div role="group" aria-label="Currency" className="flex flex-wrap gap-1.5">
+          {CURRENCY_OPTIONS.map((option) => (
+            <button key={option.code} type="button" onClick={() => setBaseCurrency(option.code)} aria-pressed={currency === option.code} className="chip !px-3 !py-1 !text-xs">
+              {option.label}
+            </button>
+          ))}
         </div>
-
-        {props.children}
-
-        <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.calculator} />
-      </div>
-    </div>
+      }
+    >
+      {props.children}
+    </ToolPage>
   );
 }
 
@@ -97,8 +73,8 @@ export function CalculatorSlider(props: {
   return (
     <div>
       <div className="flex justify-between items-baseline mb-3 gap-3">
-        <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">{props.label}</span>
-        <span className="font-mono text-xl sm:text-2xl font-bold text-white">{props.display}</span>
+        <span className="label !mb-0">{props.label}</span>
+        <span className="tabular-nums text-xl sm:text-2xl font-bold text-white shrink-0">{props.display}</span>
       </div>
       <input
         type="range"
@@ -108,10 +84,10 @@ export function CalculatorSlider(props: {
         step={props.step}
         value={props.value}
         onChange={(e) => props.onChange(Number(e.target.value))}
-        className="w-full accent-emerald-400"
+        className="range w-full"
       />
       {(props.minLabel || props.maxLabel) && (
-        <div className="flex justify-between text-[11px] font-mono text-zinc-500 mt-2">
+        <div className="flex justify-between gap-3 text-[11px] tabular-nums text-zinc-500 mt-2">
           <span>{props.minLabel}</span>
           <span>{props.maxLabel}</span>
         </div>
@@ -151,7 +127,7 @@ export function BreakdownDonut(props: {
             cx="70"
             cy="70"
             r={radius}
-            stroke="#52525b"
+            stroke="#3f3f46"
             strokeWidth="14"
             fill="transparent"
             strokeDasharray={circumference}
@@ -160,13 +136,13 @@ export function BreakdownDonut(props: {
           />
         </svg>
         <div className="absolute text-center">
-          <span className="text-[10px] font-mono uppercase text-zinc-400 block">{props.centerLabel}</span>
+          <span className="text-[10px] font-semibold tracking-wider uppercase text-zinc-400 block">{props.centerLabel}</span>
           <span className="text-sm font-semibold text-white">{props.centerValue}</span>
         </div>
       </div>
-      <figcaption className="flex gap-4 mt-3 text-[11px] font-mono text-zinc-400">
+      <figcaption className="flex flex-wrap justify-center gap-4 mt-3 text-xs text-zinc-400">
         <span className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-zinc-600" /> {props.firstLabel}
+          <span className="w-2 h-2 rounded-full bg-zinc-700" /> {props.firstLabel}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-400" /> {props.secondLabel}

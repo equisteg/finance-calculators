@@ -29,6 +29,7 @@ const STRATEGY_LABEL: Record<DebtStrategy, string> = {
 
 export function DebtPlanner() {
   const { currency, money } = useMoney();
+  const symbol = ({ INR: '₹', USD: '$', EUR: '€', GBP: '£' } as const)[currency];
   const { isPro } = usePro();
   const [stored, setStored] = usePersistent<Debt[] | null>(KEYS.debts, null, isNullableDebts);
   const debts = stored ?? exampleDebts(currency);
@@ -78,17 +79,17 @@ export function DebtPlanner() {
               {debts.map((d, i) => {
                 const locked = i >= limit;
                 return (
-                  <li key={d.id} className={`grid gap-3 rounded-xl border border-white/[0.06] p-3 ${locked ? 'opacity-50' : ''}`}>
+                  <li key={d.id} className={`grid gap-3 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-3.5 ${locked ? 'opacity-50' : ''}`}>
                     <div className="flex gap-2">
                       <input aria-label="Debt name" className="input" value={d.name} maxLength={60} onChange={(e) => update(d.id, { name: e.target.value })} />
                       <button type="button" className="btn btn-ghost btn-sm" onClick={() => remove(d.id)} aria-label={`Remove ${d.name}`}>
                         ✕
                       </button>
                     </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <NumberField label="Balance" value={d.balance} onChange={(n) => update(d.id, { balance: n })} />
+                    <div className="grid grid-cols-[repeat(auto-fit,minmax(6.5rem,1fr))] gap-2.5">
+                      <NumberField label="Balance" prefix={symbol} value={d.balance} onChange={(n) => update(d.id, { balance: n })} />
                       <NumberField label="Rate" suffix="%" value={d.aprPct} onChange={(n) => update(d.id, { aprPct: n })} max={100} />
-                      <NumberField label="Minimum" value={d.minPayment} onChange={(n) => update(d.id, { minPayment: n })} />
+                      <NumberField label="Minimum" prefix={symbol} value={d.minPayment} onChange={(n) => update(d.id, { minPayment: n })} />
                     </div>
                   </li>
                 );
@@ -144,14 +145,14 @@ export function DebtPlanner() {
                   ? `Avalanche costs ${money(cmp.snowball.totalInterest - cmp.avalanche.totalInterest)} less interest than snowball. Snowball clears your first debt sooner, which some people find easier to stick with.`
                   : 'Both orders cost about the same here, so pick the one you will stick with.'}
               </p>
-              <h3 className="mt-6 mb-2 text-sm font-mono uppercase tracking-wider text-zinc-400">Payoff order</h3>
+              <h3 className="label mt-6">Payoff order</h3>
               <ol className="grid gap-1 text-sm">
                 {[...chosen.payoffs]
                   .sort((a, b) => (a.month ?? 1e9) - (b.month ?? 1e9))
                   .map((p) => (
-                    <li key={p.id} className="flex justify-between gap-3">
-                      <span>{p.name}</span>
-                      <span className="font-mono text-zinc-300">
+                    <li key={p.id} className="flex flex-wrap justify-between gap-x-3 gap-y-0.5 rounded-xl bg-white/[0.03] border border-white/[0.05] px-3 py-2">
+                      <span className="font-medium text-white">{p.name}</span>
+                      <span className="tabular-nums text-zinc-300 text-right">
                         {months(p.month)} · interest {money(p.interest)}
                       </span>
                     </li>
@@ -185,7 +186,7 @@ export function DebtPlanner() {
               <details className="mt-6">
                 <summary className="cursor-pointer text-sm text-zinc-300">Month-by-month schedule ({chosen.schedule.length} months)</summary>
                 <div className="max-h-80 overflow-auto mt-3">
-                  <table className="w-full text-sm font-mono">
+                  <table className="w-full text-sm tabular-nums">
                     <thead className="text-zinc-400 text-left">
                       <tr>
                         <th className="py-1">Month</th>

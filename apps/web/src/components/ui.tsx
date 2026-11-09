@@ -84,6 +84,7 @@ export function NumberField(props: {
   onChange: (n: number) => void;
   hint?: string;
   suffix?: string;
+  prefix?: string;
   min?: number;
   max?: number;
   step?: number;
@@ -91,7 +92,7 @@ export function NumberField(props: {
 }) {
   const id = useId();
   return (
-    <div>
+    <div className="nf">
       <label htmlFor={id} className="label">
         {props.label}
       </label>
@@ -100,7 +101,7 @@ export function NumberField(props: {
           id={id}
           type="number"
           inputMode="decimal"
-          className={`input font-mono ${props.suffix ? 'pr-12' : ''}`}
+          className={`input tabular-nums ${props.suffix ? '!pr-9' : ''} ${props.prefix ? '!pl-7' : ''}`}
           value={Number.isFinite(props.value) ? props.value : 0}
           min={props.min ?? 0}
           max={props.max}
@@ -112,12 +113,15 @@ export function NumberField(props: {
           aria-describedby={props.hint ? `${id}-hint` : undefined}
           data-testid={props.testId}
         />
-        {props.suffix && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono text-zinc-500">{props.suffix}</span>}
+        {props.prefix && <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-500">{props.prefix}</span>}
+        {props.suffix && <span aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500">{props.suffix}</span>}
       </div>
-      {props.hint && (
+      {props.hint ? (
         <p id={`${id}-hint`} className="hint">
           {props.hint}
         </p>
+      ) : (
+        <span aria-hidden="true" />
       )}
     </div>
   );
@@ -174,10 +178,10 @@ export function ScoreRing({ score, label }: { score: number; label: string }) {
         <circle cx="70" cy="70" r={r} stroke={colour} strokeWidth="14" fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - (s / 100) * c} />
       </svg>
       <figcaption className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl font-black font-mono text-white" data-testid="health-score">
+        <span className="text-4xl font-black font-serif tabular-nums text-white" data-testid="health-score">
           {s}
         </span>
-        <span className="text-xs font-mono text-zinc-400">{label}</span>
+        <span className="text-xs uppercase tracking-wider text-zinc-400">{label}</span>
       </figcaption>
     </figure>
   );
@@ -214,7 +218,7 @@ export function LineChart(props: {
           {props.yLabel(max)}
         </text>
       </svg>
-      <figcaption className="flex flex-wrap gap-4 mt-2 text-xs font-mono text-zinc-400">
+      <figcaption className="flex flex-wrap gap-4 mt-2 text-xs uppercase tracking-wider text-zinc-400">
         {props.series.map((s) => (
           <span key={s.name} className="flex items-center gap-1.5">
             <span className="w-3 h-0.5 inline-block" style={{ background: s.colour }} /> {s.name}

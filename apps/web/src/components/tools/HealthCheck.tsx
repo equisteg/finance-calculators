@@ -90,7 +90,7 @@ export function HealthCheck() {
       )}
       <div className="grid gap-6 md:grid-cols-12 items-start">
         <Panel title="Your numbers (per month unless stated)" className="md:col-span-5 no-print">
-          <div className="grid gap-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+          <div className="fieldgrid grid gap-x-4 gap-y-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
             <NumberField label="Take-home income" value={input.monthlyIncome} onChange={(n) => set({ monthlyIncome: n })} testId="in-income" />
             <NumberField label="Spending" hint="Everything except loan payments" value={input.monthlyExpenses} onChange={(n) => set({ monthlyExpenses: n })} testId="in-expenses" />
             <NumberField label="Loan & card payments" hint="EMIs and minimum card payments" value={input.monthlyDebtPayments} onChange={(n) => set({ monthlyDebtPayments: n })} testId="in-debtpay" />
@@ -131,7 +131,7 @@ export function HealthCheck() {
                     ? `You keep ${money(report.metrics.monthlySurplus)} a month after spending and loan payments.`
                     : `You are short by ${money(-report.metrics.monthlySurplus)} a month.`}
                 </p>
-                <p className="m-0 text-xs font-mono text-zinc-500">Net worth estimate: {money(netWorth)} (savings + investments − costly debt)</p>
+                <p className="m-0 text-xs tabular-nums text-zinc-500">Net worth estimate: {money(netWorth)} (savings + investments − costly debt)</p>
               </div>
             </div>
           </Panel>
@@ -147,7 +147,7 @@ export function HealthCheck() {
                       <h3 className="font-bold text-white">
                         {i + 1}. {a.title}
                       </h3>
-                      <span className="text-xs font-mono text-emerald-300 shrink-0">+{a.pointsAvailable} pts</span>
+                      <span className="text-xs tabular-nums text-emerald-300 shrink-0">+{a.pointsAvailable} pts</span>
                     </div>
                     <p className="m-0 text-sm text-zinc-300">{a.detail}</p>
                   </li>

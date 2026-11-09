@@ -43,12 +43,13 @@ export default function CompoundInterestCalculator() {
 
   return (
     <CalculatorShell
+      icon={{ name: 'trend', tone: 'teal' }}
       eyebrow="Model 03 · Compounding"
       title="Compound Interest Engine"
       subtitle="Opening balance plus a contribution at the end of each year."
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <div className="lg:col-span-7 bg-[#0c0c10] border border-white/[0.08] rounded-2xl p-6 sm:p-8 space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-12 items-start gap-6 items-start">
+        <div className="md:col-span-7 card p-6 sm:p-8 space-y-8">
           <CalculatorSlider
             label="Initial Principal"
             display={money(principal)}
@@ -87,7 +88,7 @@ export default function CompoundInterestCalculator() {
           />
 
           <div>
-            <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 block mb-3">
+            <span className="text-xs tabular-nums uppercase tracking-wider text-zinc-400 block mb-3">
               Compounding Frequency
             </span>
             <div className="grid grid-cols-3 gap-3">
@@ -97,7 +98,7 @@ export default function CompoundInterestCalculator() {
                   type="button"
                   onClick={() => setFrequency(freq.val)}
                   aria-pressed={frequency === freq.val}
-                  className={`py-2 text-xs font-mono rounded-lg border transition ${
+                  className={`py-2 text-xs tabular-nums rounded-lg border transition ${
                     frequency === freq.val
                       ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
                       : "bg-white/[0.02] text-zinc-400 border-white/[0.08] hover:border-white/20"
@@ -110,11 +111,11 @@ export default function CompoundInterestCalculator() {
           </div>
         </div>
 
-        <div className="lg:col-span-5 bg-[#0c0c10] border border-white/[0.08] rounded-2xl p-6 sm:p-8">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-400 block">
+        <div className="md:col-span-5 card glass-strong p-6 sm:p-8">
+          <span className="text-[11px] tabular-nums uppercase tracking-widest text-zinc-400 block">
             Future Balance
           </span>
-          <div className="text-3xl sm:text-4xl font-bold text-white font-mono mt-2">{money(growth.maturity)}</div>
+          <div className="mt-2 font-bold tabular-nums gradient-text text-[clamp(1.8rem,1.2rem+2vw,2.6rem)] leading-tight">{money(growth.maturity)}</div>
 
           <BreakdownDonut
             share={depositShare}
@@ -124,14 +125,14 @@ export default function CompoundInterestCalculator() {
             secondLabel="Interest"
           />
 
-          <div className="space-y-3 border-t border-white/[0.06] pt-4 text-sm font-mono">
-            <div className="flex justify-between text-zinc-400">
+          <div className="space-y-3 border-t border-white/[0.06] pt-4 text-sm tabular-nums">
+            <div className="flex justify-between gap-3 text-zinc-400">
               <span>Total Capital Deposited</span>
-              <span className="text-white">{money(growth.invested)}</span>
+              <span className="text-white shrink-0 whitespace-nowrap text-right font-semibold">{money(growth.invested)}</span>
             </div>
-            <div className="flex justify-between text-zinc-400">
+            <div className="flex justify-between gap-3 text-zinc-400">
               <span>Interest Yield</span>
-              <span className="text-emerald-400">+{money(growth.gains)}</span>
+              <span className="text-emerald-400 shrink-0 whitespace-nowrap text-right font-semibold">+{money(growth.gains)}</span>
             </div>
           </div>
         </div>

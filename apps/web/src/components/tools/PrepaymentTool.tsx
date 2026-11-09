@@ -26,7 +26,7 @@ export function PrepaymentTool() {
     >
       <div className="grid gap-6 md:grid-cols-12 items-start">
         <Panel title="Your loan" className="md:col-span-5">
-          <div className="grid gap-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+          <div className="fieldgrid grid gap-x-4 gap-y-4 grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
             <NumberField label="Balance today" value={outstanding} onChange={setOutstanding} testId="in-outstanding" />
             <NumberField label="Interest rate" suffix="%" value={apr} onChange={setApr} max={40} />
             <NumberField label="Months left" value={monthsLeft} onChange={(n) => setMonthsLeft(Math.min(480, n))} step={1} max={480} />
