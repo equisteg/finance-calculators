@@ -8,7 +8,8 @@
         "/goal-planner/",
         "/retirement-planner/",
         "/loan-prepayment/",
-        "/pricing/"
+        "/pricing/",
+        "/tools/emergency-fund-calculator/"
       ],
       "numberOfRuns": 3
     },

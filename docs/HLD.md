@@ -15,9 +15,9 @@ Finealth is an Equisteg product. Production lives at `https://finealth.teiqtools
 | Plan | India | International | Where it is sold |
 |---|---|---|---|
 | Free | ₹0 | $0 | Everywhere |
-| Pro Yearly | ₹199 a year | US$7.99 a year | Web (Razorpay subscription), Android (Google Play) |
-| Pro Lifetime | ₹499 once | US$19.99 once | Web (Razorpay order), Android (Google Play) |
-| Pro Monthly | ₹29 a month | US$0.99 a month | Android only (Google Play) |
+| Pro Yearly | ₹199 a year | US$7.99 a year | Web (Razorpay subscription); Android planned (Play Billing comes with the Expo port, RSK-002) |
+| Pro Lifetime | ₹499 once | US$19.99 once | Web (Razorpay order); Android planned (RSK-002) |
+| Pro Monthly | ₹29 a month | US$0.99 a month | Android only, not on sale yet (RSK-002) |
 
 Display prices live in `packages/finance-core/src/plan.ts`. Charged prices live in `apps/api/src/config/skus.ts`, the Razorpay plans and Play Console. The four must match.
 
@@ -96,7 +96,7 @@ Every page is pre-rendered HTML with a trailing slash. The static export holds 5
 Every page shares one frame: a "Skip to content" link, the floating `SiteHeader` (logo, light/dark toggle, currency menu, Go Pro or Pro badge, and a tab rail with Health Check, Debt Planner, Goals, Retirement, Prepayment and All tools), `<main id="main">`, and the `SiteFooter` with "A product by Equisteg" and the legal links.
 
 ## 5.2 Home page structure
-The home page (v11 "Warm Editorial") is one vertical stack. Every section uses the same heading style (`SectionHead`) and spacing.
+The home page (v11 layout in the v10 "Warm Editorial" identity) is one vertical stack. Every section uses the same heading style (`SectionHead`) and spacing.
 
 ![Figure 1. The home page hero with the live example score](manual/01-home.png)
 
@@ -190,7 +190,7 @@ The Worker logs one scrubbed JSON line per request: request id, method, path, st
 flowchart LR
   dev[Developer branch] -->|PR| ci[GitHub Actions CI<br/>lint, typecheck, test, build, security]
   ci -->|merge| main[main branch]
-  main -->|Workers Builds<br/>wrangler deploy --env prelaunch| pre[Worker finealth<br/>test keys, noindex]
+  main -.->|manual wrangler deploy --env prelaunch<br/>NEEDS HUMAN, no automatic deploy yet| pre[Worker finealth<br/>test keys, noindex]
   main -.->|after launch| prod[Worker finealth --env production<br/>finealth.teiqtools.com]
   pre --> assets[(Static Assets<br/>apps/web/out)]
   prod --> assets
@@ -218,7 +218,7 @@ The Worker refuses a Razorpay key of the wrong mode. Each environment has its ow
 - One message for every bad licence key, so the API never reveals whether a key exists.
 - CSV export prefixes formula-like cells with `'` (CSV injection).
 - Secrets: pre-commit hook and CI block secret files and live keys (`tests/tools/check-forbidden-files.mjs`, Gitleaks, Semgrep CE, OSV-Scanner). The secrets guard is `.claude/hooks/guard-secrets.mjs`.
-- Static page headers: `wrangler.jsonc` says page security headers live in `apps/web/public/_headers`, but that file does not exist yet. See §14, item 4.
+- Static page headers: `apps/web/public/_headers` sets HSTS, `nosniff`, `X-Frame-Options: DENY`, a referrer policy and a permissions policy on every page. A page Content-Security-Policy is still open (RSK-015, §14 item 4).
 
 # 13. Reliability and self-healing
 Finealth runs the reduced, database-free version of `docs/standards/self-healing.md` ("Finealth deviation").
@@ -226,7 +226,7 @@ Finealth runs the reduced, database-free version of `docs/standards/self-healing
 | Control | Status |
 |---|---|
 | Static pages served before the Worker runs | Live. Calculators and planners keep working when the API is down (NFR-008) |
-| `/api/v1/health` reports release, environment, signing key and Razorpay config | Live |
+| `/api/v1/health` reports release, environment, signing key and Razorpay config (config only: a Razorpay or Play outage shows as 503 on purchase checks, RSK-022) | Live |
 | Retries: one retry with a short pause on network errors and 5xx from Razorpay and Google (`fetchWithRetry`, 8 s timeout) | Live |
 | Store outage: 503 for new checks while existing tokens stay valid up to 7 days | Live |
 | Kill switch `checkout` pauses new purchases (Worker `KILL_SWITCHES`, web `NEXT_PUBLIC_KILL_SWITCHES`); verify and confirm are never switched off | Live, switched by a redeploy or `wrangler rollback` |
@@ -251,7 +251,7 @@ Each item follows `docs/standards/risks-and-issues.md`: how we tackle it, what w
 |---|---|---|---|
 | NFR-001 | Accuracy | Golden formula cases 100 % match | Vitest golden tables in `packages/finance-core` |
 | NFR-002 | Performance | Monte Carlo 1,000 runs × 80 years < 100 ms on a mid-range phone | Robot NFR suite (`tests/automation/web/nfr/performance.robot`) |
-| NFR-003 | Performance | Lighthouse performance ≥ 90 on tool pages | `tests/load/lighthouserc.json` (7 pages, 3 runs, also accessibility and best practices ≥ 0.9) |
+| NFR-003 | Performance | Lighthouse performance ≥ 90 on the home, planner, pricing and one tool page | `tests/load/lighthouserc.json` (8 pages, 3 runs, also accessibility and best practices ≥ 0.9) |
 | NFR-004 | Privacy | 0 requests carry form values | Robot `No Request Should Carry`, Playwright |
 | NFR-005 | Privacy | Pro loads 0 ad scripts | Robot `Page Should Load No Ad Script` |
 | NFR-006 | Security | Tampered token means free | Robot `Tamper Pro Token`, licence unit tests, API tests |
@@ -263,6 +263,37 @@ Each item follows `docs/standards/risks-and-issues.md`: how we tackle it, what w
 | NFR-012 | Load | Licence API p95 < 300 ms, errors < 1 % at 20 rps | k6 `tests/load/load.js` on staging only |
 | NFR-013 | Performance | CLS < 0.1 on the debt planner and home page at 412 px | Robot `Get Layout Shift` |
 | NFR-015 | Compliance | Tax rates carry a last-checked date under 12 months old | `RATES_LAST_CHECKED` = 9 Nov 2026, shown on every tax tool |
+
+## 15a. Requirements → design
+Every requirement in `docs/product-brief.md` §4 and where this HLD and the LLD design it. Test cases for each are in `docs/test-cases.md`.
+
+| REQ | Requirement | HLD | LLD |
+|---|---|---|---|
+| REQ-001 | Health check score | §5.1, §6 | §4.1, §2 |
+| REQ-002 | Health action plan | §5.1, §6 | §4.1, §5 |
+| REQ-003 | Debt payoff planner | §5.1, §6 | §4.2 |
+| REQ-004 | Debt what-if and schedule (Pro) | §8 | §4.2, §5 |
+| REQ-005 | Goal planner | §5.1, §6 | §4.3, §5 |
+| REQ-006 | Retirement projection | §5.1, §6 | §4.4 |
+| REQ-007 | Retirement odds (Pro) | §8 | §4.4, §5 |
+| REQ-008 | Loan prepayment | §5.1, §6 | §4.5 |
+| REQ-009 | Local storage, backup and restore | §10 | §6 |
+| REQ-010 | Progress snapshots (Pro) | §10 | §5, §6 |
+| REQ-011 | Pricing and checkout | §1, §8.2 | §8, §9 |
+| REQ-012 | Restore Pro and licence token | §8.3 | §3.5, §7 |
+| REQ-013 | Ads gating | §9 | §3.4 |
+| REQ-014 | Disclaimer and legal pages | §5.1, §10 | §2, §3.3 |
+| REQ-015 | Calculators | §5.1 | §2, §4.6 |
+| REQ-016 | CSV export | §10, §12 | §6 |
+| REQ-017 | SEO | §5.1 | §2 |
+| REQ-018 | Licence API | §8, §12 | §8 |
+| REQ-019 | Global tools library | §5.1 | §2.1, §4.6 |
+| REQ-020 | Country tax engines | §6 | §4.7 |
+| REQ-021 | Payment acknowledgement and disclaimers | §8.2 | §2, §10 |
+| REQ-022 | Gap-free tool layouts, key figures in the heading | §5.3 | §3.3 |
+| REQ-023 | Warm Editorial look, light and dark | §5.3 | §3.1 |
+| REQ-024 | One header and footer, skip link, stable layout | §5.1, §5.3 | §3.1 |
+| REQ-025 | Home page | §5.2 | §3.2 |
 
 # 16. QA architecture
 Testing follows the company standard `docs/standards/qa-architecture.md`, adopted from ClearFile on 10 Nov 2026. The main Claude session builds and fixes. Read-only reviewer agents in `.claude/agents/` plan, check and report with a fresh context. No agent edits files.

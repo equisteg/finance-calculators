@@ -15,7 +15,7 @@ const FREE_FEATURES = [
   'Debt payoff planner for up to 3 debts (snowball vs avalanche)',
   'Goal planner for one goal, inflation-adjusted',
   'Retirement projection and loan prepayment optimiser',
-  '35+ calculators: tax for 7 countries, VAT/GST for 60+, SIP, EMI, NPV/IRR, XIRR and more',
+  '36 calculators: tax for 7 countries, VAT/GST for 60+, SIP, EMI, NPV/IRR, XIRR and more',
   'JSON backup and restore; nothing leaves your device',
 ];
 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, type PointerEvent, type ReactNode } from 'react';
-import { financialHealth, FREE_LIMITS, PLAN_PRICES, PRO_FEATURES } from '@finealth/finance-core';
+import { financialHealth, FREE_LIMITS, PLAN_PRICES, PRO_FEATURES, WORLD_VAT_RATES } from '@finealth/finance-core';
 import { exampleHealth } from '../tools/HealthCheck';
 import { AREA_ICON, GlassIcon, toolIcon, type GlyphName, type Tone } from '../GlassIcon';
 import { TOOLS } from '@/lib/toolCatalog';
@@ -33,7 +33,7 @@ export function SectionHead(props: { id: string; eyebrow: string; title: string;
 const TRUST: Array<{ icon: GlyphName; tone: Tone; text: string }> = [
   { icon: 'shield', tone: 'emerald', text: 'No login, no bank link' },
   { icon: 'calculator', tone: 'cyan', text: `${TOOLS.length}+ free calculators` },
-  { icon: 'globe', tone: 'sky', text: 'Tax for 7 countries, VAT for 67' },
+  { icon: 'globe', tone: 'sky', text: `Tax for 7 countries, VAT for ${Object.keys(WORLD_VAT_RATES).length}` },
   { icon: 'gem', tone: 'amber', text: 'Pro from ₹17 a month' },
 ];
 
@@ -374,7 +374,7 @@ export function PrivacyPromise() {
 
 export const FAQ: Array<{ q: string; a: string }> = [
   { q: 'Is Finealth free?', a: 'Yes. Every calculator, the health score with your top priority, and the debt, goal, retirement and prepayment planners are free with ads. Pro is optional and removes the ads.' },
-  { q: 'Where are my numbers stored?', a: 'Only in this browser, on this device. Nothing you type is sent to a server. Use Back up on My Plan to keep a copy or move it to another device.' },
+  { q: 'Where are my numbers stored?', a: 'Only in this browser, on this device. None of your financial numbers is sent to a server. Use Back up on My Plan to keep a copy or move it to another device.' },
   { q: 'How is the health score worked out?', a: 'Six rules of thumb: savings rate, emergency fund, loan payments, costly debt, retirement savings and insurance. Each rule gives points, and the score is the total out of 100.' },
   { q: 'Is this financial advice?', a: 'No. Finealth gives estimates and general rules of thumb from the numbers you enter. It does not recommend any product. Check important decisions with a qualified professional.' },
   { q: 'How do I get Pro on another device?', a: 'Open Restore Pro and paste the payment ID from your receipt. There is no account to sign in to.' },

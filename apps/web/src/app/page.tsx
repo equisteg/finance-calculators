@@ -888,12 +888,13 @@ export default function Home() {
         </div>
         </section>
 
-        <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.mid} />
-
-        {/* 7-11. Calculators, Free vs Pro, privacy, questions and the last call to action */}
+        {/* 7-11. Calculators, Free vs Pro, privacy, questions and the last call to action. Ads sit between whole
+            sections, away from any result panel and from the footer navigation. */}
         <PopularTools />
+        <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.mid} />
         <FreeVsPro />
         <PrivacyPromise />
+        <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.bottom} />
         <HomeFaq />
         <FinalCta />
 
@@ -903,8 +904,6 @@ export default function Home() {
           errors, and rates change in each budget. Check important decisions with the official source or a qualified
           professional. <Link href="/terms/" className="underline">Terms</Link>
         </p>
-
-        <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.bottom} />
       </main>
 
       <SiteFooter />

@@ -196,7 +196,7 @@ Under each goal: **Will cost … in … years. Save … a month.** The bar shows
 In the example, the home down payment of ₹20 lakh today will cost ₹30,07,261 in 7 years and needs ₹19,719 a month.
 
 ## 6.3 Free and Pro
-The free plan plans **one goal**. Other goals stay saved, greyed out, with the note "Saved, but not planned on the free plan. It comes back with Pro." With Pro you plan every goal from one budget, reorder them with **↑** and **↓** (the top goal is funded first), add a **Yearly step-up** (raise the saving each year), and **Export CSV** (`finealth-goals.csv`).
+The free plan plans **one goal**. Other goals stay saved, greyed out and read-only, with the note "Saved, but not planned on the free plan. It comes back with Pro." With Pro you plan every goal from one budget, reorder them with **↑** and **↓** (the top goal is funded first), add a **Yearly step-up** (raise the saving each year), and **Export CSV** (`finealth-goals.csv`).
 
 # 7. Retirement Planner
 ![Figure 15. The Retirement Planner with the example plan](manual/10-retirement.png)

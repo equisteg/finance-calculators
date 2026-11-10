@@ -371,7 +371,7 @@ export default function FinealthProSuite() {
                     SIP Wealth Accumulator
                   </h2>
                   <label className="flex items-center space-x-2 cursor-pointer text-xs text-zinc-400 font-mono">
-                    <input
+                    <input aria-label="Annual Step-Up"
                       type="checkbox"
                       checked={hasStepUp}
                       onChange={(e) => setHasStepUp(e.target.checked)}
@@ -386,15 +386,15 @@ export default function FinealthProSuite() {
                     <span className="text-xs text-zinc-400 font-mono">Monthly Investment</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
                       <span className="text-xs text-zinc-500 mr-1">₹</span>
-                      <input
+                      <input aria-label="Monthly Investment"
                         type="number"
                         value={sipMonthly}
                         onChange={(e) => setSipMonthly(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Monthly Investment slider"
                     type="range"
                     min={500}
                     max={200000}
@@ -409,17 +409,17 @@ export default function FinealthProSuite() {
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-zinc-400 font-mono">Expected Return (p.a.)</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
-                      <input
+                      <input aria-label="Expected Return (p.a.)"
                         type="number"
                         step="0.1"
                         value={sipRate}
                         onChange={(e) => setSipRate(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-16 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
+                        className="w-16 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                       <span className="text-xs text-zinc-500 ml-1">%</span>
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Expected Return (p.a.) slider"
                     type="range"
                     min={1}
                     max={30}
@@ -434,16 +434,16 @@ export default function FinealthProSuite() {
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-zinc-400 font-mono">Tenure (Years)</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
-                      <input
+                      <input aria-label="Tenure (Years)"
                         type="number"
                         value={sipYears}
                         onChange={(e) => setSipYears(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-14 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                        className="w-14 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                       <span className="text-xs text-zinc-500 ml-1">Yr</span>
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Tenure (Years) slider"
                     type="range"
                     min={1}
                     max={40}
@@ -459,16 +459,16 @@ export default function FinealthProSuite() {
                     <div className="flex justify-between items-center">
                       <span className="text-xs text-emerald-400 font-mono">Annual Step-Up Growth</span>
                       <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
-                        <input
+                        <input aria-label="Annual Step-Up Growth (%)"
                           type="number"
                           value={sipStepUp}
                           onChange={(e) => setSipStepUp(Math.max(0, Number(e.target.value) || 0))}
-                          className="w-14 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
+                          className="w-14 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                         />
                         <span className="text-xs text-zinc-500 ml-1">%</span>
                       </div>
                     </div>
-                    <input
+                    <input aria-label="Annual Step-Up Growth (%) slider"
                       type="range"
                       min={1}
                       max={25}
@@ -527,15 +527,15 @@ export default function FinealthProSuite() {
                     <span className="text-xs text-zinc-400 font-mono">Deposit Capital</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
                       <span className="text-xs text-zinc-500 mr-1">₹</span>
-                      <input
+                      <input aria-label="Deposit Capital"
                         type="number"
                         value={lumpPrincipal}
                         onChange={(e) => setLumpPrincipal(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Deposit Capital slider"
                     type="range"
                     min={5000}
                     max={5000000}
@@ -550,17 +550,17 @@ export default function FinealthProSuite() {
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-zinc-400 font-mono">Annual ROI (%)</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
-                      <input
+                      <input aria-label="Annual ROI (%)"
                         type="number"
                         step="0.1"
                         value={lumpRate}
                         onChange={(e) => setLumpRate(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-16 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
+                        className="w-16 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                       <span className="text-xs text-zinc-500 ml-1">%</span>
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Annual ROI (%) slider"
                     type="range"
                     min={1}
                     max={30}
@@ -575,16 +575,16 @@ export default function FinealthProSuite() {
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-zinc-400 font-mono">Tenure (Years)</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
-                      <input
+                      <input aria-label="Tenure (Years)"
                         type="number"
                         value={lumpYears}
                         onChange={(e) => setLumpYears(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-14 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                        className="w-14 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                       <span className="text-xs text-zinc-500 ml-1">Yr</span>
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Tenure (Years) slider"
                     type="range"
                     min={1}
                     max={35}
@@ -630,15 +630,15 @@ export default function FinealthProSuite() {
                     <span className="text-xs text-zinc-400 font-mono">Total Capital Corpus</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
                       <span className="text-xs text-zinc-500 mr-1">₹</span>
-                      <input
+                      <input aria-label="Total Capital Corpus"
                         type="number"
                         value={swpCorpus}
                         onChange={(e) => setSwpCorpus(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Total Capital Corpus slider"
                     type="range"
                     min={500000}
                     max={20000000}
@@ -654,15 +654,15 @@ export default function FinealthProSuite() {
                     <span className="text-xs text-zinc-400 font-mono">Monthly Cashout</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
                       <span className="text-xs text-zinc-500 mr-1">₹</span>
-                      <input
+                      <input aria-label="Monthly Cashout"
                         type="number"
                         value={swpWithdrawal}
                         onChange={(e) => setSwpWithdrawal(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-24 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
+                        className="w-24 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Monthly Cashout slider"
                     type="range"
                     min={5000}
                     max={200000}
@@ -676,7 +676,7 @@ export default function FinealthProSuite() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <span className="text-xs text-zinc-400 font-mono">Annual Rate (%)</span>
-                    <input
+                    <input aria-label="Annual Rate (%)"
                       type="number"
                       step="0.1"
                       value={swpRate}
@@ -686,7 +686,7 @@ export default function FinealthProSuite() {
                   </div>
                   <div className="space-y-1.5">
                     <span className="text-xs text-zinc-400 font-mono">Duration (Years)</span>
-                    <input
+                    <input aria-label="Duration (Years)"
                       type="number"
                       value={swpYears}
                       onChange={(e) => setSwpYears(Math.max(0, Number(e.target.value) || 0))}
@@ -736,15 +736,15 @@ export default function FinealthProSuite() {
                     <span className="text-xs text-zinc-400 font-mono">Deposit Principal</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
                       <span className="text-xs text-zinc-500 mr-1">₹</span>
-                      <input
+                      <input aria-label="Deposit Principal"
                         type="number"
                         value={fdDeposit}
                         onChange={(e) => setFdDeposit(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Deposit Principal slider"
                     type="range"
                     min={10000}
                     max={5000000}
@@ -758,7 +758,7 @@ export default function FinealthProSuite() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <span className="text-xs text-zinc-400 font-mono">FD Interest Rate (%)</span>
-                    <input
+                    <input aria-label="FD Interest Rate (%)"
                       type="number"
                       step="0.05"
                       value={fdRate}
@@ -768,7 +768,7 @@ export default function FinealthProSuite() {
                   </div>
                   <div className="space-y-1.5">
                     <span className="text-xs text-zinc-400 font-mono">Tenure (Years)</span>
-                    <input
+                    <input aria-label="Tenure (Years)"
                       type="number"
                       value={fdYears}
                       onChange={(e) => setFdYears(Math.max(0, Number(e.target.value) || 0))}
@@ -836,15 +836,15 @@ export default function FinealthProSuite() {
                     <span className="text-xs text-zinc-400 font-mono">Annual CTC</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
                       <span className="text-xs text-zinc-500 mr-1">₹</span>
-                      <input
+                      <input aria-label="Annual CTC"
                         type="number"
                         value={ctcAnnual}
                         onChange={(e) => setCtcAnnual(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Annual CTC slider"
                     type="range"
                     min={200000}
                     max={10000000}
@@ -858,7 +858,7 @@ export default function FinealthProSuite() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <span className="text-xs text-zinc-400 font-mono">Annual Variable/Bonus</span>
-                    <input
+                    <input aria-label="Annual Variable/Bonus"
                       type="number"
                       value={bonusAnnual}
                       onChange={(e) => setBonusAnnual(Math.max(0, Number(e.target.value) || 0))}
@@ -867,7 +867,7 @@ export default function FinealthProSuite() {
                   </div>
                   <div className="space-y-1.5">
                     <span className="text-xs text-zinc-400 font-mono">Monthly Professional Tax</span>
-                    <input
+                    <input aria-label="Monthly Professional Tax"
                       type="number"
                       value={professionalTax}
                       onChange={(e) => setProfessionalTax(Math.max(0, Number(e.target.value) || 0))}
@@ -919,15 +919,15 @@ export default function FinealthProSuite() {
                     <span className="text-xs text-zinc-400 font-mono">Gross Taxable Income</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
                       <span className="text-xs text-zinc-500 mr-1">₹</span>
-                      <input
+                      <input aria-label="Gross Taxable Income"
                         type="number"
                         value={taxableIncome}
                         onChange={(e) => setTaxableIncome(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Gross Taxable Income slider"
                     type="range"
                     min={300000}
                     max={5000000}
@@ -941,7 +941,7 @@ export default function FinealthProSuite() {
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1">
                     <span className="text-[11px] text-zinc-400 font-mono">Sec 80C</span>
-                    <input
+                    <input aria-label="Sec 80C deduction"
                       type="number"
                       value={deductions80C}
                       onChange={(e) => setDeductions80C(Math.max(0, Number(e.target.value) || 0))}
@@ -950,7 +950,7 @@ export default function FinealthProSuite() {
                   </div>
                   <div className="space-y-1">
                     <span className="text-[11px] text-zinc-400 font-mono">Sec 80D</span>
-                    <input
+                    <input aria-label="Sec 80D deduction"
                       type="number"
                       value={deductions80D}
                       onChange={(e) => setDeductions80D(Math.max(0, Number(e.target.value) || 0))}
@@ -959,7 +959,7 @@ export default function FinealthProSuite() {
                   </div>
                   <div className="space-y-1">
                     <span className="text-[11px] text-zinc-400 font-mono">HRA Exemption</span>
-                    <input
+                    <input aria-label="HRA exemption"
                       type="number"
                       value={deductionsHra}
                       onChange={(e) => setDeductionsHra(Math.max(0, Number(e.target.value) || 0))}
@@ -1033,15 +1033,15 @@ export default function FinealthProSuite() {
                     <span className="text-xs text-zinc-400 font-mono">Invoice Amount</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
                       <span className="text-xs text-zinc-500 mr-1">₹</span>
-                      <input
+                      <input aria-label="Invoice Amount"
                         type="number"
                         value={gstAmount}
                         onChange={(e) => setGstAmount(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Invoice Amount slider"
                     type="range"
                     min={100}
                     max={1000000}
@@ -1117,15 +1117,15 @@ export default function FinealthProSuite() {
                     <span className="text-xs text-zinc-400 font-mono">Principal Amount</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
                       <span className="text-xs text-zinc-500 mr-1">₹</span>
-                      <input
+                      <input aria-label="Principal Amount"
                         type="number"
                         value={loanPrincipal}
                         onChange={(e) => setLoanPrincipal(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Principal Amount slider"
                     type="range"
                     min={50000}
                     max={20000000}
@@ -1140,17 +1140,17 @@ export default function FinealthProSuite() {
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-zinc-400 font-mono">Interest Rate (p.a.)</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
-                      <input
+                      <input aria-label="Interest Rate (p.a.)"
                         type="number"
                         step="0.05"
                         value={loanRate}
                         onChange={(e) => setLoanRate(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-16 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
+                        className="w-16 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                       <span className="text-xs text-zinc-500 ml-1">%</span>
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Interest Rate (p.a.) slider"
                     type="range"
                     min={5}
                     max={24}
@@ -1165,16 +1165,16 @@ export default function FinealthProSuite() {
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-zinc-400 font-mono">Tenure (Years)</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
-                      <input
+                      <input aria-label="Tenure (Years)"
                         type="number"
                         value={loanYears}
                         onChange={(e) => setLoanYears(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-14 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                        className="w-14 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                       <span className="text-xs text-zinc-500 ml-1">Yr</span>
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Tenure (Years) slider"
                     type="range"
                     min={1}
                     max={30}
@@ -1227,15 +1227,15 @@ export default function FinealthProSuite() {
                   <span className="text-xs text-zinc-400 font-mono">Loan Amount for Comparison</span>
                   <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
                     <span className="text-xs text-zinc-500 mr-1">₹</span>
-                    <input
+                    <input aria-label="Loan Amount for Comparison"
                       type="number"
                       value={cmpLoanAmount}
                       onChange={(e) => setCmpLoanAmount(Math.max(0, Number(e.target.value) || 0))}
-                      className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                      className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                     />
                   </div>
                 </div>
-                <input
+                <input aria-label="Loan Amount for Comparison slider"
                   type="range"
                   min={100000}
                   max={20000000}
@@ -1251,7 +1251,7 @@ export default function FinealthProSuite() {
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-mono font-bold text-blue-400">OFFER / BANK A</span>
                     <div className="flex items-center space-x-1">
-                      <input
+                      <input aria-label="Bank A interest rate (%)"
                         type="number"
                         step="0.05"
                         value={bankARate}
@@ -1263,7 +1263,7 @@ export default function FinealthProSuite() {
                   </div>
                   <div className="space-y-1">
                     <span className="text-[11px] text-zinc-400 font-mono">Tenure (Years)</span>
-                    <input
+                    <input aria-label="Bank A tenure (years)"
                       type="number"
                       value={bankAYears}
                       onChange={(e) => setBankAYears(Math.max(0, Number(e.target.value) || 0))}
@@ -1286,7 +1286,7 @@ export default function FinealthProSuite() {
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-mono font-bold text-emerald-400">OFFER / BANK B</span>
                     <div className="flex items-center space-x-1">
-                      <input
+                      <input aria-label="Bank B interest rate (%)"
                         type="number"
                         step="0.05"
                         value={bankBRate}
@@ -1298,7 +1298,7 @@ export default function FinealthProSuite() {
                   </div>
                   <div className="space-y-1">
                     <span className="text-[11px] text-zinc-400 font-mono">Tenure (Years)</span>
-                    <input
+                    <input aria-label="Bank B tenure (years)"
                       type="number"
                       value={bankBYears}
                       onChange={(e) => setBankBYears(Math.max(0, Number(e.target.value) || 0))}
@@ -1343,15 +1343,15 @@ export default function FinealthProSuite() {
                     <span className="text-xs text-zinc-400 font-mono">Current Monthly Household Expense</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
                       <span className="text-xs text-zinc-500 mr-1">₹</span>
-                      <input
+                      <input aria-label="Current Monthly Household Expense"
                         type="number"
                         value={currentExpense}
                         onChange={(e) => setCurrentExpense(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-24 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                        className="w-24 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Current Monthly Household Expense slider"
                     type="range"
                     min={10000}
                     max={500000}
@@ -1365,7 +1365,7 @@ export default function FinealthProSuite() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <span className="text-xs text-zinc-400 font-mono">Inflation Rate (%)</span>
-                    <input
+                    <input aria-label="Inflation Rate (%)"
                       type="number"
                       step="0.1"
                       value={inflationRate}
@@ -1375,7 +1375,7 @@ export default function FinealthProSuite() {
                   </div>
                   <div className="space-y-1.5">
                     <span className="text-xs text-zinc-400 font-mono">Years into Future</span>
-                    <input
+                    <input aria-label="Years into Future"
                       type="number"
                       value={inflationHorizon}
                       onChange={(e) => setInflationHorizon(Math.max(0, Number(e.target.value) || 0))}
@@ -1427,15 +1427,15 @@ export default function FinealthProSuite() {
                     <span className="text-xs text-zinc-400 font-mono">Annual Living Expenses</span>
                     <div className="flex items-center bg-[#181820] border border-[#262633] rounded px-3 py-1">
                       <span className="text-xs text-zinc-500 mr-1">₹</span>
-                      <input
+                      <input aria-label="Annual Living Expenses"
                         type="number"
                         value={fireAnnualExpense}
                         onChange={(e) => setFireAnnualExpense(Math.max(0, Number(e.target.value) || 0))}
-                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
+                        className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-sm"
                       />
                     </div>
                   </div>
-                  <input
+                  <input aria-label="Annual Living Expenses slider"
                     type="range"
                     min={200000}
                     max={5000000}
@@ -1449,7 +1449,7 @@ export default function FinealthProSuite() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <span className="text-xs text-zinc-400 font-mono">Current Existing Savings</span>
-                    <input
+                    <input aria-label="Current Existing Savings"
                       type="number"
                       value={fireCurrentSavings}
                       onChange={(e) => setFireCurrentSavings(Math.max(0, Number(e.target.value) || 0))}
@@ -1458,7 +1458,7 @@ export default function FinealthProSuite() {
                   </div>
                   <div className="space-y-1.5">
                     <span className="text-xs text-zinc-400 font-mono">Monthly Saving Capacity</span>
-                    <input
+                    <input aria-label="Monthly Saving Capacity"
                       type="number"
                       value={fireMonthlySaving}
                       onChange={(e) => setFireMonthlySaving(Math.max(0, Number(e.target.value) || 0))}

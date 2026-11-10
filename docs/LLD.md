@@ -80,7 +80,7 @@ Every tool page shows the result, then "How it is worked out" (the source), "Rat
 ## 3.2 Home page (`site/HomeHero.tsx` and `app/page.tsx`)
 | Section | Export | Test ids and content |
 |---|---|---|
-| Hero | `HomeHero` | `home-hero`; `hero-start` → `/health-check/`; `hero-tools` → `/tools/`; `hero-trust` (No login, no bank link · 36+ free calculators · Tax for 7 countries, VAT for 67 · Pro from ₹17 a month, or "Pro US$7.99 a year" outside INR); `hero-card` with `ScoreRing`, `hero-grade`, three stats and `hero-top-action`, all from `financialHealth(exampleHealth(currency))` |
+| Hero | `HomeHero` | `home-hero`; `hero-start` → `/health-check/`; `hero-tools` → `/tools/`; `hero-trust` (No login, no bank link · 36+ free calculators · Tax for 7 countries, VAT for N (N = entries in `WORLD_VAT_RATES`, 66 today) · Pro from ₹17 a month, or "Pro US$7.99 a year" outside INR); `hero-card` with `ScoreRing`, `hero-grade`, three stats and `hero-top-action`, all from `financialHealth(exampleHealth(currency))` |
 | Proof strip | `ProofStrip` | `proof-strip`: 6 planners, `${TOOLS.length}+` calculators, 0 numbers sent, 2 min |
 | Planners | `PlannerCards` | `planner-bento`: Health Check (large cell, six rule chips), Debt Payoff (Free · 3 debts), Goal Planner (Free · 1 goal), Loan Prepayment, Retirement (Free + Pro), My Plan (Free + Pro). Limits come from `FREE_LIMITS` |
 | How it works | `HowItWorks` | `how-it-works`: type ten numbers, get your score, follow the plan |
@@ -201,7 +201,7 @@ Rates last checked **9 Nov 2026** (`RATES_LAST_CHECKED`, shown on every tax tool
 | US 2026 | single and married joint brackets (Rev. Proc. 2025-32), standard deduction 32,200 joint, FICA, Additional Medicare | $150,000 joint → $15,340; $80,000 single → $8,770 |
 | India | new regime with 87A marginal relief and surcharge relief; old regime with age bands (₹2.5 L / 3 L / 5 L), 80C cap ₹1.5 L, 80D caps for self and parents (₹25k, ₹50k if 60+), HRA least of three, gratuity wage × 15/26 × years (cap ₹20 L) | ₹13 L new → ₹26,000; ₹15 L old with 80D 40k + 60k → ₹1,87,200 |
 | UK | 2026/27 PAYE and NI; SDLT for home movers, first-time buyers and additional property, + 2 % non-resident | £60,000 → tax £11,432, NI £3,211 |
-| VAT / GST | 27 EU states + 40 other countries (Pakistan deliberately excluded); India GST slabs; Canada GST/HST/PST by province | DE 119 incl. → 19.00 VAT |
+| VAT / GST | 66 countries: 27 EU states + 39 others (Pakistan deliberately excluded); India GST slabs; Canada GST/HST/PST by province | DE 119 incl. → 19.00 VAT |
 
 # 5. Free vs Pro gating
 | Feature | Free | Pro |
@@ -383,7 +383,7 @@ Shortcuts: `npm run robot` (everything, local, `--serve`), `npm run robot:dryrun
 | Worker API tests | `apps/api/test/api.test.ts` (faked Razorpay and Play) | `npm test` |
 | Playwright | `tests/web/specs/`: `finealth-web`, `product`, `pro`, `a11y`, `finealth-mobile` specs; projects `web` and `mobile-webview`; local static servers via `tests/web/scripts/serve-static.mjs` | `npm run test:web` |
 | Appium (real device) | `tests/mobile/native/finealth-native.appium.spec.ts`: status-bar inset, haptics, airplane mode | manual, device |
-| k6 load | `tests/load/load.js`, profiles smoke, load, stress, spike, soak; limits in `tests/testdata/shared/load.json` (default p95 < 500 ms, errors < 1 %); 429 counts as expected | `tests/tools/perf.mjs`, staging only |
+| k6 load | `tests/load/load.js`, profiles smoke, load, stress, spike, soak; limits in `tests/testdata/shared/load.json` (p95 < 300 ms per NFR-012, errors < 1 %); 429 counts as expected | `tests/tools/perf.mjs`, staging only |
 | Lighthouse CI | `tests/load/lighthouserc.json`: 7 pages × 3 runs, performance, accessibility and best practices ≥ 0.9 | CI or `tests/tools/perf.mjs` |
 | Security | Gitleaks (tree and built bundle), Semgrep CE, OSV-Scanner, forbidden-files check | `.github/workflows/ci.yml`, `npm run security` |
 | Whole repo | lint, typecheck, test, build across workspaces | `npm run check` |
