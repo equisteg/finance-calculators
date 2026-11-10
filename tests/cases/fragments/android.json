@@ -60,7 +60,7 @@
   "Automatable": "Y",
   "Automation Script": "tests/automation/mobile/app/app.robot :: TC-M-APP-003",
   "Status": "Not run",
-  "Remarks / old TC ID": "Finance category rule (docs/standards/product-categories.md §1). Fails locally: the app screens have no disclaimer (bug reported by api-android)"
+  "Remarks / old TC ID": "Finance category rule (docs/standards/product-categories.md §1). Found a bug (no disclaimer on the app screens), fixed 10 Nov 2026"
  },
  {
   "TC ID": "TC-M-APP-004",
@@ -228,7 +228,7 @@
   "Automatable": "Y",
   "Automation Script": "tests/automation/mobile/calculators/calculators.robot :: TC-M-CALC-007",
   "Status": "Not run",
-  "Remarks / old TC ID": "Fails locally: -5000 shows maturity -₹25,22,880 and invested -₹9,00,000 (bug reported by api-android)"
+  "Remarks / old TC ID": "Found a bug (-5000 showed negative maturity), fixed 10 Nov 2026: typed amounts below 0 count as 0"
  },
  {
   "TC ID": "TC-M-NAV-001",

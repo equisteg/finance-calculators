@@ -1,0 +1,10 @@
+{
+  "app": "finealth",
+  "version": 1,
+  "exportedAt": "2026-11-01T09:00:00.000Z",
+  "data": {
+    "health": { "monthlyIncome": 150000, "monthlyExpenses": 70000, "monthlyDebtPayments": 10000, "emergencyFund": 480000, "costlyDebt": 0, "investments": 3000000, "age": 40, "dependents": 1, "lifeCover": 15000000, "hasHealthCover": true },
+    "debts": [ { "id": "car01", "name": "Car loan", "balance": 300000, "aprPct": 9.5, "minPayment": 10000 } ],
+    "goals": [ { "bad": true } ]
+  }
+}

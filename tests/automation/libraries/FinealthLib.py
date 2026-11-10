@@ -147,7 +147,7 @@ class FinealthLib:
         el = self._field(name, index)
         tag = el.tag_name.lower()
         typ = (el.get_attribute('type') or '').lower()
-        self._d.execute_script('arguments[0].scrollIntoView({block: "center"})', el)
+        self._d.execute_script('arguments[0].scrollIntoView({block: "center", behavior: "instant"})', el)
         if tag == 'select':
             from selenium.webdriver.support.ui import Select
             s = Select(el)
@@ -196,7 +196,7 @@ class FinealthLib:
         from selenium.webdriver.common.action_chains import ActionChains
         from selenium.common.exceptions import ElementClickInterceptedException
         el = self._sl().find_element(locator)
-        self._d.execute_script('arguments[0].scrollIntoView({block: "center", inline: "nearest"})', el)
+        self._d.execute_script('arguments[0].scrollIntoView({block: "center", inline: "nearest", behavior: "instant"})', el)
         # hovering a planner card widens its grid column (0.4 s); let the layout settle before clicking
         ActionChains(self._d).move_to_element(el).perform()
         time.sleep(0.5)

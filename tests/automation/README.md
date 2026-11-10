@@ -110,7 +110,7 @@ The report opens in your browser when a visible run ends (`--no-open` to stop th
   `Elements Should Fit Their Boxes`, `Page Should Have No Console Problems`, `Page Should Load No Ad Script`.
 - Pro: `Open Finealth Pro  /debt-payoff/` (seeds the signed licence); `Tamper Pro Token` for the negative cases.
 - Android: `Open Finealth App` opens the app build in a 390 × 844 window after its splash.
-- API: `${res}=  Call API  GET  /api/health` returns status, headers and body from the Worker run in-process.
+- API: `${res}=  Call API  GET  /api/v1/health` returns status, headers and body from the Worker run in-process.
 - Test data lives in `tests/testdata/` (`${DATA}`); never real customer data, live keys or production URLs.
 
 ## 6. Adding a test case
