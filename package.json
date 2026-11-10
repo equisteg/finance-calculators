@@ -21,9 +21,12 @@
     "check:secrets": "node tests/tools/check-forbidden-files.mjs",
     "prepare": "node tests/tools/install-githooks.mjs",
     "licence:keys": "node scripts/gen-licence-keys.mjs",
-    "cases": "node scripts/test-cases.mjs",
+    "cases": "node scripts/test-cases.mjs && python tests/tools/export_cases.py --check",
     "docs": "node scripts/docs-export.mjs docs/HLD.md docs/LLD.md docs/USER_MANUAL.md",
-    "licence:test": "node scripts/make-test-licence.mjs"
+    "licence:test": "node scripts/make-test-licence.mjs",
+    "robot": "python tests/automation/run.py --env local --serve",
+    "robot:pro-site": "node tests/automation/tools/build-pro-site.mjs",
+    "robot:dryrun": "python tests/automation/run.py --dryrun --no-open"
   },
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "^12.2.0",
