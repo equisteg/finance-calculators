@@ -129,7 +129,7 @@ test.describe("FN-W :: Finealth Web Application", () => {
     expect(await numberFrom(gold22Price)).toBe(Math.round((await numberFrom(goldPrice)) * (22 / 24)));
 
     // --- City spread selector ---------------------------------------------
-    const citySelect = page.locator("main select").first();
+    const citySelect = page.getByRole("combobox", { name: "City" });
     await expect(citySelect).toBeVisible();
     await expect(citySelect).toHaveValue("Mumbai");
     await expect(page.getByRole("heading", { name: /Bullion Markets in/ })).toContainText("Mumbai");
@@ -204,7 +204,7 @@ test.describe("FN-W :: Finealth Web Application", () => {
 
     // --- Baseline: India ---------------------------------------------------
     await expect(currency).toHaveValue("INR");
-    await expect(page.getByText(/JURISDICTION:.*INDIA \(INR\)/)).toBeVisible();
+    await expect(page.getByText(/India · NSE, BSE & IBJA/)).toBeVisible();
     await expect(page.getByRole("button", { name: JURISDICTIONS.INR.firstTool })).toBeVisible();
 
     const principalLabel = page
@@ -219,7 +219,7 @@ test.describe("FN-W :: Finealth Web Application", () => {
     await currency.selectOption("USD");
 
     // Symbols and regional catalogue update.
-    await expect(page.getByText(/JURISDICTION:.*UNITED STATES \(USD\)/)).toBeVisible();
+    await expect(page.getByText(/United States · NYSE, NASDAQ & CBOE/)).toBeVisible();
     await expect(page.getByText(JURISDICTIONS.USD.exchange)).toBeVisible();
     await expect(page.getByRole("button", { name: JURISDICTIONS.USD.firstTool })).toBeVisible();
     await expect(
@@ -246,6 +246,11 @@ test.describe("FN-W :: Finealth Web Application", () => {
       sliderValue,
       "slider position and the displayed principal must agree"
     ).toBe(usdPrincipal);
+
+    // --- One region control on the page (the header select), not two -------
+    await expect(page.getByRole("combobox", { name: /Jurisdiction|Currency/ })).toHaveCount(1);
+    await currency.selectOption("INR");
+    await expect(page.getByText(/India · NSE, BSE & IBJA/)).toBeVisible();
   });
 
   /* ================================================================

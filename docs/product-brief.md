@@ -16,7 +16,7 @@ Calculators dashboard (`/`), Health Check, Debt Payoff Planner, Goal Planner, Re
 REQ-001…REQ-018, listed with test cases in `docs/test-cases.md`.
 
 ## 4b. Non-functional requirements
-NFR-001…NFR-012 in `docs/test-cases.md` (accuracy 100 % on golden cases, Monte Carlo < 100 ms, Lighthouse ≥ 90, no financial data off-device, no ad script for Pro, WCAG 2.2 AA, disclaimer on every result).
+NFR-001…NFR-013 and NFR-015 in `docs/test-cases.md`, NFR-014 unused (accuracy 100 % on golden cases, Monte Carlo < 100 ms, Lighthouse ≥ 90, layout shift (CLS) < 0.1, no financial data off-device, no ad script for Pro, WCAG 2.2 AA, disclaimer on every result).
 
 ## 5. Data entities & storage
 `HealthInput`, `Debt[]`, `Goal[]`, `RetirementInput`, `Snapshot[]` in browser `localStorage` (`finealth.v1.*`); Pro licence record `finealth.pro.v1`. Nothing on the server.

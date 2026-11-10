@@ -11,6 +11,16 @@
 - Accessibility gate (NFR-009 now automated): `tests/web/specs/a11y.spec.ts` runs axe on 9 pages in both modes (18 checks, 0 serious/critical). Fixes it drove: brighter dark secondary text, a darker primary-button top, input borders at about 3:1 with a visible focus outline, tool-card region labels at full strength, donut legends now show the percentages (not colour alone), a 48 px hit area on the theme switch, and the bento hover resize turned off under reduced motion.
 - Locked goals on the free plan are now read-only with a note ("Saved, but not planned on the free plan"), instead of faded but still editable.
 - Test cases 99 → 103 (REQ-023), 2 new E2E tests (FH-20 theme switch, FH-21 bento) and 3 unit tests for the theme boot script. Android keeps the old look for now (RSK-011).
+### Changed (UI audit, same day)
+- The home page now uses the same floating header and footer as every other page. The header's Currency menu is the one region control (the home page used to have a second one), and the confusing ⟳ exchange-rate button is gone. The markets heading now sits between the ad and the market controls.
+- A "Skip to content" link is the first thing keyboard users reach on every page, and it lands below the floating header. A proper 404 page with the shared header and a way home replaces the bare default one.
+- On phones the home page is about 18 % shorter (8,455 px → 6,946 px at 412 px wide): the planners sit in a two-column bento, the market cards scroll sideways in one row, and the example card's three figures keep full-size labels (one row from 480 px, a stacked list below that, no broken words down to 320 px).
+- Market cards say plainly that they show reference values stored in the app, not live prices.
+- Home calculator sliders use the terracotta action colour, like checkboxes. On phones the My Plan card spans the full row, so the planner grid leaves no empty cell.
+- Accessibility check widened from 9 to 20 pages, the 404 page included (40 checks, 0 serious or critical issues).
+### Fixed
+- The debt, goal and snapshot planners no longer jump while the Pro check loads (layout shift 0.265 → 0 on `/debt-payoff/`, NFR-013, E2E FH-24).
+- Test cases 103 → 109 (REQ-024), 4 new E2E tests (FH-22 skip link, FH-23 shared header and footer, FH-24 no layout shift, FH-25 skip target on every page and 320 px fit).
 
 ## Unreleased — 2026-11-09
 ### Added

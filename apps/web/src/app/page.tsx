@@ -9,9 +9,9 @@ import {
   type PriorityAsset,
 } from "./context/CurrencyContext";
 import AdSenseBanner from "../components/AdSenseBanner";
-import { AREA_ICON, GlassIcon } from "../components/GlassIcon";
-import { ThemeToggle } from '@/components/ThemeToggle';
-import { NAV } from "../components/site/SiteHeader";
+import { GlassIcon } from "../components/GlassIcon";
+import { SiteHeader } from '@/components/site/SiteHeader';
+import { SiteFooter } from '@/components/site/SiteFooter';
 import { HomeHero, HowItWorks, PlannerCards, PopularTools } from "../components/site/HomeHero";
 import { useFitRows } from "../components/ui";
 import { ADSENSE_CLIENT, AD_SLOTS } from "@/lib/ads";
@@ -109,15 +109,11 @@ export default function Home() {
   const fitRef = useFitRows<HTMLElement>();
   const {
     baseCurrency,
-    setBaseCurrency,
     selectedUsState,
     setSelectedUsState,
     selectedIndianCity,
     setSelectedIndianCity,
     activeProfile,
-    lastUpdated,
-    isSyncing,
-    manualRefresh,
   } = useCurrency();
 
   const currency: Currency = baseCurrency in TOOLS ? (baseCurrency as Currency) : "INR";
@@ -259,62 +255,9 @@ export default function Home() {
   return (
     <div className="min-h-screen text-zinc-100">
       {/* Universal Header */}
-      <header className="sticky top-0 z-50 px-3 sm:px-4">
-        <div className="navbar max-w-7xl px-3 sm:px-4 h-16 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <Link href="/health-check/" className="flex items-center gap-2.5 shrink-0" aria-label="Finealth home">
-              <GlassIcon name="spark" tone="terra" size={34} />
-              <span className="hidden min-[420px]:block text-[17px] font-serif font-semibold tracking-tight text-white">Finealth</span>
-            </Link>
-            <span data-testid="engine-badge" className="text-[10px] font-semibold uppercase bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full tracking-widest hidden lg:inline-block whitespace-nowrap">
-              STATUTORY ENGINE
-            </span>
-          </div>
+      <SiteHeader />
 
-          <div className="flex items-center gap-2 shrink-0">
-            <Link href="/tools/" className="btn btn-secondary btn-sm hidden sm:inline-flex">
-              <GlassIcon name="grid" tone="teal" size={20} />
-              All tools
-            </Link>
-            <ThemeToggle />
-            <select
-              aria-label="Jurisdiction"
-              value={baseCurrency}
-              onChange={(e) => setBaseCurrency(e.target.value)}
-              className="input !w-auto max-w-[9.5rem] sm:max-w-none !py-1.5 !text-xs !rounded-lg cursor-pointer"
-            >
-              <option value="INR">🇮🇳 India (INR ₹)</option>
-              <option value="USD">🇺🇸 United States (USD $)</option>
-              <option value="EUR">🇪🇺 European Union (EUR €)</option>
-              <option value="GBP">🇬🇧 United Kingdom (GBP £)</option>
-            </select>
-
-            <button
-              onClick={manualRefresh}
-              disabled={isSyncing}
-              title="Refresh exchange rates"
-              className="btn btn-secondary btn-sm !px-2.5"
-            >
-              <span className={isSyncing ? "animate-spin" : ""}>⟳</span>
-              <span className="hidden md:inline">{lastUpdated}</span>
-            </button>
-          </div>
-        </div>
-        <nav aria-label="Main" className="max-w-7xl mx-auto px-4 sm:px-6 pb-2.5 rail">
-          {NAV.map((n) => {
-            const icon = AREA_ICON[n.href];
-            const on = n.href === "/";
-            return (
-              <Link key={n.href} href={n.href} aria-current={on ? "page" : undefined} className="chip !py-1 !pl-1">
-                {icon && <GlassIcon name={icon.name} tone={on ? icon.tone : "slate"} size={24} />}
-                <span className="whitespace-nowrap">{n.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-      </header>
-
-      <main ref={fitRef} className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <main ref={fitRef} id="main" className="wrap pt-8 pb-6 sm:pt-12">
         {/* Product entry points: the free health check and the planners (Pro features live there) */}
         <HomeHero />
         <PlannerCards />
@@ -322,13 +265,21 @@ export default function Home() {
 
         <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.top} />
 
-        {/* Region & Benchmark Header */}
-        <div className="mb-8 pt-2">
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-300 max-w-full flex-wrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              JURISDICTION: {activeProfile.flag} {activeProfile.name.toUpperCase()} ({activeProfile.currencyCode}) • EXCHANGE: {activeProfile.primaryExchange}
-            </div>
+        {/* Region & Benchmark Header: heading first, so an ad never sits right above a control */}
+        <div className="mb-8 pt-8">
+          <h2 className="heading-xl">
+            Financial & Bullion Markets in {currency === "INR" ? selectedIndianCity : activeProfile.name}
+          </h2>
+          <p className="text-xs sm:text-sm text-zinc-400 mt-1.5 mb-4 font-light">
+            Priority coverage: <span className="text-emerald-400 font-medium">{activeProfile.headlinePriority}</span>. Reference values stored in the app, not live prices; the day change is from the reference date. Confirm live quotes before you trade.
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <span data-testid="engine-badge" className="text-[10px] font-semibold uppercase bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full tracking-widest whitespace-nowrap">
+              STATUTORY ENGINE
+            </span>
+            <span className="chip !text-xs max-w-full !whitespace-normal">
+              {activeProfile.flag} {activeProfile.name} · {activeProfile.primaryExchange}
+            </span>
 
             {currency === "INR" && (
               <div className="chip !text-xs max-w-full">
@@ -367,16 +318,10 @@ export default function Home() {
             )}
           </div>
 
-          <h2 className="heading-xl">
-            Financial & Bullion Markets in {currency === "INR" ? selectedIndianCity : activeProfile.name}
-          </h2>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1.5 font-light">
-            Priority coverage: <span className="text-emerald-400 font-medium">{activeProfile.headlinePriority}</span>. Reference benchmarks for planning; confirm live quotes before trading.
-          </p>
         </div>
 
         {/* Priority Asset Grid */}
-        <section className={`grid grid-cols-1 ${assetGridColumns} gap-4 mb-10`}>
+        <section aria-label="Market reference values" tabIndex={0} className={`asset-rail grid grid-cols-1 ${assetGridColumns} gap-4 mb-10`}>
           {activeProfile.priorityAssets.map((asset) => (
             <div
               key={asset.id}
@@ -983,21 +928,7 @@ export default function Home() {
         <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.bottom} className="my-6" />
       </main>
 
-      <footer className="border-t border-white/[0.08] mt-16 py-8 text-center text-xs tabular-nums text-zinc-500 px-4 grid gap-3">
-        <nav aria-label="Footer" className="flex flex-wrap justify-center gap-4 text-zinc-400">
-          <Link href="/health-check/">Health Check</Link>
-          <Link href="/tools/">All tools</Link>
-          <Link href="/pricing/">Pricing</Link>
-          <Link href="/about/">About</Link>
-          <Link href="/privacy/">Privacy</Link>
-          <Link href="/terms/">Terms</Link>
-          <Link href="/refund/">Refunds</Link>
-          <Link href="/contact/">Contact</Link>
-        </nav>
-        <span>
-          Finealth Financial Suite · A product by <a href="https://equisteg.com" className="underline">Equisteg</a> · More free tools at <a href="https://teiqtools.com" className="underline">TEIQTools.com</a> · Estimates only, not financial, tax or legal advice
-        </span>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
@@ -1030,7 +961,7 @@ function SliderField(props: {
         step={props.step}
         value={props.value}
         onChange={(e) => props.onChange(Number(e.target.value))}
-        className="w-full accent-emerald-400 h-1.5 cursor-pointer"
+        className="w-full accent-brand-400 h-1.5 cursor-pointer"
       />
     </div>
   );

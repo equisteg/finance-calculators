@@ -7,7 +7,7 @@ import path from "node:path";
  * otherwise every text node is reported "incomplete" and contrast is never checked.
  */
 const AXE = path.join(path.dirname(require.resolve("axe-core/package.json")), "axe.min.js");
-const PAGES = ["/", "/health-check/", "/debt-payoff/", "/goal-planner/", "/retirement-planner/", "/loan-prepayment/", "/tools/", "/pricing/", "/emi-calculator/"];
+const PAGES = ["/", "/health-check/", "/debt-payoff/", "/goal-planner/", "/retirement-planner/", "/loan-prepayment/", "/tools/", "/pricing/", "/emi-calculator/", "/my-plan/", "/about/", "/privacy/", "/terms/", "/refund/", "/contact/", "/pro/", "/sip-calculator/", "/compound-interest/", "/tools/australia-income-tax-calculator/", "/no-such-page/"];
 const FLATTEN = `body{background-image:none!important}.card,.glass,.glass-strong{background:var(--surface)!important}.btn-primary{background:var(--accent-hi)!important}*{animation:none!important;transition:none!important}`;
 
 for (const scheme of ["light", "dark"] as const) {

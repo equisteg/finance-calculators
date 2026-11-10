@@ -533,3 +533,32 @@ img, svg, video, canvas { max-width: 100%; }
 /* Page change: each page settles in with a short fade and rise */
 @keyframes page-in { from { opacity: 0; } to { opacity: 1; } }
 .page-in { animation: page-in 0.45s var(--ease) both; }
+
+/* Keyboard users jump past the header straight to the page content */
+.skip-link { position: fixed; left: 1rem; top: -4rem; z-index: 100; padding: 0.7rem 1rem; border-radius: 0.8rem; background: var(--accent); color: var(--on-accent); font-weight: 600; transition: top var(--t-fast) var(--ease); }
+.skip-link:focus-visible { top: 1rem; outline: 2px solid var(--fg); outline-offset: 2px; }
+
+/* Phones: the planners become a compact two-column grid (Health Check stays full width), so the page is not one long stack */
+@media (max-width: 639px) {
+  .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+  .b-health { grid-column: span 2; }
+  .bento-card { min-height: 0; padding: 1rem; gap: 0.75rem; border-radius: 1.25rem; align-content: start; }
+  .bento-card .more, .bento-card .bento-rules { display: none; }
+  .bento-card .gicon { width: 38px !important; height: 38px !important; }
+  .bento-card .pill { font-size: 10px !important; padding: 0.1rem 0.45rem; }
+  .b-plan { grid-column: span 2; }
+  /* Market cards scroll sideways in one row instead of a long stack */
+  .asset-rail { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 0.25rem; }
+  .asset-rail::-webkit-scrollbar { display: none; }
+  .asset-rail > * { flex: 0 0 84%; scroll-snap-align: start; }
+}
+.asset-rail:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 1rem; }
+/* The example card's three figures: one row from 480 px, a stacked list of label and value below that, so labels stay full size */
+.hero-stats .stat > span:first-child { letter-spacing: 0.06em; overflow-wrap: normal; word-break: normal; }
+@media (max-width: 479px) {
+  .hero-stats { grid-template-columns: minmax(0, 1fr); gap: 0.375rem; }
+  .hero-stats .stat { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; padding: 0.6rem 0.85rem; }
+  .hero-stats .stat .stat-value { margin-top: 0; font-size: 1.15rem; }
+}
+/* Skip link and in-page jumps land below the floating header */
+#main { scroll-margin-top: 7.5rem; }

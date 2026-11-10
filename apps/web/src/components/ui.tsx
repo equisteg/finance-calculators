@@ -246,9 +246,14 @@ export function Stat(props: { label: string; value: string; tone?: 'ok' | 'warn'
 export function ProGate(props: { feature: string; detail: string; children: ReactNode; testId?: string }) {
   const { isPro, status } = usePro();
   if (isPro) return <>{props.children}</>;
-  if (status.state === 'checking') return <div className="card p-6 min-h-[160px] animate-pulse" aria-busy="true" />;
+  // While the licence is checked, the same card is laid out but hidden, so nothing below it moves (no layout shift).
+  const checking = status.state === 'checking';
   return (
-    <div className="card p-6 !border-amber-300/30 flex flex-col sm:flex-row sm:items-start gap-4" data-testid={props.testId ?? 'pro-gate'}>
+    <div
+      className={`card p-6 !border-amber-300/30 flex flex-col sm:flex-row sm:items-start gap-4 ${checking ? 'animate-pulse [&>*]:invisible' : ''}`}
+      aria-busy={checking || undefined}
+      data-testid={checking ? undefined : props.testId ?? 'pro-gate'}
+    >
       <GlassIcon name="spark" tone="amber" size={44} />
       <div className="min-w-0 flex-1">
       <span className="pill pill-pro">Pro</span>

@@ -69,7 +69,7 @@ export function HomeHero() {
             </p>
           </div>
         </div>
-        <div className="fitgrid grid gap-2.5">
+        <div className="hero-stats grid grid-cols-3 gap-2">
           <Stat label="Savings rate" value={`${Math.round(report.metrics.savingsRate * 100)} %`} tone={report.metrics.savingsRate >= 0.2 ? 'ok' : 'bad'} />
           <Stat label="Emergency fund" value={`${report.metrics.emergencyMonths.toFixed(1)} mo`} tone={report.metrics.emergencyMonths >= 6 ? 'ok' : 'bad'} />
           <Stat label="Loan payments" value={`${Math.round(report.metrics.debtToIncome * 100)} %`} />
@@ -115,7 +115,7 @@ export function PlannerCards() {
           const big = p.cls === 'b-health';
           return (
             <Link key={p.href} href={p.href} className={`card lift bento-card min-w-0 ${p.cls}`} onPointerMove={glassRim}>
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <GlassIcon name={icon.name} tone={icon.tone} size={big ? 56 : 44} />
                 <span className="pill pill-ok !text-[10px]">{p.tag}</span>
               </div>
@@ -125,7 +125,7 @@ export function PlannerCards() {
                 <span className="more text-sm text-zinc-500 leading-snug">{p.more}</span>
               </span>
               {big && (
-                <span className="flex flex-wrap gap-2" aria-hidden="true">
+                <span className="bento-rules flex flex-wrap gap-2" aria-hidden="true">
                   {RULES.map((r) => (
                     <span key={r} className="chip !text-xs !py-1 !px-2.5">
                       {r}

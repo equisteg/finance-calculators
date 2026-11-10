@@ -155,6 +155,8 @@ Backup file: `{ app: 'finealth', version: 1, exportedAt, data: { …keys } }`; i
 ## 4.3 Look and theming (v10 "Warm Editorial")
 Colours are CSS variables in `apps/web/src/app/globals.css` (light "Paper" on `:root`, dark "Espresso" under `prefers-color-scheme: dark` unless `data-theme="light"`, and under `[data-theme="dark"]`). `tailwind.config.ts` maps `white` (ink), `zinc`, `emerald` (sage), `red`/`rose` (clay), `amber` (ochre) and `brand` (terracotta) to those variables, so the same class works in both modes. Motion uses one easing curve and three speeds (200 / 400 / 700 ms); scroll reveals and parallax use CSS scroll timelines and switch off under reduced motion. Full concept, palette and contrast table: the "Warm Editorial" design doc.
 
+Shared page frame: every page, the home page and the 404 page included, renders `SiteHeader` and `SiteFooter` (the header Currency menu is the only region control); the root layout puts a "Skip to content" link first in `<body>`, and each `<main>` has `id="main"`. `ProGate` keeps its full height while the Pro check runs (the card renders with its contents hidden, a pulse and `aria-busy`), so planners do not shift (CLS < 0.1, NFR-013). On phones (< 640 px) the home bento is two columns (My Plan full width) and the market cards are a sideways snap rail (`.asset-rail`).
+
 # 5. Mobile modules
 `apps/mobile` is a Next.js static export (`src/app/page.tsx`, splash, tab bar) loaded by Capacitor (`appId com.tezech.finealth`, `webDir out`). It imports formulas from `@finealth/finance-core`. Build: `npm run cap:sync -w @finealth/mobile`, then Gradle. Expo port and Play Billing: next PR (RSK-002).
 

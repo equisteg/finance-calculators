@@ -149,6 +149,57 @@ test.describe('FH :: global tools library and disclaimers', () => {
     }
   });
 
+  test('FH-22 keyboard users can skip the header straight to the content', async ({ page }) => {
+    await page.goto('/health-check/');
+    await page.keyboard.press('Tab');
+    const skip = page.getByRole('link', { name: 'Skip to content' });
+    await expect(skip).toBeFocused();
+    await expect(skip).toBeInViewport();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/#main$/);
+    await page.keyboard.press('Tab');
+    expect(await page.evaluate(() => !!document.activeElement?.closest('#main')), 'next Tab lands inside the main content').toBe(true);
+  });
+
+  test('FH-25 every page has the skip-link target, and the example figures fit at 320 px', async ({ page }) => {
+    for (const path of ['/', '/tools/', '/pricing/', '/privacy/', '/no-such-page/']) {
+      await page.goto(path);
+      expect(await page.locator('#main').count(), `#main on ${path}`).toBe(1);
+    }
+    await expect(page).toHaveTitle(/not found/i);
+    await page.setViewportSize({ width: 320, height: 800 });
+    await page.goto('/');
+    const spill = await page.locator('.hero-stats .stat > span:first-child').evaluateAll((els) => els.filter((e) => e.scrollWidth > e.clientWidth).map((e) => e.textContent));
+    expect(spill, 'labels that do not fit their box').toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth), 'no sideways scroll at 320 px').toBeLessThanOrEqual(320);
+  });
+
+  test('FH-23 home and planner pages share one header and footer', async ({ page }) => {
+    for (const path of ['/', '/health-check/']) {
+      await page.goto(path);
+      await expect(page.getByTestId('theme-toggle')).toHaveCount(1);
+      await expect(page.getByRole('navigation', { name: 'Main' })).toHaveCount(1);
+      await expect(page.locator('footer').getByText('A product by')).toBeVisible();
+    }
+  });
+
+  test('FH-24 planner cards load without moving the page (no layout shift)', async ({ page }) => {
+    await page.addInitScript(() => {
+      (window as unknown as { __cls: number }).__cls = 0;
+      new PerformanceObserver((l) => {
+        for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value;
+      }).observe({ type: 'layout-shift', buffered: true });
+    });
+    await page.setViewportSize({ width: 412, height: 915 });
+    for (const [path, ready] of [['/debt-payoff/', 'debt-pro-gate'], ['/', 'engine-badge']] as const) {
+      await page.goto(path);
+      await expect(page.getByTestId(ready)).toBeVisible();
+      await page.waitForTimeout(800);
+      const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+      expect(cls, `layout shift on ${path}`).toBeLessThan(0.1);
+    }
+  });
+
   test('FH-16 terms carry the no-advice, accuracy and liability sections', async ({ page }) => {
     await page.goto('/terms/');
     for (const h of ['Information, not advice', 'Accuracy and estimates', 'Limitation of liability', 'Your statutory rights']) {

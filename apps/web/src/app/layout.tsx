@@ -40,6 +40,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
       <body className={`${inter.className} antialiased text-white`}>
+        <a href="#main" className="skip-link">
+          Skip to content
+        </a>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
         <ProProvider>
           <AdLoader />

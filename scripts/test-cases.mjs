@@ -39,6 +39,7 @@ export const REQS = {
   'REQ-021': 'Payment acknowledgement and strengthened disclaimers',
   'REQ-022': 'Gap-free tool layouts with key figures in the heading',
   'REQ-023': 'Warm Editorial look: light and dark modes, floating glass nav, bento planners, calm motion',
+  'REQ-024': 'One header and footer on every page, skip link, compact phone home, stable planner layout, honest market labels',
 };
 const m = (req) => `${req} ${REQS[req]}`;
 
@@ -164,6 +165,12 @@ const rows = [
   ['TC-101', m('REQ-023'), W, N, 'Browser storage blocked (private mode)', 'Click the switch', '—', 'Mode still changes for this page with no error; it is simply not remembered', 'P3', 'N — manual'],
   ['TC-102', m('REQ-023'), W, X, 'No saved choice, device set to dark; reduced motion on', 'Open /', '—', 'Page opens in dark mode with no flash of light; no reveal, parallax or fade animations run', 'P3', 'N — manual'],
   ['TC-103', m('REQ-023'), W, P, 'Home page at 1280 px', 'Look at the planners, then point at Goal Planner', '—', 'Bento grid: Health Check is the large card, all six planners link; the hovered card widens and shows a second line', 'P2', `Y — ${E2E}product.spec.ts FH-21`],
+  ['TC-104', m('REQ-024'), W, P, 'Keyboard only, any page', 'Press Tab once, then Enter', '—', '"Skip to content" appears as the first focus stop; Enter moves focus past the header to the main content', 'P2', `Y — ${E2E}product.spec.ts FH-22`],
+  ['TC-105', m('REQ-024'), W, P, 'Home page and /health-check/', 'Compare the header and footer', '—', 'Both pages show the same floating header (one theme switch, one Main nav) and the same footer with "A product by Equisteg"', 'P2', `Y — ${E2E}product.spec.ts FH-23`],
+  ['TC-106', m('REQ-024'), W, P, 'Phone 412 × 915, free plan', 'Open /debt-payoff/ and wait for the Pro check to finish, then open /', '—', 'No layout shift on either page: cumulative layout shift stays below 0.1 while the Pro card loads', 'P2', `Y — ${E2E}product.spec.ts FH-24`],
+  ['TC-107', m('REQ-024'), W, N, 'Home page, phone 320 px and 360 px', 'Look at the example card and the market section', '—', 'The three example figures are readable with no word broken or spilling (one row from 480 px, a stacked list below); market cards scroll sideways in one row; the section says the values are stored reference values, not live prices', 'P3', 'N — manual'],
+  ['TC-108', m('REQ-024'), W, X, 'Home page, keyboard only', 'Tab to the market cards row and press the right arrow; then change the header Currency', '—', 'The row shows a focus outline and scrolls sideways; there is one region control (the header Currency), and changing it switches the calculators and markets', 'P3', `Partly — ${E2E}finealth-web.spec.ts FN-W04 (one control, switching); rail scroll manual`],
+  ['TC-109', m('REQ-024'), W, N, 'Phone 320 px; and a mistyped address', 'Open /, then open /no-such-page/ and press Tab, Enter', '—', 'No sideways scroll and no example label spills its box at 320 px; the 404 page has the shared header, a way home and a working Skip to content', 'P3', `Y — ${E2E}product.spec.ts FH-25`],
   ['TC-097', m('REQ-013'), W, P, 'Free plan, no ad slot id set', 'Open a tool page on a production build', '—', 'No ad box and no ad script; on dev/staging (NEXT_PUBLIC_AD_PLACEHOLDERS=1) a labelled "Advertisement" box shows after the disclaimer', 'P2', 'N — manual'],
 ];
 
@@ -179,10 +186,11 @@ const nfr = [
   ['NFR-006', 'Security', 'Pro token cannot be forged or tampered', 'Tampered token → free', 'Unit + E2E', `Y — ${FC}licence.test.ts; ${E2E}pro.spec.ts TC-043`],
   ['NFR-007', 'Security', 'No secrets in repo or bundle', '0 findings', 'check-forbidden-files, Gitleaks, Semgrep, OSV-Scanner', 'Y — .github/workflows/ci.yml'],
   ['NFR-008', 'Reliability', 'Static pages work when the API is down', 'All tools usable', 'Block /api/* in Playwright', 'N — manual'],
-  ['NFR-009', 'Accessibility', 'WCAG 2.2 AA on key pages, light and dark modes', '0 serious/critical axe issues (glass gradients flattened so contrast is measured)', 'axe-core', 'Y — tests/web/specs/a11y.spec.ts (9 pages × 2 modes)'],
+  ['NFR-009', 'Accessibility', 'WCAG 2.2 AA on key pages, light and dark modes', '0 serious/critical axe issues (glass gradients flattened so contrast is measured)', 'axe-core', 'Y — tests/web/specs/a11y.spec.ts (19 pages × 2 modes)'],
   ['NFR-010', 'Compliance', 'Disclaimer on every result screen', 'Visible on 5/5 tools', 'Playwright', `Y — ${E2E}product.spec.ts FH-01`],
   ['NFR-011', 'Compatibility', 'Layout at 360 px width', 'No horizontal scroll', 'Playwright Pixel 5 project', 'Partly — mobile-webview project'],
   ['NFR-012', 'Load', 'Licence API under load', 'p95 < 300 ms, errors < 1 % at 20 rps', 'k6 (tests/load/load.js) on staging', 'Partly — script copied from template'],
+  ['NFR-013', 'Performance', 'Layout stability on the debt planner and home pages (phone 412 px)', 'CLS < 0.1', 'Playwright PerformanceObserver', `Y — ${E2E}product.spec.ts FH-24`],
 ];
 
 const HEAD = ['ID', 'Module', 'Platform', 'Type', 'Preconditions', 'Steps', 'Test data', 'Expected result', 'Priority', 'Automated (Y/N + file)'];
