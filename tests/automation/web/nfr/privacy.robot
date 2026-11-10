@@ -20,6 +20,11 @@ TC-N-PRIV-001 Health Check: typed income and savings never leave the device
     Evidence    Distinctive numbers typed; score recomputed
     Reload Page
     Wait For Page Rendered
+    Wait Until Keyword Succeeds    5s    0.3s    Field Value Should Be    in-income    987613
+    Field Value Should Be    in-expenses    413579
+    Field Value Should Be    in-fund    271839
+    Field Value Should Be    in-invest    3141597
+    Evidence    Reloaded: the typed numbers come back from the device
     Non GET Requests Should Be None    987613    413579    271839    3141597
 
 TC-N-PRIV-002 Debt Payoff: typed balances, rates and extra payment never leave the device

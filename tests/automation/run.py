@@ -34,11 +34,14 @@ ROOT = HERE.parents[1]
 LOCAL = {'web': 'http://127.0.0.1:3100', 'android': 'http://127.0.0.1:3101', 'pro': 'http://127.0.0.1:3102'}
 BUILDS = {'web': ROOT / 'apps/web/out', 'android': ROOT / 'apps/mobile/out', 'pro': HERE / '.pro-site'}
 PRO_TOKEN_FILE = HERE / '.pro-site.token'
+PRO_TOKEN_REFRESH_FILE = HERE / '.pro-site.token-refresh'
+PRO_TOKEN_EXPIRED_FILE = HERE / '.pro-site.token-expired'
 
 
 def allowed(url):
     host = urlparse(url).hostname or ''
-    return (host in ('127.0.0.1', 'localhost') or (host.endswith('.workers.dev') and ('-staging' in host or '-dev' in host)))
+    # Only the Worker's own name (the first label) may say -staging / -dev: an account subdomain like acct-dev must not count.
+    return host in ('127.0.0.1', 'localhost') or (host.endswith('.workers.dev') and host.split('.')[0].endswith(('-staging', '-dev')))
 
 
 def port_open(port):
@@ -92,7 +95,7 @@ def main():
         if not allowed(url):
             sys.exit(f'Refusing to run against {url}: only local, *-dev.*.workers.dev or *-staging.*.workers.dev addresses are allowed.')
 
-    out = HERE / 'results' / f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_{os.getpid()}"
+    out = HERE / 'results' / f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_{os.getpid()}{'_DRYRUN' if a.dryrun else ''}"
     out.mkdir(parents=True, exist_ok=True)
     targets = [HERE / f for f in (['web', 'mobile', 'api'] if a.platform == 'all' else ['mobile' if a.platform == 'android' else a.platform])]
     if a.feature:
@@ -107,13 +110,16 @@ def main():
             if urlparse(url).hostname in ('127.0.0.1', 'localhost'):
                 serve(kind, procs)
     token = os.environ.get('PRO_TEST_TOKEN') or (PRO_TOKEN_FILE.read_text().strip() if PRO_TOKEN_FILE.exists() else '')
+    token_refresh = PRO_TOKEN_REFRESH_FILE.read_text().strip() if PRO_TOKEN_REFRESH_FILE.exists() else ''
+    token_expired = PRO_TOKEN_EXPIRED_FILE.read_text().strip() if PRO_TOKEN_EXPIRED_FILE.exists() else ''
 
     cmd = [sys.executable, '-m', 'robot',
            '--outputdir', str(out), '--output', 'output.xml', '--log', 'log.html', '--report', 'report.html',
            '--name', f'Finealth {a.platform} {a.suite}', '--loglevel', 'INFO',
            '--listener', str(HERE / 'libraries' / 'LiveProgress.py'), '--console', 'quiet', '--runemptysuite',
            '--variable', f'BASE_URL:{base}', '--variable', f'MOBILE_URL:{mobile}', '--variable', f'PRO_URL:{pro}',
-           '--variable', f'PRO_TOKEN:{token}', '--variable', f'ENV:{a.env}', '--variable', f'BROWSER:{a.browser}',
+           '--variable', f'PRO_TOKEN:{token}', '--variable', f'PRO_TOKEN_REFRESH:{token_refresh}',
+           '--variable', f'PRO_TOKEN_EXPIRED:{token_expired}', '--variable', f'ENV:{a.env}', '--variable', f'BROWSER:{a.browser}',
            '--variable', f'HEADLESS:{a.headless}', '--variable', f'SLOW:{a.slow}', '--variable', f'RESULTS:{out}',
            '--pythonpath', str(HERE / 'libraries'),
            '--metadata', f'Environment:{a.env} ({base})', '--metadata', f'Browser:{a.browser}']
@@ -137,7 +143,7 @@ def main():
         for pr in procs:
             pr.terminate()
     print(f'\nReport: {out / "report.html"}\nStep log with screenshots: {out / "log.html"}')
-    (out / 'run.json').write_text(json.dumps({'env': a.env, 'base_url': base, 'platform': a.platform, 'suite': a.suite}))
+    (out / 'run.json').write_text(json.dumps({'env': a.env, 'base_url': base, 'platform': a.platform, 'suite': a.suite, 'dryrun': a.dryrun}))
 
     if a.log_bugs:
         subprocess.call(['node', str(ROOT / 'tests/tools/collect-results.mjs'), str(out), '--env', a.env, '--base-url', base], cwd=ROOT)

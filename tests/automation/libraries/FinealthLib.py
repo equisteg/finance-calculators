@@ -42,6 +42,49 @@ const hits = all.filter((el) => {
 return hits[index] || null;
 '''
 
+# Scrolls the element to the middle of the window, then clear of a fixed/sticky header if it still sits under it, and
+# resolves once its bounding box has not moved across two animation frames (hover widening, entrance animations).
+# Async script: resolves with true (settled) or false (still moving after ~2 s).
+_SETTLE = r'''
+const el = arguments[0], done = arguments[arguments.length - 1];
+el.scrollIntoView({block: 'center', inline: 'nearest', behavior: 'instant'});
+const header = [...document.querySelectorAll('header')].find((h) => /^(fixed|sticky)$/.test(getComputedStyle(h).position));
+const clearHeader = () => {
+  if (!header) return;
+  const hb = header.getBoundingClientRect().bottom, r = el.getBoundingClientRect();
+  if (r.top < hb + 8) window.scrollBy({top: r.top - hb - Math.max(8, (innerHeight - hb - r.height) / 2), behavior: 'instant'});
+};
+clearHeader();
+const box = () => { const r = el.getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; };
+const same = (a, b) => a.every((v, i) => Math.abs(v - b[i]) < 0.5);
+const end = performance.now() + 2000;
+let last = box(), still = 0;
+const tick = () => {
+  const now = box();
+  still = same(now, last) ? still + 1 : 0;
+  last = now;
+  if (still >= 2) { clearHeader(); return done(true); }
+  if (performance.now() > end) return done(false);
+  requestAnimationFrame(tick);
+};
+requestAnimationFrame(tick);
+'''
+
+# Resolves once document.readyState is complete and no new resource entry appeared for ``quiet`` ms (max ``timeout`` ms).
+_NETWORK_IDLE = r'''
+const [quiet, timeout] = [arguments[0], arguments[1]], done = arguments[arguments.length - 1];
+const end = performance.now() + timeout;
+let count = -1, since = performance.now();
+const tick = () => {
+  const n = performance.getEntriesByType('resource').length;
+  if (document.readyState !== 'complete' || n !== count) { count = n; since = performance.now(); }
+  if (document.readyState === 'complete' && performance.now() - since >= quiet) return done(true);
+  if (performance.now() > end) return done(false);
+  setTimeout(tick, 100);
+};
+tick();
+'''
+
 
 def _yes(v):
     return str(v).lower() in ('true', '1', 'yes')
@@ -147,7 +190,7 @@ class FinealthLib:
         el = self._field(name, index)
         tag = el.tag_name.lower()
         typ = (el.get_attribute('type') or '').lower()
-        self._d.execute_script('arguments[0].scrollIntoView({block: "center", behavior: "instant"})', el)
+        self._settle(el)
         if tag == 'select':
             from selenium.webdriver.support.ui import Select
             s = Select(el)
@@ -159,12 +202,12 @@ class FinealthLib:
             return
         if typ == 'checkbox':
             if el.is_selected() != _yes(value):
-                el.click()
+                self._click_settled(el)
             return
         if typ == 'range':
             self.set_range(name, value, index)
             return
-        el.click()
+        self._click_settled(el)
         el.send_keys(Keys.CONTROL, 'a')
         el.send_keys(Keys.DELETE)
         if str(value) != '':
@@ -190,21 +233,59 @@ class FinealthLib:
     def get_field_value(self, name, index=0):
         return self._field(name, index).get_attribute('value')
 
-    @keyword('Click Centered')
-    def click_centered(self, locator):
-        """Scrolls the element to the middle of the window (clear of the floating header) and clicks it."""
-        from selenium.webdriver.common.action_chains import ActionChains
+    def _settle(self, el):
+        """Scrolls ``el`` to the middle of the window, clear of the sticky header, and waits until its box is still."""
+        d = self._d
+        d.set_script_timeout(5)
+        return d.execute_async_script(_SETTLE, el)
+
+    def _click_settled(self, el):
+        """Clicks ``el`` once its box is still; at most one retry (re-settled) if something else takes the click."""
         from selenium.common.exceptions import ElementClickInterceptedException
-        el = self._sl().find_element(locator)
-        self._d.execute_script('arguments[0].scrollIntoView({block: "center", inline: "nearest", behavior: "instant"})', el)
-        # hovering a planner card widens its grid column (0.4 s); let the layout settle before clicking
-        ActionChains(self._d).move_to_element(el).perform()
-        time.sleep(0.5)
+        self._settle(el)
         try:
             el.click()
         except ElementClickInterceptedException:
-            time.sleep(0.5)
+            self._settle(el)
             el.click()
+
+    @keyword('Click Centered')
+    def click_centered(self, locator):
+        """Scrolls the element to the middle of the window (clear of the floating header), hovers it, waits until its
+        box is still across two animation frames (hovering a planner card widens its grid column) and clicks it."""
+        from selenium.webdriver.common.action_chains import ActionChains
+        el = self._sl().find_element(locator)
+        self._settle(el)
+        ActionChains(self._d).move_to_element(el).perform()
+        self._click_settled(el)
+
+    @keyword('Wait For Network Idle')
+    def wait_for_network_idle(self, quiet=1, timeout=15):
+        """Waits for document.readyState complete and then until no new resource (script, image, fetch …) has started
+        for ``quiet`` seconds, so a "no ad script" check is not made before late scripts could have loaded."""
+        d = self._d
+        d.set_script_timeout(float(timeout) + 5)
+        if not d.execute_async_script(_NETWORK_IDLE, int(float(quiet) * 1000), int(float(timeout) * 1000)):
+            raise AssertionError(f'The page kept loading resources for {timeout} s (never {quiet} s idle)')
+
+    @keyword('Make API Answer 503 HTML')
+    def api_answers_503_html(self):
+        """From the next page load on, every fetch to an /api/ URL answers HTTP 503 with an HTML body (as a proxy error
+        page would), without reaching the network; ``window.__api503Calls`` counts the answered calls.
+        Uses Page.addScriptToEvaluateOnNewDocument (Chrome / Edge only)."""
+        script = (
+            "(() => { const real = window.fetch.bind(window);"
+            " window.fetch = (input, init) => {"
+            "  const url = typeof input === 'string' ? input : (input && input.url) || String(input);"
+            "  if (new URL(url, location.href).pathname.startsWith('/api/')) {"
+            "   window.__api503Calls = (window.__api503Calls || 0) + 1;"
+            "   return Promise.resolve(new Response('<html>down</html>', {status: 503, headers: {'content-type': 'text/html'}})); }"
+            "  return real(input, init); }; })();")
+        try:
+            self._d.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {'source': script})
+        except Exception as e:
+            from robot.api import SkipExecution
+            raise SkipExecution(f'Needs Chrome or Edge (DevTools protocol): {e}')
 
     # ------------------------------------------------------------------ storage and Pro
     @keyword('Set Local Storage Item')
@@ -244,7 +325,8 @@ class FinealthLib:
         try:
             logs = self._d.get_log('browser')
         except Exception:
-            return []
+            from robot.api import SkipExecution
+            raise SkipExecution('Browser console logs need Chrome or Edge')
         out = []
         for e in logs:
             if e['level'] not in ('SEVERE', 'WARNING'):

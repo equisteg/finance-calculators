@@ -58,9 +58,15 @@ TC-W-HOM-003 Proof strip states four facts and the calculator count matches the 
     Open Finealth    /
     ${n}=    Get Element Count    css=[data-testid="proof-strip"] .proof-item
     Should Be Equal As Integers    ${n}    4
-    Element Should Contain    css=[data-testid="proof-strip"]    planners for debts, goals and retirement
-    Element Should Contain    css=[data-testid="proof-strip"]    numbers sent to a server
+    Element Text Should Be    css=[data-testid="proof-strip"] .proof-item:nth-child(1) .proof-value    6
+    Element Should Contain    css=[data-testid="proof-strip"] .proof-item:nth-child(1)    planners for debts, goals and retirement
     ${count}=    Get Text    css=[data-testid="proof-strip"] .proof-item:nth-child(2) .proof-value
+    Should Match Regexp    ${count}    ^\\d+\\+$    The calculator fact reads "${count}", expected N+
+    Element Should Contain    css=[data-testid="proof-strip"] .proof-item:nth-child(2)    calculators, free to use
+    Element Text Should Be    css=[data-testid="proof-strip"] .proof-item:nth-child(3) .proof-value    0
+    Element Should Contain    css=[data-testid="proof-strip"] .proof-item:nth-child(3)    numbers sent to a server
+    Element Text Should Be    css=[data-testid="proof-strip"] .proof-item:nth-child(4) .proof-value    2 min
+    Element Should Contain    css=[data-testid="proof-strip"] .proof-item:nth-child(4)    to your first score
     Evidence    Proof strip
     Go To Page    /tools/
     ${cards}=    Get Element Count    css=[data-testid^="tool-card-"]

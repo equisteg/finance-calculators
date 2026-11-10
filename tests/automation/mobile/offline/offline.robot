@@ -36,7 +36,10 @@ TC-M-OFF-001 With the network cut, SIP, salary, EMI and purchasing power still r
 
 TC-M-OFF-002 Airplane mode switched on in Android settings: the installed app opens and computes
     [Tags]    regression    P2
-    Skip    needs a real Android device (tests/mobile/native)
+    [Documentation]    Manual (Automatable N in the sheet): NEEDS HUMAN on a real Android device. Airplane mode is an OS
+    ...    setting a browser cannot switch; TC-M-OFF-001 covers the app's own offline behaviour in this run. Kept here as a
+    ...    documented skip so the sheet's Automation Script resolves.
+    Skip    NEEDS HUMAN: real Android device (Airplane mode is an Android setting; see tests/mobile/native)
 
 *** Keywords ***
 Big Figure Should Change

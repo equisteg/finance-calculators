@@ -9,8 +9,8 @@ Test Tags         web    nfr    load
 TC-N-LOAD-001 Licence API under load on staging: p95 below 300 ms and errors below 1 %
     [Tags]    regression    integration    P1
     ${k6}=    Tool Is Installed    k6
-    Skip If    not ${k6}    k6 is not installed on this machine; npm run load -- load runs it against staging (staging-tests.yml)
-    Skip If    '${ENV}' == 'local'    Load tests run against staging only (never production, and not the local static server)
+    Skip If    not ${k6}    k6 is not installed on this machine. Run it against staging with: k6 run --env PROFILE=load --env BASE_URL=<staging URL> tests/load/load.js (or this case with --env staging --base-url <staging URL>)
+    Skip If    '${ENV}' == 'local'    Load tests run against staging only (never production, not the local static server): run with --env staging --base-url <staging URL>, or k6 run --env PROFILE=load --env BASE_URL=<staging URL> tests/load/load.js
     ${r}=    Run Process    k6    run    --env    PROFILE\=load    --env    BASE_URL\=${BASE_URL}
     ...    --summary-export\=${RESULTS}${/}k6-summary.json    tests/load/load.js    cwd=${ROOT}    timeout=600s
     Log    ${r.stdout}\n${r.stderr}

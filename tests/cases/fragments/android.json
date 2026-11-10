@@ -78,10 +78,10 @@
   "Test Data": "—",
   "Steps": "1. Open the installed app\n2. Look at the status bar and the header",
   "Expected Result": "1. The status bar is #0a0a0c with light icons\n2. The header starts below the status bar and cutout; nothing is hidden",
-  "Automatable": "Y",
+  "Automatable": "N",
   "Automation Script": "tests/automation/mobile/app/app.robot :: TC-M-APP-004",
   "Status": "Not run",
-  "Remarks / old TC ID": "FN-M01 (native part); WebdriverIO twin tests/mobile/native/finealth-native.appium.spec.ts. Skips locally: needs a real Android device (tests/mobile/native)"
+  "Remarks / old TC ID": "NEEDS HUMAN: real Android device. FN-M01 (native part); WebdriverIO twin tests/mobile/native/finealth-native.appium.spec.ts. The Robot test is a documented skip (no real device in the browser run)"
  },
  {
   "TC ID": "TC-M-CALC-001",
@@ -330,9 +330,9 @@
   "Test Data": "SIP ₹55,000",
   "Steps": "1. Turn on Airplane mode, then open Finealth\n2. Set SIP to ₹55,000",
   "Expected Result": "1. The app opens past the splash with no error\n2. Maturity ₹2,77,51,680",
-  "Automatable": "Y",
+  "Automatable": "N",
   "Automation Script": "tests/automation/mobile/offline/offline.robot :: TC-M-OFF-002",
   "Status": "Not run",
-  "Remarks / old TC ID": "FN-M07 (OS level); WebdriverIO twin tests/mobile/native. Skips locally: needs a real Android device (tests/mobile/native)"
+  "Remarks / old TC ID": "NEEDS HUMAN: real Android device. FN-M07 (OS level); WebdriverIO twin tests/mobile/native. The Robot test is a documented skip (no real device in the browser run)"
  }
 ]

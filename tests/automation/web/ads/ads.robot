@@ -35,14 +35,14 @@ TC-W-ADS-001 Free plan: the AdSense loader is added once, for the publisher in a
 TC-W-ADS-002 Pro: no ad script on any page
     [Tags]    sanity    regression    P1
     Open Finealth Pro    /health-check/
-    Sleep    1s
+    Wait For Network Idle
     Page Should Load No Ad Script
     # forget the requests of the empty page Open Finealth Pro visits before it stores the licence
     Get Network Requests
     FOR    ${path}    IN    /    /tools/australia-income-tax-calculator/    /debt-payoff/    /pricing/
         Go To Page    ${path}    base=${PRO_URL}
         Pro Badge Should Show
-        Sleep    0.5s
+        Wait For Network Idle
         Page Should Load No Ad Script
         Page Should Not Contain Element    css=ins.adsbygoogle
         Page Should Not Contain Element    css=[aria-label="Advertisement"]
@@ -58,7 +58,7 @@ TC-W-ADS-003 A stored licence that cannot be confirmed: no ads and no Pro featur
     Tamper Pro Token
     Go To Page    /tools/australia-income-tax-calculator/    base=${PRO_URL}
     Test Id Text Should Be    pro-unconfirmed    Couldn’t confirm Pro — retrying.
-    Sleep    1s
+    Wait For Network Idle
     Page Should Load No Ad Script
     Free Plan Should Show
     Go To Page    /health-check/    base=${PRO_URL}
@@ -80,7 +80,7 @@ TC-W-ADS-005 A production build without slot ids shows no ad box or placeholder 
     Open Finealth    /
     FOR    ${path}    IN    /    /health-check/    /tools/australia-income-tax-calculator/    /pricing/
         Go To Page    ${path}
-        Sleep    0.5s
+        Wait For Network Idle
         Page Should Not Contain Element    css=[data-testid="ad-placeholder"]
         Page Should Not Contain Element    css=ins.adsbygoogle
         Page Should Not Contain    An AdSense unit shows here
@@ -92,7 +92,7 @@ TC-W-ADS-006 A browser with a stored licence that cannot be verified gets no ad 
     Open Finealth    /
     Set Local Storage Item    finealth.pro.v1    {"key":"pay_TestKey12345678","plan":"pro_yearly","token":"a.b"}
     Go To Page    /tools/australia-income-tax-calculator/
-    Sleep    1.5s
+    Wait For Network Idle
     Page Should Load No Ad Script
     Free Plan Should Show
     Evidence    Stored but unverifiable licence on the free build: no ad script

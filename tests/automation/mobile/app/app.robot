@@ -44,11 +44,16 @@ TC-M-APP-003 Every calculator result screen shows the "Information only" disclai
     FOR    ${cat}    ${tool}    IN    Wealth    SIP Engine    Wealth    Fixed Deposit    Income    In-Hand Salary    Debts    Loan & EMI    Macro    FIRE Freedom
         Tap Dock    ${cat}
         Tap Tool    ${tool}
-        Evidence    ${tool}
-        ${shown}=    Run Keyword And Return Status    Page Should Contain    Information only
-        Should Be True    ${shown}    ${tool} shows a result without the "Information only" disclaimer
+        Wait Until Page Contains Element    ${DISCLAIMER}    10s    ${tool} shows a result without the disclaimer (data-testid="disclaimer")
+        Scroll Element Into View    ${DISCLAIMER}
+        Wait Until Element Is Visible    ${DISCLAIMER}    5s    ${tool}: the disclaimer is in the page but not visible
+        Wait Until Element Contains    ${DISCLAIMER}    Information only    5s
+        Evidence    ${tool} with its disclaimer
     END
 
 TC-M-APP-004 Native status bar is dark (#0a0a0c) with light icons and never overlaps the header on a real phone
     [Tags]    regression    P2
-    Skip    needs a real Android device (tests/mobile/native)
+    [Documentation]    Manual (Automatable N in the sheet): NEEDS HUMAN on a real Android device. The native status bar is
+    ...    not part of the web screens this suite runs; the WebdriverIO twin tests/mobile/native/finealth-native.appium.spec.ts
+    ...    checks it on a device. Kept here as a documented skip so the sheet's Automation Script resolves.
+    Skip    NEEDS HUMAN: real Android device (the status bar is native; see tests/mobile/native)

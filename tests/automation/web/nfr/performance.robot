@@ -49,8 +49,8 @@ TC-N-PERF-003 Home page at 412 px loads with CLS below 0.1
 TC-N-PERF-004 Lighthouse mobile performance is at least 90 on the planner pages (staging)
     [Tags]    regression    integration    P1
     ${lhci}=    Tool Is Installed    lhci
-    Skip If    not ${lhci}    Lighthouse CI (lhci) is not installed on this machine; it runs in npm run perf / staging-tests.yml
-    Skip If    '${ENV}' == 'local'    Lighthouse scores are measured on staging (real Worker, compression, CDN), not the local static server
+    Skip If    not ${lhci}    Lighthouse CI (lhci) is not installed on this machine. Run it against staging with: npx @lhci/cli autorun --config=tests/load/lighthouserc.json --collect.url=<staging URL>/health-check/ (or this case with --env staging --base-url <staging URL> once lhci is installed)
+    Skip If    '${ENV}' == 'local'    Lighthouse scores are measured on staging (real Worker, compression, CDN), not the local static server: run with --env staging --base-url <staging URL>
     ${r}=    Run Process    npx    --no-install    lhci    autorun    --config\=tests/load/lighthouserc.json
     ...    --collect.url\=${BASE_URL}/health-check/    --collect.url\=${BASE_URL}/debt-payoff/    cwd=${ROOT}    timeout=600s
     Log    ${r.stdout}\n${r.stderr}

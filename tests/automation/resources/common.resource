@@ -1,6 +1,7 @@
 *** Settings ***
 Documentation     Shared set-up for every Finealth suite: browser, addresses, fields, evidence screenshots.
-...               Variables come from run.py (BASE_URL, MOBILE_URL, PRO_URL, PRO_TOKEN, ENV, BROWSER, HEADLESS, SLOW, RESULTS).
+...               Variables come from run.py (BASE_URL, MOBILE_URL, PRO_URL, PRO_TOKEN, PRO_TOKEN_REFRESH, PRO_TOKEN_EXPIRED,
+...               ENV, BROWSER, HEADLESS, SLOW, RESULTS).
 ...               Finealth is a static Next.js site: every page is a real path with a trailing slash (/health-check/) and
 ...               renders into <main id="main">. Numbers typed on a page are saved in localStorage (finealth.v1.*).
 Library           SeleniumLibrary    timeout=15s    implicit_wait=0s    run_on_failure=Capture Failure Evidence
@@ -14,6 +15,8 @@ ${BASE_URL}       http://127.0.0.1:3100
 ${MOBILE_URL}     http://127.0.0.1:3101
 ${PRO_URL}        http://127.0.0.1:3102
 ${PRO_TOKEN}      ${EMPTY}
+${PRO_TOKEN_REFRESH}    ${EMPTY}
+${PRO_TOKEN_EXPIRED}    ${EMPTY}
 ${ENV}            local
 ${BROWSER}        chrome
 ${HEADLESS}       False
@@ -24,6 +27,9 @@ ${ROOT}           ${{ __import__("os").path.normpath(r"${CURDIR}" + "/../../..")
 ${DATA}           ${ROOT}${/}tests${/}testdata
 ${MAIN}           css=main#main
 ${DISCLAIMER}     css=[data-testid="disclaimer"]
+# The app's splash (apps/mobile/src/components/SplashSequence.tsx): the only element with inline z-index 99999.
+# It is in the pre-rendered HTML and is removed from the DOM when the 2.2 s sequence ends.
+${APP_SPLASH}     css=body div[style*="z-index:99999"], body div[style*="z-index: 99999"]
 
 *** Keywords ***
 Open Finealth
@@ -42,29 +48,38 @@ Open Finealth
     Evidence    Opened ${path}
 
 Open Finealth Pro
-    [Documentation]    Opens the test-key Pro build at ${path} with a signed Pro licence stored, as after Restore Pro.
-    ...    Skipped when no Pro build or token is set up (tools/build-pro-site.mjs) or on staging (its key is not ours).
-    [Arguments]    ${path}=/    ${phone}=False
-    Skip If    '${PRO_TOKEN}' == ''    No Pro test token: run node tests/automation/tools/build-pro-site.mjs first
+    [Documentation]    Opens the test-key Pro build at ${path} with a signed licence stored, as after Restore Pro.
+    ...    ${token} defaults to the 6-day token; pass ${PRO_TOKEN_REFRESH} (1 day left) or ${PRO_TOKEN_EXPIRED} for the
+    ...    refresh and outage cases, with ${expect_pro}=False when the page is not expected to show Pro.
+    ...    ${before_load} runs after the licence is stored and before the page is opened (e.g. Block API Requests).
+    ...    Skipped when no Pro build or token is set up (tools/build-pro-site.mjs) or off local (staging's key is not ours).
+    [Arguments]    ${path}=/    ${phone}=False    ${token}=${PRO_TOKEN}    ${expect_pro}=True    ${before_load}=${EMPTY}
+    Skip If    '${ENV}' != 'local'    Pro cases run only locally: the ${ENV} build trusts its own licence key, not the throwaway test key
+    Skip If    '${token}' == ''    No Pro test token: run node tests/automation/tools/build-pro-site.mjs first
     Open Finealth Browser    ${PRO_URL}/    ${BROWSER}    ${HEADLESS}    ${DOWNLOADS}    ${phone}
     Set Selenium Speed    ${SLOW}
     Clear Site Storage
-    Seed Pro Licence    ${PRO_TOKEN}
+    Seed Pro Licence    ${token}
+    IF    '${before_load}' != ''    Run Keyword    ${before_load}
     Go To    ${PRO_URL}${path}
     Wait For Page Rendered
-    Wait Until Page Contains Element    css=[data-testid="pro-badge"]    15s
-    Evidence    Opened ${path} with Pro
+    IF    ${expect_pro}
+        Wait Until Page Contains Element    css=[data-testid="pro-badge"]    15s
+        Evidence    Opened ${path} with Pro
+    ELSE
+        Evidence    Opened ${path} with a stored licence
+    END
 
 Open Finealth App
     [Documentation]    Opens the Android app's screens (the static export the Capacitor app ships, apps/mobile/out) in
-    ...    a 390 x 844 phone window, and waits for the 2.2 s splash to finish.
+    ...    a 390 x 844 phone window, and waits until the splash (about 2.2 s) has left the page.
     [Arguments]    ${path}=/
     Open Finealth Browser    ${MOBILE_URL}${path}    ${BROWSER}    ${HEADLESS}    ${DOWNLOADS}    True
     Set Selenium Speed    ${SLOW}
     Clear Site Storage
     Reload Page
     Wait Until Page Contains Element    css=body    10s
-    Sleep    2.6s    reason=the app shows its splash screen for 2.2 s before the dashboard can be used
+    Wait Until Page Does Not Contain Element    ${APP_SPLASH}    10s
     Evidence    App opened at ${path}
 
 Close Finealth

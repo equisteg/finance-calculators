@@ -38,6 +38,12 @@ jobs:
       - run: npx playwright test -c tests/web/playwright.config.ts --list > /dev/null
       # Test-case catalogue: every REQ has positive, negative and edge cases
       - run: npm run cases
+      # Robot Framework suites parse and every keyword resolves (dry run: no browser, no server)
+      - name: Robot dry run
+        run: |
+          python3 -m venv /tmp/robot-venv
+          /tmp/robot-venv/bin/python -m pip install --quiet -r tests/automation/requirements.txt
+          /tmp/robot-venv/bin/python tests/automation/run.py --dryrun --no-open
       - run: npm run lint --if-present
       - run: npm run typecheck --if-present
       - run: npm run test --if-present

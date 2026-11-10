@@ -59,7 +59,7 @@ TC-W-PRC-003 While Razorpay is switched off both buy buttons are disabled "Comin
     Element Should Be Disabled    css=[data-testid="buy-yearly"]
     Element Should Be Disabled    css=[data-testid="buy-lifetime"]
     Run Keyword And Ignore Error    Click Element    css=[data-testid="buy-lifetime"]
-    Sleep    1s
+    Wait For Network Idle
     ${reqs}=    Get Network Requests
     ${rzp}=    Evaluate    [r['url'] for r in $reqs if 'razorpay' in r['url'] or '/api/v1/checkout' in r['url']]
     Should Be Empty    ${rzp}    Checkout was contacted: ${rzp}

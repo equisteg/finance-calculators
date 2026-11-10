@@ -93,5 +93,7 @@ tests/automation/results/
 tests/automation/.cache/
 tests/automation/.pro-site/
 tests/automation/.pro-site.token
+tests/automation/.pro-site.token-refresh
+tests/automation/.pro-site.token-expired
 tests/automation/.venv/
 __pycache__/
