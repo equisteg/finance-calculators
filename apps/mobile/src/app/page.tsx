@@ -389,7 +389,7 @@ export default function FinealthProSuite() {
                       <input
                         type="number"
                         value={sipMonthly}
-                        onChange={(e) => setSipMonthly(Number(e.target.value) || 0)}
+                        onChange={(e) => setSipMonthly(Math.max(0, Number(e.target.value) || 0))}
                         className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                       />
                     </div>
@@ -413,7 +413,7 @@ export default function FinealthProSuite() {
                         type="number"
                         step="0.1"
                         value={sipRate}
-                        onChange={(e) => setSipRate(Number(e.target.value) || 0)}
+                        onChange={(e) => setSipRate(Math.max(0, Number(e.target.value) || 0))}
                         className="w-16 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
                       />
                       <span className="text-xs text-zinc-500 ml-1">%</span>
@@ -437,7 +437,7 @@ export default function FinealthProSuite() {
                       <input
                         type="number"
                         value={sipYears}
-                        onChange={(e) => setSipYears(Number(e.target.value) || 0)}
+                        onChange={(e) => setSipYears(Math.max(0, Number(e.target.value) || 0))}
                         className="w-14 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                       />
                       <span className="text-xs text-zinc-500 ml-1">Yr</span>
@@ -462,7 +462,7 @@ export default function FinealthProSuite() {
                         <input
                           type="number"
                           value={sipStepUp}
-                          onChange={(e) => setSipStepUp(Number(e.target.value) || 0)}
+                          onChange={(e) => setSipStepUp(Math.max(0, Number(e.target.value) || 0))}
                           className="w-14 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
                         />
                         <span className="text-xs text-zinc-500 ml-1">%</span>
@@ -530,7 +530,7 @@ export default function FinealthProSuite() {
                       <input
                         type="number"
                         value={lumpPrincipal}
-                        onChange={(e) => setLumpPrincipal(Number(e.target.value) || 0)}
+                        onChange={(e) => setLumpPrincipal(Math.max(0, Number(e.target.value) || 0))}
                         className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                       />
                     </div>
@@ -554,7 +554,7 @@ export default function FinealthProSuite() {
                         type="number"
                         step="0.1"
                         value={lumpRate}
-                        onChange={(e) => setLumpRate(Number(e.target.value) || 0)}
+                        onChange={(e) => setLumpRate(Math.max(0, Number(e.target.value) || 0))}
                         className="w-16 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
                       />
                       <span className="text-xs text-zinc-500 ml-1">%</span>
@@ -578,7 +578,7 @@ export default function FinealthProSuite() {
                       <input
                         type="number"
                         value={lumpYears}
-                        onChange={(e) => setLumpYears(Number(e.target.value) || 0)}
+                        onChange={(e) => setLumpYears(Math.max(0, Number(e.target.value) || 0))}
                         className="w-14 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                       />
                       <span className="text-xs text-zinc-500 ml-1">Yr</span>
@@ -633,7 +633,7 @@ export default function FinealthProSuite() {
                       <input
                         type="number"
                         value={swpCorpus}
-                        onChange={(e) => setSwpCorpus(Number(e.target.value) || 0)}
+                        onChange={(e) => setSwpCorpus(Math.max(0, Number(e.target.value) || 0))}
                         className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                       />
                     </div>
@@ -657,7 +657,7 @@ export default function FinealthProSuite() {
                       <input
                         type="number"
                         value={swpWithdrawal}
-                        onChange={(e) => setSwpWithdrawal(Number(e.target.value) || 0)}
+                        onChange={(e) => setSwpWithdrawal(Math.max(0, Number(e.target.value) || 0))}
                         className="w-24 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
                       />
                     </div>
@@ -680,7 +680,7 @@ export default function FinealthProSuite() {
                       type="number"
                       step="0.1"
                       value={swpRate}
-                      onChange={(e) => setSwpRate(Number(e.target.value) || 0)}
+                      onChange={(e) => setSwpRate(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
                     />
                   </div>
@@ -689,7 +689,7 @@ export default function FinealthProSuite() {
                     <input
                       type="number"
                       value={swpYears}
-                      onChange={(e) => setSwpYears(Number(e.target.value) || 0)}
+                      onChange={(e) => setSwpYears(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
                     />
                   </div>
@@ -739,7 +739,7 @@ export default function FinealthProSuite() {
                       <input
                         type="number"
                         value={fdDeposit}
-                        onChange={(e) => setFdDeposit(Number(e.target.value) || 0)}
+                        onChange={(e) => setFdDeposit(Math.max(0, Number(e.target.value) || 0))}
                         className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                       />
                     </div>
@@ -762,7 +762,7 @@ export default function FinealthProSuite() {
                       type="number"
                       step="0.05"
                       value={fdRate}
-                      onChange={(e) => setFdRate(Number(e.target.value) || 0)}
+                      onChange={(e) => setFdRate(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
                     />
                   </div>
@@ -771,7 +771,7 @@ export default function FinealthProSuite() {
                     <input
                       type="number"
                       value={fdYears}
-                      onChange={(e) => setFdYears(Number(e.target.value) || 0)}
+                      onChange={(e) => setFdYears(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
                     />
                   </div>
@@ -839,7 +839,7 @@ export default function FinealthProSuite() {
                       <input
                         type="number"
                         value={ctcAnnual}
-                        onChange={(e) => setCtcAnnual(Number(e.target.value) || 0)}
+                        onChange={(e) => setCtcAnnual(Math.max(0, Number(e.target.value) || 0))}
                         className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                       />
                     </div>
@@ -861,7 +861,7 @@ export default function FinealthProSuite() {
                     <input
                       type="number"
                       value={bonusAnnual}
-                      onChange={(e) => setBonusAnnual(Number(e.target.value) || 0)}
+                      onChange={(e) => setBonusAnnual(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
                     />
                   </div>
@@ -870,7 +870,7 @@ export default function FinealthProSuite() {
                     <input
                       type="number"
                       value={professionalTax}
-                      onChange={(e) => setProfessionalTax(Number(e.target.value) || 0)}
+                      onChange={(e) => setProfessionalTax(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
                     />
                   </div>
@@ -922,7 +922,7 @@ export default function FinealthProSuite() {
                       <input
                         type="number"
                         value={taxableIncome}
-                        onChange={(e) => setTaxableIncome(Number(e.target.value) || 0)}
+                        onChange={(e) => setTaxableIncome(Math.max(0, Number(e.target.value) || 0))}
                         className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                       />
                     </div>
@@ -944,7 +944,7 @@ export default function FinealthProSuite() {
                     <input
                       type="number"
                       value={deductions80C}
-                      onChange={(e) => setDeductions80C(Number(e.target.value) || 0)}
+                      onChange={(e) => setDeductions80C(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded p-2 text-xs font-mono text-zinc-100"
                     />
                   </div>
@@ -953,7 +953,7 @@ export default function FinealthProSuite() {
                     <input
                       type="number"
                       value={deductions80D}
-                      onChange={(e) => setDeductions80D(Number(e.target.value) || 0)}
+                      onChange={(e) => setDeductions80D(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded p-2 text-xs font-mono text-zinc-100"
                     />
                   </div>
@@ -962,7 +962,7 @@ export default function FinealthProSuite() {
                     <input
                       type="number"
                       value={deductionsHra}
-                      onChange={(e) => setDeductionsHra(Number(e.target.value) || 0)}
+                      onChange={(e) => setDeductionsHra(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded p-2 text-xs font-mono text-zinc-100"
                     />
                   </div>
@@ -1036,7 +1036,7 @@ export default function FinealthProSuite() {
                       <input
                         type="number"
                         value={gstAmount}
-                        onChange={(e) => setGstAmount(Number(e.target.value) || 0)}
+                        onChange={(e) => setGstAmount(Math.max(0, Number(e.target.value) || 0))}
                         className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                       />
                     </div>
@@ -1120,7 +1120,7 @@ export default function FinealthProSuite() {
                       <input
                         type="number"
                         value={loanPrincipal}
-                        onChange={(e) => setLoanPrincipal(Number(e.target.value) || 0)}
+                        onChange={(e) => setLoanPrincipal(Math.max(0, Number(e.target.value) || 0))}
                         className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                       />
                     </div>
@@ -1144,7 +1144,7 @@ export default function FinealthProSuite() {
                         type="number"
                         step="0.05"
                         value={loanRate}
-                        onChange={(e) => setLoanRate(Number(e.target.value) || 0)}
+                        onChange={(e) => setLoanRate(Math.max(0, Number(e.target.value) || 0))}
                         className="w-16 bg-transparent text-right font-mono font-semibold text-emerald-400 text-sm focus:outline-none"
                       />
                       <span className="text-xs text-zinc-500 ml-1">%</span>
@@ -1168,7 +1168,7 @@ export default function FinealthProSuite() {
                       <input
                         type="number"
                         value={loanYears}
-                        onChange={(e) => setLoanYears(Number(e.target.value) || 0)}
+                        onChange={(e) => setLoanYears(Math.max(0, Number(e.target.value) || 0))}
                         className="w-14 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                       />
                       <span className="text-xs text-zinc-500 ml-1">Yr</span>
@@ -1230,7 +1230,7 @@ export default function FinealthProSuite() {
                     <input
                       type="number"
                       value={cmpLoanAmount}
-                      onChange={(e) => setCmpLoanAmount(Number(e.target.value) || 0)}
+                      onChange={(e) => setCmpLoanAmount(Math.max(0, Number(e.target.value) || 0))}
                       className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                     />
                   </div>
@@ -1255,7 +1255,7 @@ export default function FinealthProSuite() {
                         type="number"
                         step="0.05"
                         value={bankARate}
-                        onChange={(e) => setBankARate(Number(e.target.value) || 0)}
+                        onChange={(e) => setBankARate(Math.max(0, Number(e.target.value) || 0))}
                         className="w-16 bg-[#181820] border border-[#262633] rounded p-1 font-mono text-sm text-blue-400 text-right"
                       />
                       <span className="text-xs text-zinc-500 font-mono">%</span>
@@ -1266,7 +1266,7 @@ export default function FinealthProSuite() {
                     <input
                       type="number"
                       value={bankAYears}
-                      onChange={(e) => setBankAYears(Number(e.target.value) || 0)}
+                      onChange={(e) => setBankAYears(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded p-1.5 font-mono text-xs text-zinc-100"
                     />
                   </div>
@@ -1290,7 +1290,7 @@ export default function FinealthProSuite() {
                         type="number"
                         step="0.05"
                         value={bankBRate}
-                        onChange={(e) => setBankBRate(Number(e.target.value) || 0)}
+                        onChange={(e) => setBankBRate(Math.max(0, Number(e.target.value) || 0))}
                         className="w-16 bg-[#181820] border border-[#262633] rounded p-1 font-mono text-sm text-emerald-400 text-right"
                       />
                       <span className="text-xs text-zinc-500 font-mono">%</span>
@@ -1301,7 +1301,7 @@ export default function FinealthProSuite() {
                     <input
                       type="number"
                       value={bankBYears}
-                      onChange={(e) => setBankBYears(Number(e.target.value) || 0)}
+                      onChange={(e) => setBankBYears(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded p-1.5 font-mono text-xs text-zinc-100"
                     />
                   </div>
@@ -1346,7 +1346,7 @@ export default function FinealthProSuite() {
                       <input
                         type="number"
                         value={currentExpense}
-                        onChange={(e) => setCurrentExpense(Number(e.target.value) || 0)}
+                        onChange={(e) => setCurrentExpense(Math.max(0, Number(e.target.value) || 0))}
                         className="w-24 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                       />
                     </div>
@@ -1369,7 +1369,7 @@ export default function FinealthProSuite() {
                       type="number"
                       step="0.1"
                       value={inflationRate}
-                      onChange={(e) => setInflationRate(Number(e.target.value) || 0)}
+                      onChange={(e) => setInflationRate(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
                     />
                   </div>
@@ -1378,7 +1378,7 @@ export default function FinealthProSuite() {
                     <input
                       type="number"
                       value={inflationHorizon}
-                      onChange={(e) => setInflationHorizon(Number(e.target.value) || 0)}
+                      onChange={(e) => setInflationHorizon(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
                     />
                   </div>
@@ -1430,7 +1430,7 @@ export default function FinealthProSuite() {
                       <input
                         type="number"
                         value={fireAnnualExpense}
-                        onChange={(e) => setFireAnnualExpense(Number(e.target.value) || 0)}
+                        onChange={(e) => setFireAnnualExpense(Math.max(0, Number(e.target.value) || 0))}
                         className="w-28 bg-transparent text-right font-mono font-semibold text-zinc-100 text-sm focus:outline-none"
                       />
                     </div>
@@ -1452,7 +1452,7 @@ export default function FinealthProSuite() {
                     <input
                       type="number"
                       value={fireCurrentSavings}
-                      onChange={(e) => setFireCurrentSavings(Number(e.target.value) || 0)}
+                      onChange={(e) => setFireCurrentSavings(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
                     />
                   </div>
@@ -1461,7 +1461,7 @@ export default function FinealthProSuite() {
                     <input
                       type="number"
                       value={fireMonthlySaving}
-                      onChange={(e) => setFireMonthlySaving(Number(e.target.value) || 0)}
+                      onChange={(e) => setFireMonthlySaving(Math.max(0, Number(e.target.value) || 0))}
                       className="w-full bg-[#181820] border border-[#262633] rounded px-3 py-2 font-mono text-sm text-zinc-100"
                     />
                   </div>
@@ -1510,19 +1510,15 @@ export default function FinealthProSuite() {
             </div>
           )}
 
-          {/* MONETIZATION SPONSOR UNIT */}
-          <div className="w-full bg-[#0a0a0d] border border-[#1a1a24] rounded-lg p-3 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono uppercase bg-[#181822] text-zinc-500 border border-[#262636]">
-                SPONSORED
-              </span>
-              <span className="text-xs font-mono text-zinc-400">
-                Compare direct mutual funds & zero-brokerage Demat accounts
-              </span>
-            </div>
-            <button className="px-3 py-1 rounded text-xs font-mono bg-[#14141c] hover:bg-[#1a1a24] text-emerald-400 border border-[#222230] transition-colors">
-              Explore →
-            </button>
+          {/* Finance rule (NFR-010): every result carries the disclaimer. The old house "sponsored" unit was not an
+              AdMob ad and named financial products, so it is gone; AdMob comes with the Expo port (RSK-002). */}
+          <div
+            data-testid="disclaimer"
+            className="w-full bg-[#0a0a0d] border border-[#1a1a24] rounded-lg p-3 text-xs text-zinc-400 leading-relaxed"
+          >
+            <strong className="text-zinc-200">Information only.</strong> These are estimates from the numbers you entered
+            and common rules of thumb. They are not financial, tax, investment or legal advice, may contain errors, and tax
+            rates and rules change. Check important decisions with the official source or a qualified professional.
           </div>
 
         </div>
