@@ -272,11 +272,11 @@ export function ScoreRing({ score, label }: { score: number; label: string }) {
   const r = 56;
   const c = 2 * Math.PI * r;
   const s = Math.max(0, Math.min(100, score));
-  const colour = s >= 80 ? '#34d399' : s >= 60 ? '#a3e635' : s >= 40 ? '#fbbf24' : '#f87171';
+  const colour = s >= 80 ? '#5f8552' : s >= 60 ? '#7d8a32' : s >= 40 ? '#b8862a' : '#c0503d';
   return (
     <figure className="relative w-40 h-40 shrink-0" role="img" aria-label={`Score ${s} out of 100, ${label}`}>
       <svg className="w-full h-full -rotate-90" viewBox="0 0 140 140" aria-hidden="true">
-        <circle cx="70" cy="70" r={r} stroke="#27272a" strokeWidth="14" fill="none" />
+        <circle cx="70" cy="70" r={r} className="stroke-zinc-800" strokeWidth="14" fill="none" />
         <circle cx="70" cy="70" r={r} stroke={colour} strokeWidth="14" fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - (s / 100) * c} />
       </svg>
       <figcaption className="absolute inset-0 flex flex-col items-center justify-center">
@@ -307,16 +307,16 @@ export function LineChart(props: {
   return (
     <figure>
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="img" aria-label={props.ariaLabel}>
-        <line x1={pad.l} x2={W - pad.r} y1={y(0)} y2={y(0)} stroke="#3f3f46" />
+        <line x1={pad.l} x2={W - pad.r} y1={y(0)} y2={y(0)} className="stroke-zinc-700" />
         {props.series.map((s) => (
           <polyline key={s.name} fill="none" stroke={s.colour} strokeWidth="2.5" points={s.points.map((v, i) => `${x(i)},${y(v)}`).join(' ')} />
         ))}
         {ticks.map((t) => (
-          <text key={t} x={x(t)} y={H - 6} fill="#a1a1aa" fontSize="11" textAnchor={t === 0 ? 'start' : t === n - 1 ? 'end' : 'middle'}>
+          <text key={t} x={x(t)} y={H - 6} className="fill-zinc-400" fontSize="11" textAnchor={t === 0 ? 'start' : t === n - 1 ? 'end' : 'middle'}>
             {props.xLabel(t)}
           </text>
         ))}
-        <text x={pad.l + 4} y={pad.t + 10} fill="#a1a1aa" fontSize="11">
+        <text x={pad.l + 4} y={pad.t + 10} className="fill-zinc-400" fontSize="11">
           {props.yLabel(max)}
         </text>
       </svg>

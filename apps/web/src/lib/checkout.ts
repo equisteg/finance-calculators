@@ -233,7 +233,7 @@ export async function startCheckout(plan: WebPlan, currency: Currency, deps: Che
       name: str(b.name, 100) || 'Finealth',
       description: str(b.description) || 'Finealth Pro',
       currency: str(b.currency, 3) || currency,
-      theme: { color: '#2453FF' },
+      theme: { color: '#A84B2A' },
       handler: (resp) => {
         if (settled) return;
         settled = true;

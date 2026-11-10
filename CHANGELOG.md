@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased — 2026-11-10
+### Changed
+- New "Warm Editorial" look, from the design concept the founder chose: warm paper (light) and espresso (dark) grounds, terracotta for actions, sage for gains, clay for losses and ochre for Pro; every text colour passes WCAG AA in both modes. Colours are CSS variables, so one class works in both modes.
+- Light and dark modes: the site follows the device setting, and a sun/moon switch in the header overrides it (remembered as `finealth.theme`, outside the `finealth.v1.*` data keys so backups never carry it). A tiny script in `<head>` applies the saved choice before the first paint.
+- Floating liquid-glass header; cards turn to frosted glass on hover, and on the planner cards a soft light follows the pointer.
+- Home page: the planners are now a bento grid (Health Check large, plus Debt, Goals, Prepayment, Retirement and My Plan); the grid widens toward the card you point at. Editorial type: larger Fraunces headlines with an italic terracotta accent, italic step numerals.
+- Calmer motion: 200 / 400 / 700 ms timings, sections rise in as you scroll, the hero card drifts slowly, and each planner or tool page fades in when you move to it (not on the first page of a visit, so first paint is not delayed). All of it is off when the device asks for reduced motion.
+- Icons, charts, score ring and the Razorpay checkout colour moved to the earth palette.
+- Accessibility gate (NFR-009 now automated): `tests/web/specs/a11y.spec.ts` runs axe on 9 pages in both modes (18 checks, 0 serious/critical). Fixes it drove: brighter dark secondary text, a darker primary-button top, input borders at about 3:1 with a visible focus outline, tool-card region labels at full strength, donut legends now show the percentages (not colour alone), a 48 px hit area on the theme switch, and the bento hover resize turned off under reduced motion.
+- Locked goals on the free plan are now read-only with a note ("Saved, but not planned on the free plan"), instead of faded but still editable.
+- Test cases 99 → 103 (REQ-023), 2 new E2E tests (FH-20 theme switch, FH-21 bento) and 3 unit tests for the theme boot script. Android keeps the old look for now (RSK-011).
+
 ## Unreleased — 2026-11-09
 ### Added
 - Production domain is now `finealth.teiqtools.com`, a subdomain of TEIQTools.com (founder decision): canonical URLs, sitemap, robots and the Worker's host redirect use it (RSK-010). The footer links to TEIQTools.com.

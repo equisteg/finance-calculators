@@ -148,8 +148,12 @@ Saved data above the free limit is kept, shown faded and excluded from the maths
 | `finealth.v1.retirement` | `RetirementInput` | `isRetirementInput` |
 | `finealth.v1.snapshots` | `Snapshot[]` (≤ 500) | `isSnapshotList` |
 | `finealth.pro.v1` | `{ key, plan, token, lastSeen }` | `readStoredPro` |
+| `finealth.theme` | `'light'` or `'dark'` (absent = follow the device) | read in `<head>` by `THEME_BOOT` (`lib/theme.ts`); anything else is ignored; not part of backups |
 
 Backup file: `{ app: 'finealth', version: 1, exportedAt, data: { …keys } }`; import writes only sections that validate.
+
+## 4.3 Look and theming (v10 "Warm Editorial")
+Colours are CSS variables in `apps/web/src/app/globals.css` (light "Paper" on `:root`, dark "Espresso" under `prefers-color-scheme: dark` unless `data-theme="light"`, and under `[data-theme="dark"]`). `tailwind.config.ts` maps `white` (ink), `zinc`, `emerald` (sage), `red`/`rose` (clay), `amber` (ochre) and `brand` (terracotta) to those variables, so the same class works in both modes. Motion uses one easing curve and three speeds (200 / 400 / 700 ms); scroll reveals and parallax use CSS scroll timelines and switch off under reduced motion. Full concept, palette and contrast table: the "Warm Editorial" design doc.
 
 # 5. Mobile modules
 `apps/mobile` is a Next.js static export (`src/app/page.tsx`, splash, tab bar) loaded by Capacitor (`appId com.tezech.finealth`, `webDir out`). It imports formulas from `@finealth/finance-core`. Build: `npm run cap:sync -w @finealth/mobile`, then Gradle. Expo port and Play Billing: next PR (RSK-002).

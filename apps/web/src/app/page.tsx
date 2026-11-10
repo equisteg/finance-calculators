@@ -10,6 +10,7 @@ import {
 } from "./context/CurrencyContext";
 import AdSenseBanner from "../components/AdSenseBanner";
 import { AREA_ICON, GlassIcon } from "../components/GlassIcon";
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { NAV } from "../components/site/SiteHeader";
 import { HomeHero, HowItWorks, PlannerCards, PopularTools } from "../components/site/HomeHero";
 import { useFitRows } from "../components/ui";
@@ -258,14 +259,14 @@ export default function Home() {
   return (
     <div className="min-h-screen text-zinc-100">
       {/* Universal Header */}
-      <header className="border-b border-white/[0.07] bg-[#05060a]/70 backdrop-blur-xl backdrop-saturate-150 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <header className="sticky top-0 z-50 px-3 sm:px-4">
+        <div className="navbar max-w-7xl px-3 sm:px-4 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <Link href="/health-check/" className="flex items-center gap-2.5 shrink-0" aria-label="Finealth home">
-              <GlassIcon name="spark" tone="emerald" size={34} />
+              <GlassIcon name="spark" tone="terra" size={34} />
               <span className="hidden min-[420px]:block text-[17px] font-serif font-semibold tracking-tight text-white">Finealth</span>
             </Link>
-            <span data-testid="engine-badge" className="text-[10px] font-semibold uppercase bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full tracking-widest hidden md:inline-block whitespace-nowrap">
+            <span data-testid="engine-badge" className="text-[10px] font-semibold uppercase bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full tracking-widest hidden lg:inline-block whitespace-nowrap">
               STATUTORY ENGINE
             </span>
           </div>
@@ -275,6 +276,7 @@ export default function Home() {
               <GlassIcon name="grid" tone="teal" size={20} />
               All tools
             </Link>
+            <ThemeToggle />
             <select
               aria-label="Jurisdiction"
               value={baseCurrency}
@@ -338,7 +340,7 @@ export default function Home() {
                   className="bg-transparent text-emerald-400 font-bold outline-none cursor-pointer"
                 >
                   {Object.keys(INDIAN_CITIES).map((city) => (
-                    <option key={city} value={city} className="bg-[#141418] text-white">
+                    <option key={city} value={city} className="bg-zinc-900 text-white">
                       {city}
                     </option>
                   ))}
@@ -356,7 +358,7 @@ export default function Home() {
                   className="bg-transparent text-emerald-400 font-bold outline-none cursor-pointer"
                 >
                   {Object.entries(ALL_50_US_STATES).map(([code, config]) => (
-                    <option key={code} value={code} className="bg-[#141418] text-white">
+                    <option key={code} value={code} className="bg-zinc-900 text-white">
                       {config.name} ({config.incomeTaxRate}%)
                     </option>
                   ))}
@@ -384,7 +386,7 @@ export default function Home() {
               <div>
                 <div className="flex flex-wrap justify-between items-start mb-2 gap-x-2 gap-y-1">
                   <div>
-                    <span className="text-[10px] tabular-nums uppercase tracking-widest text-emerald-400/90 block">
+                    <span className="text-[10px] tabular-nums uppercase tracking-widest text-emerald-400 block">
                       {asset.category}
                     </span>
                     <h3 className="text-lg font-bold text-white mt-0.5">{asset.name}</h3>
@@ -442,7 +444,7 @@ export default function Home() {
                       <h3 className="text-sm font-bold text-white">
                         {asset.name} ({asset.unit})
                       </h3>
-                      <span className="text-[11px] text-emerald-300/90">
+                      <span className="text-[11px] text-emerald-300">
                         Source: {asset.sourceAuthority}
                       </span>
                     </div>

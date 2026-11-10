@@ -5,6 +5,7 @@ import { CurrencyProvider } from './context/CurrencyContext';
 import { ProProvider } from '@/components/ProProvider';
 import { AdLoader } from '@/components/AdLoader';
 import { config } from '@/lib/config';
+import { THEME_BOOT } from '@/lib/theme';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-sans' });
 const fraunces = Fraunces({ subsets: ['latin'], display: 'swap', variable: '--font-display', axes: ['opsz'] });
@@ -34,7 +35,10 @@ const orgJsonLd = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
+    <html lang="en" className={`${inter.variable} ${fraunces.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      </head>
       <body className={`${inter.className} antialiased text-white`}>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
         <ProProvider>

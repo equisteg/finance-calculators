@@ -31,7 +31,7 @@ India (INR) first; USD, GBP, EUR supported in every tool. English.
 financial health check, financial health score, debt payoff planner, snowball vs avalanche calculator, goal planner calculator, retirement calculator india, monte carlo retirement calculator, loan prepayment calculator (reduce EMI or tenure), SIP calculator, EMI calculator. Intent: informational/transactional tools.
 
 ## 9. Brand
-Existing Finealth identity kept: near-black background, emerald accent, mono labels, serif headings.
+Finealth identity (v10 "Warm Editorial", founder choice 10 Nov 2026): light "Paper" `#f5f1ea` and dark "Espresso" `#14110e` modes (device setting, with a switch); terracotta = act, sage = gain, clay = loss, ochre = Pro; Fraunces serif headings with an italic terracotta accent, Inter body; the score ring and health-score number stay the hero visual. The Android shell still uses the old dark look until it is ported (RSK-011).
 
 ## 10. Policy risk check
 AdSense: finance tools allowed; ads kept outside results. Play: no financial-services declaration needed for calculators and planners (re-check at submission). No personalised advice.

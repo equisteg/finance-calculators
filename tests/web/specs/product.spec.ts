@@ -128,6 +128,27 @@ test.describe('FH :: global tools library and disclaimers', () => {
     await expect(hero).toContainText('Top priority');
   });
 
+  test('FH-20 light/dark switch changes the palette and is remembered', async ({ page }) => {
+    await page.goto('/health-check/');
+    const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    expect(await bg()).toBe('rgb(245, 241, 234)');
+    await page.getByTestId('theme-toggle').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect.poll(bg).toBe('rgb(20, 17, 14)');
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await page.getByTestId('theme-toggle').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  });
+
+  test('FH-21 home bento links all six planners', async ({ page }) => {
+    await page.goto('/');
+    const bento = page.getByTestId('planner-bento');
+    for (const name of ['Health Check', 'Debt Payoff', 'Goal Planner', 'Loan Prepayment', 'Retirement', 'My Plan']) {
+      await expect(bento.getByRole('link', { name: new RegExp(name) })).toBeVisible();
+    }
+  });
+
   test('FH-16 terms carry the no-advice, accuracy and liability sections', async ({ page }) => {
     await page.goto('/terms/');
     for (const h of ['Information, not advice', 'Accuracy and estimates', 'Limitation of liability', 'Your statutory rights']) {

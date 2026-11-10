@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useCurrency } from '@/app/context/CurrencyContext';
 import { usePro } from '@/components/ProProvider';
 import { AREA_ICON, GlassIcon } from '@/components/GlassIcon';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export const NAV = [
   { href: '/health-check/', label: 'Health Check' },
@@ -19,7 +20,7 @@ export const NAV = [
 export function Logo() {
   return (
     <Link href="/health-check/" className="flex items-center gap-2.5 shrink-0" aria-label="Finealth home">
-      <GlassIcon name="spark" tone="emerald" size={34} />
+      <GlassIcon name="spark" tone="terra" size={34} />
       <span className="hidden min-[400px]:block">
         <span className="block text-[17px] font-serif font-semibold tracking-tight text-white leading-none">Finealth</span>
         <span className="block text-[10px] uppercase tracking-[0.18em] text-zinc-500 mt-1">by Equisteg</span>
@@ -52,10 +53,12 @@ export function SiteHeader() {
     });
 
   return (
-    <header className="no-print sticky top-0 z-50 border-b border-white/[0.07] bg-[#05060a]/70 backdrop-blur-xl backdrop-saturate-150">
-      <div className="wrap h-16 flex items-center justify-between gap-3">
+    <header className="no-print sticky top-0 z-50 px-3 sm:px-4">
+      <div className="navbar max-w-6xl">
+      <div className="px-3 sm:px-4 h-16 flex items-center justify-between gap-3">
         <Logo />
         <div className="flex items-center gap-2 shrink-0">
+          <ThemeToggle />
           <select
             aria-label="Currency"
             value={baseCurrency}
@@ -79,9 +82,10 @@ export function SiteHeader() {
         </div>
       </div>
       {/* One horizontal tab rail at every width; it scrolls sideways when it does not fit. */}
-      <nav aria-label="Main" className="wrap pb-2.5 rail">
+      <nav aria-label="Main" className="px-3 sm:px-4 pb-2.5 rail">
         {links(true)}
       </nav>
+      </div>
     </header>
   );
 }

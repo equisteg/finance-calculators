@@ -68,12 +68,14 @@ export default defineConfig({
   projects: [
     {
       name: "web",
-      testMatch: /(finealth-web|product|pro)\.spec\.ts/,
+      testMatch: /(finealth-web|product|pro|a11y)\.spec\.ts/,
       use: {
         ...devices["Desktop Chrome"],
         ...(channel ? { channel } : {}),
         baseURL: WEB_BASE,
         viewport: { width: 1280, height: 900 },
+        // The palette assertions check the light "Paper" mode; pin it so a dark-preferring runner gets the same result.
+        colorScheme: "light",
       },
     },
     {

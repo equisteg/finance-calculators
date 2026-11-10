@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useMemo, type PointerEvent } from 'react';
 import { financialHealth, PLAN_PRICES } from '@finealth/finance-core';
 import { exampleHealth } from '../tools/HealthCheck';
 import { AREA_ICON, GlassIcon, toolIcon, type GlyphName, type Tone } from '../GlassIcon';
@@ -26,7 +26,7 @@ export function HomeHero() {
   );
 
   return (
-    <section aria-label="Plan your money" className="hero glass glass-strong fade-up mb-6 grid gap-8 p-6 sm:p-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-center" data-testid="home-hero">
+    <section aria-label="Plan your money" className="hero glass glass-strong fade-up mb-12 grid gap-8 p-6 sm:p-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-center" data-testid="home-hero">
       <div className="grid gap-5 min-w-0 content-center">
         <span className="eyebrow">Private money check-up · free</span>
         <h1 className="heading-hero">
@@ -54,9 +54,9 @@ export function HomeHero() {
         </ul>
       </div>
 
-      <div className="hero-card grid gap-5 min-w-0" aria-label="Example result">
-        <div className="flex items-center justify-between gap-3">
-          <span className="eyebrow !text-zinc-400">Example household</span>
+      <div className="hero-card parallax-slow grid gap-5 min-w-0" aria-label="Example result">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="eyebrow !text-zinc-500">Example household</span>
           <span className="pill pill-ok">Live engine</span>
         </div>
         <div className="flex flex-wrap items-center gap-5">
@@ -75,7 +75,7 @@ export function HomeHero() {
           <Stat label="Loan payments" value={`${Math.round(report.metrics.debtToIncome * 100)} %`} />
         </div>
         {top && (
-          <div className="flex items-start gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.06] p-3.5">
+          <div className="flex items-start gap-3 rounded-2xl border border-emerald-400/25 bg-emerald-400/[0.08] p-3.5">
             <GlassIcon name="trend" tone="emerald" size={34} />
             <div className="min-w-0">
               <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-300">Top priority · +{top.pointsAvailable} pts</span>
@@ -88,38 +88,67 @@ export function HomeHero() {
   );
 }
 
-const PLANNERS: Array<{ href: string; title: string; text: string; tag: string }> = [
-  { href: '/health-check/', title: 'Health Check', text: 'Score out of 100 and your next best move', tag: 'Free' },
-  { href: '/debt-payoff/', title: 'Debt Payoff', text: 'Avalanche or snowball, with a debt-free date', tag: 'Free · 3 debts' },
-  { href: '/goal-planner/', title: 'Goal Planner', text: 'What each goal costs after inflation', tag: 'Free · 1 goal' },
-  { href: '/retirement-planner/', title: 'Retirement', text: 'Projection free, 1,000-run odds with Pro', tag: 'Free + Pro' },
-  { href: '/loan-prepayment/', title: 'Loan Prepayment', text: 'Lower the EMI or finish sooner?', tag: 'Free' },
+const PLANNERS: Array<{ href: string; title: string; text: string; more: string; tag: string; cls: string }> = [
+  { href: '/health-check/', title: 'Health Check', text: 'A score out of 100 and your next best move.', more: 'Each rule shows how many points you can still win.', tag: 'Free', cls: 'b-health' },
+  { href: '/debt-payoff/', title: 'Debt Payoff', text: 'Avalanche or snowball, with a debt-free date.', more: 'See the interest you save and the order to pay each debt.', tag: 'Free · 3 debts', cls: 'b-debt' },
+  { href: '/goal-planner/', title: 'Goal Planner', text: 'What each goal costs after inflation.', more: 'Monthly saving needed, with a yearly step-up.', tag: 'Free · 1 goal', cls: 'b-goals' },
+  { href: '/loan-prepayment/', title: 'Loan Prepayment', text: 'Lower the EMI or finish sooner?', more: 'Both options side by side with the interest saved.', tag: 'Free', cls: 'b-prepay' },
+  { href: '/retirement-planner/', title: 'Retirement', text: 'A projection for free, 1,000-run odds with Pro.', more: 'Inflation, returns and withdrawals in one picture of your later years.', tag: 'Free + Pro', cls: 'b-retire' },
+  { href: '/my-plan/', title: 'My Plan', text: 'All your results on one page.', more: 'Back up everything for free; progress snapshots with Pro.', tag: 'Free + Pro', cls: 'b-plan' },
 ];
 
-/** The five planners as one row of cards, each with its own icon. */
+const RULES = ['Savings rate', 'Emergency fund', 'Debt payments', 'Costly debt', 'Retirement savings', 'Insurance'];
+
+/** The planners as a bento grid: Health Check is the large cell, and the grid widens toward the card you point at. */
 export function PlannerCards() {
   return (
-    <nav aria-label="Planners" className="fitgrid planner-grid grid gap-3 mb-8">
-      {PLANNERS.map((p) => {
-        const icon = AREA_ICON[p.href];
-        return (
-          <Link key={p.href} href={p.href} className="card lift planner-card grid gap-3 p-4 min-w-0">
-            <div className="flex items-center justify-between gap-2">
-              <GlassIcon name={icon.name} tone={icon.tone} size={46} />
-              <span className="pill pill-ok !text-[10px]">{p.tag}</span>
-            </div>
-            <span className="min-w-0">
-              <span className="block font-semibold text-white">{p.title}</span>
-              <span className="block text-xs text-zinc-400 leading-snug mt-1">{p.text}</span>
-            </span>
-            <span className="text-xs font-semibold text-emerald-300" aria-hidden="true">
-              Open →
-            </span>
-          </Link>
-        );
-      })}
-    </nav>
+    <section aria-labelledby="planners-title" className="mb-10 reveal">
+      <div className="flex flex-wrap items-end justify-between gap-3 mb-5">
+        <div>
+          <span className="eyebrow">Plan every part of your money</span>
+          <h2 id="planners-title" className="font-serif text-3xl sm:text-4xl font-medium tracking-tight text-white m-0 mt-2">Six planners, one calm picture</h2>
+        </div>
+      </div>
+      <nav aria-label="Planners" className="bento" data-testid="planner-bento">
+        {PLANNERS.map((p) => {
+          const icon = AREA_ICON[p.href] ?? { name: 'plan' as const, tone: 'teal' as const };
+          const big = p.cls === 'b-health';
+          return (
+            <Link key={p.href} href={p.href} className={`card lift bento-card min-w-0 ${p.cls}`} onPointerMove={glassRim}>
+              <div className="flex items-center justify-between gap-2">
+                <GlassIcon name={icon.name} tone={icon.tone} size={big ? 56 : 44} />
+                <span className="pill pill-ok !text-[10px]">{p.tag}</span>
+              </div>
+              <span className="min-w-0 grid gap-1.5">
+                <span className={`block font-serif font-medium tracking-tight text-white ${big ? 'text-3xl sm:text-4xl' : 'text-xl'}`}>{p.title}</span>
+                <span className={`block text-zinc-400 leading-snug ${big ? 'text-base max-w-sm' : 'text-sm'}`}>{p.text}</span>
+                <span className="more text-sm text-zinc-500 leading-snug">{p.more}</span>
+              </span>
+              {big && (
+                <span className="flex flex-wrap gap-2" aria-hidden="true">
+                  {RULES.map((r) => (
+                    <span key={r} className="chip !text-xs !py-1 !px-2.5">
+                      {r}
+                    </span>
+                  ))}
+                </span>
+              )}
+              <span className="text-sm font-semibold text-brand-400" aria-hidden="true">
+                Open →
+              </span>
+            </Link>
+          );
+        })}
+      </nav>
+    </section>
   );
+}
+
+/** Moves the soft light on a liquid-glass card to follow the pointer. */
+function glassRim(e: PointerEvent<HTMLElement>) {
+  const r = e.currentTarget.getBoundingClientRect();
+  e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+  e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
 }
 
 const POPULAR = [
@@ -137,13 +166,13 @@ const POPULAR = [
 export function PopularTools() {
   const tools = POPULAR.map((slug) => TOOLS.find((t) => t.slug === slug)).filter((t): t is (typeof TOOLS)[number] => Boolean(t));
   return (
-    <section className="glass p-5 sm:p-7 mb-8" aria-label="Popular calculators" data-testid="popular-tools">
+    <section className="glass p-5 sm:p-7 mb-10 reveal" aria-label="Popular calculators" data-testid="popular-tools">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
           <GlassIcon name="grid" tone="teal" size={34} />
           <h2 className="text-xl font-serif font-semibold text-white m-0">Popular calculators</h2>
         </div>
-        <Link href="/tools/" className="text-sm font-semibold text-emerald-300">
+        <Link href="/tools/" className="text-sm font-semibold text-brand-400">
           All {TOOLS.length} tools →
         </Link>
       </div>
@@ -168,22 +197,23 @@ export function PopularTools() {
 }
 
 const STEPS: Array<{ icon: GlyphName; tone: Tone; title: string; text: string }> = [
-  { icon: 'wallet', tone: 'teal', title: '1. Type ten numbers', text: 'Income, spending, savings and loans. They stay in your browser.' },
-  { icon: 'health', tone: 'emerald', title: '2. Get your score', text: 'Six rules of thumb money professionals use, scored out of 100.' },
-  { icon: 'plan', tone: 'violet', title: '3. Follow the plan', text: 'Ranked actions, debt order, goal savings and retirement odds.' },
+  { icon: 'wallet', tone: 'teal', title: 'Type ten numbers', text: 'Income, spending, savings and loans. They stay in your browser.' },
+  { icon: 'health', tone: 'emerald', title: 'Get your score', text: 'Six rules of thumb money professionals use, scored out of 100.' },
+  { icon: 'plan', tone: 'violet', title: 'Follow the plan', text: 'Ranked actions, debt order, goal savings and retirement odds.' },
 ];
 
 /** Three steps from numbers to a plan. */
 export function HowItWorks() {
   return (
-    <section className="glass p-5 sm:p-7 mt-8" aria-label="How it works">
+    <section className="glass p-5 sm:p-7 mt-10 reveal" aria-label="How it works">
       <div className="flex items-center gap-3 mb-4">
-        <GlassIcon name="spark" tone="emerald" size={34} />
+        <GlassIcon name="spark" tone="terra" size={34} />
         <h2 className="text-xl font-serif font-semibold text-white m-0">How it works</h2>
       </div>
       <div className="fitgrid steps-grid grid gap-3">
-        {STEPS.map((s) => (
-          <div key={s.title} className="stat !p-4 flex items-start gap-3">
+        {STEPS.map((s, i) => (
+          <div key={s.title} className="stat !p-5 flex items-start gap-4">
+            <span className="step-num" aria-hidden="true">{i + 1}</span>
             <GlassIcon name={s.icon} tone={s.tone} size={40} />
             <div className="min-w-0">
               <span className="block font-semibold text-white">{s.title}</span>

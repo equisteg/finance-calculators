@@ -50,7 +50,7 @@ export function MyPlan() {
                 <Stat label="Net worth" value={formatMoney(latest!.netWorth, latest!.currency)} />
               </div>
               {snapshots.length > 1 && (
-                <LineChart ariaLabel="Health score over time" series={[{ name: 'Score', colour: '#34d399', points: snapshots.map((s) => s.score) }]} xLabel={(i) => day(snapshots[i]?.at ?? '')} yLabel={(v) => `${v}`} />
+                <LineChart ariaLabel="Health score over time" series={[{ name: 'Score', colour: '#c8653f', points: snapshots.map((s) => s.score) }]} xLabel={(i) => day(snapshots[i]?.at ?? '')} yLabel={(v) => `${v}`} />
               )}
               <div className="flex flex-wrap gap-2">
                 <button type="button" className="btn btn-secondary" onClick={exportCsv} data-testid="export-progress-csv">

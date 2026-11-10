@@ -87,7 +87,7 @@ describe('startCheckout', () => {
     expect(t.calls[0]).toEqual({ path: '/api/v1/checkout', body: { plan: 'pro_lifetime', currency: 'INR' } });
     expect(t.calls[1]!.body).toEqual({ razorpay_payment_id: PAY, razorpay_order_id: ORDER, razorpay_signature: 'sig' });
     const o = t.opened[0]!;
-    expect(o).toMatchObject({ key: 'rzp_test_abc123', order_id: ORDER, amount: 49900, currency: 'INR', theme: { color: '#2453FF' } });
+    expect(o).toMatchObject({ key: 'rzp_test_abc123', order_id: ORDER, amount: 49900, currency: 'INR', theme: { color: '#A84B2A' } });
     expect(o.subscription_id).toBeUndefined();
     // We never prefill or collect contact details: Razorpay asks for them.
     expect(o).not.toHaveProperty('prefill');

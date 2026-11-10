@@ -45,9 +45,9 @@ export default function ToolsIndex() {
         </div>
       </section>
 
-      <nav aria-label="Jump to a category" className="rail mb-8 sticky top-[7.5rem] z-30 p-2 bg-[#05060a]/60 backdrop-blur-xl rounded-2xl border border-white/[0.06]">
+      <nav aria-label="Jump to a category" className="rail mb-8 sticky top-[7.5rem] z-30 p-2 bg-ground/70 backdrop-blur-xl rounded-2xl border border-white/[0.06]">
         <a href="#planners" className="chip !pl-1.5">
-          <GlassIcon name="spark" tone="emerald" size={22} />
+          <GlassIcon name="spark" tone="terra" size={22} />
           Planners
         </a>
         {CATEGORIES.map((c) => (
@@ -59,7 +59,7 @@ export default function ToolsIndex() {
       </nav>
 
       <section id="planners" className="mb-10 scroll-mt-40">
-        <SectionTitle icon={<GlassIcon name="spark" tone="emerald" size={30} />} title="Planners" count={PLANNERS.length} />
+        <SectionTitle icon={<GlassIcon name="spark" tone="terra" size={30} />} title="Planners" count={PLANNERS.length} />
         <div className="fitgrid grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {PLANNERS.map((p) => {
             const icon = AREA_ICON[p.href];
@@ -109,7 +109,7 @@ function ToolCard(props: { href: string; icon: ReactNode; title: string; summary
     <Link href={props.href} className="card lift p-4 flex items-start gap-4 group" data-testid={props.testId}>
       {props.icon}
       <span className="min-w-0 flex-1">
-        {props.region && <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-300/80">{props.region}</span>}
+        {props.region && <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-300">{props.region}</span>}
         <span className="block font-semibold text-white leading-snug mt-0.5">{props.title}</span>
         <span className="block text-sm text-zinc-400 mt-1 leading-snug line-clamp-2">{props.summary}</span>
       </span>

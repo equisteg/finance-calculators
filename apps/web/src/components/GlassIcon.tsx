@@ -81,14 +81,16 @@ const FILLS: Partial<Record<keyof typeof GLYPHS, string[]>> = {
 export type GlyphName = keyof typeof GLYPHS;
 
 const TONES = {
-  emerald: ['#34d399cc', '#05966999', '#10b98199'],
-  teal: ['#2dd4bfcc', '#0f766e99', '#14b8a699'],
-  sky: ['#38bdf8cc', '#0369a199', '#0ea5e999'],
-  violet: ['#a78bfacc', '#6d28d999', '#8b5cf699'],
-  amber: ['#fbbf24cc', '#b4530999', '#f59e0b99'],
-  rose: ['#fb7185cc', '#be123c99', '#f43f5e99'],
-  cyan: ['#22d3eecc', '#0e749099', '#06b6d499'],
-  slate: ['#94a3b8aa', '#33415599', '#64748b88'],
+  // Earth tones (v10): each tile is a warm gradient deep enough for the white glyph.
+  terra: ['#d4683fdd', '#8f3d20cc', '#c8653f88'],
+  emerald: ['#7fa56fdd', '#3f5c3acc', '#6f9a6288'],
+  teal: ['#5e9a8bdd', '#2f5c52cc', '#4e8a7a88'],
+  sky: ['#6f8fafdd', '#3b5670cc', '#5b7a9988'],
+  violet: ['#9a7a9add', '#5a3f5acc', '#8a6a8a88'],
+  amber: ['#d9a441dd', '#8a6214cc', '#c8943388'],
+  rose: ['#c8553fdd', '#7a281ecc', '#b4473a88'],
+  cyan: ['#6b9aa3dd', '#355a62cc', '#5b8a9388'],
+  slate: ['#a39888bb', '#5c544bbb', '#8e847677'],
 } as const;
 
 export type Tone = keyof typeof TONES;

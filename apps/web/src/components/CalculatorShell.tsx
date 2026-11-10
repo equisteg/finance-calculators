@@ -120,13 +120,13 @@ export function BreakdownDonut(props: {
           aria-label={`${props.firstLabel} ${Math.round(share * 100)}%, ${props.secondLabel} ${Math.round((1 - share) * 100)}%`}
         >
           {/* second part: the full ring underneath */}
-          <circle cx="70" cy="70" r={radius} stroke="#34d399" strokeWidth="14" fill="transparent" />
+          <circle cx="70" cy="70" r={radius} stroke="#6f9a62" strokeWidth="14" fill="transparent" />
           {/* first part drawn on top */}
           <circle
             cx="70"
             cy="70"
             r={radius}
-            stroke="#3f3f46"
+            stroke="#c8653f"
             strokeWidth="14"
             fill="transparent"
             strokeDasharray={circumference}
@@ -141,10 +141,10 @@ export function BreakdownDonut(props: {
       </div>
       <figcaption className="flex flex-wrap justify-center gap-4 mt-3 text-xs text-zinc-400">
         <span className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-zinc-700" /> {props.firstLabel}
+          <span className="w-2 h-2 rounded-full bg-[#c8653f]" /> {props.firstLabel} <b className="tabular-nums text-white">{Math.round(share * 100)} %</b>
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-400" /> {props.secondLabel}
+          <span className="w-2 h-2 rounded-full bg-[#6f9a62]" /> {props.secondLabel} <b className="tabular-nums text-white">{100 - Math.round(share * 100)} %</b>
         </span>
       </figcaption>
     </figure>

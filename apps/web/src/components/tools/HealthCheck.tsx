@@ -148,7 +148,7 @@ export function HealthCheck() {
             </div>
             <div className="grid gap-1.5" aria-label="Score scale">
               <div className="score-track relative h-2.5 rounded-full">
-                <i className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-[#05060a] bg-white" style={{ left: `${report.score}%` }} />
+                <i className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-ground bg-white" style={{ left: `${report.score}%` }} />
               </div>
               <div className="grid grid-cols-[40fr_20fr_20fr_20fr] text-[11px] text-zinc-500">
                 <span>Needs attention</span>

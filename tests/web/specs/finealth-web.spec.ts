@@ -24,16 +24,16 @@ test.describe("FN-W :: Finealth Web Application", () => {
    * Expected : Slate/dark aesthetic renders with Tailwind styling, custom
    *            fonts, and zero unstyled text artifacts.
    * ================================================================ */
-  test("FN-W01 renders the dark Tailwind theme with custom fonts and no unstyled artifacts", async ({
+  test("FN-W01 renders the warm paper theme with custom fonts and no unstyled artifacts", async ({
     page,
   }, testInfo) => {
     const { pageErrors, firstParty } = collectPageProblems(page);
     await page.goto("/");
 
-    // --- Dark slate ground -------------------------------------------------
-    // globals.css sets --bg: #05060a on body.
+    // --- Warm paper ground -------------------------------------------------
+    // globals.css sets --bg: #f5f1ea (light "Paper", the default when the device has no dark preference).
     const bodyBg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    expect(bodyBg, "body must paint the slate/dark ground").toBe("rgb(5, 6, 10)");
+    expect(bodyBg, "body must paint the warm paper ground").toBe("rgb(245, 241, 234)");
 
     // --- Tailwind actually compiled ---------------------------------------
     // If the stylesheet failed to build, utility classes resolve to nothing and
@@ -41,7 +41,7 @@ test.describe("FN-W :: Finealth Web Application", () => {
     const brandMark = page.getByTestId("engine-badge");
     await expect(brandMark).toBeVisible();
     const markColor = await brandMark.evaluate((el) => getComputedStyle(el).color);
-    expect(markColor, "Tailwind utilities must resolve (text-emerald-300)").toBe("rgb(110, 231, 183)");
+    expect(markColor, "Tailwind utilities must resolve (text-emerald-300 = sage)").toBe("rgb(63, 92, 58)");
 
     // --- Foreground is readable against that ground ------------------------
     const heading = page.getByRole("heading", { level: 1 });
@@ -172,9 +172,9 @@ test.describe("FN-W :: Finealth Web Application", () => {
       const pillText = await pill.innerText();
       const pillColor = await pill.evaluate((el) => getComputedStyle(el).color);
       if (pillText.startsWith("▲")) {
-        expect(pillColor, "gains render emerald").toBe("rgb(52, 211, 153)");
+        expect(pillColor, "gains render sage").toBe("rgb(78, 107, 72)");
       } else {
-        expect(pillColor, "losses render rose").toBe("rgb(251, 113, 133)");
+        expect(pillColor, "losses render clay").toBe("rgb(162, 59, 47)");
       }
 
       // Capital gains tax indicator.

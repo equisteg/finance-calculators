@@ -181,9 +181,9 @@ export function DebtPlanner() {
                   <LineChart
                     ariaLabel="Total balance over time for each strategy"
                     series={[
-                      { name: 'Your plan', colour: '#34d399', points: sample(chosen) },
-                      ...(cmp.minimum.feasible ? [{ name: 'Minimums only', colour: '#f87171', points: sample(cmp.minimum) }] : []),
-                      ...(whatIfPlan?.feasible ? [{ name: 'With what-if', colour: '#60a5fa', points: sample(whatIfPlan) }] : []),
+                      { name: 'Your plan', colour: '#6f9a62', points: sample(chosen) },
+                      ...(cmp.minimum.feasible ? [{ name: 'Minimums only', colour: '#c8553f', points: sample(cmp.minimum) }] : []),
+                      ...(whatIfPlan?.feasible ? [{ name: 'With what-if', colour: '#5b7a99', points: sample(whatIfPlan) }] : []),
                     ]}
                     xLabel={(i) => `M${i * step}`}
                     yLabel={money}

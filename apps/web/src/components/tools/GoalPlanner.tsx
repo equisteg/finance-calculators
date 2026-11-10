@@ -78,10 +78,10 @@ export function GoalPlanner() {
             const p = plan.goals[i];
             const locked = i >= limit;
             return (
-              <Panel key={g.id} className={locked ? 'opacity-50' : ''} testId={`goal-${i}`}>
+              <Panel key={g.id} testId={`goal-${i}`}>
                 <div className="flex gap-2 mb-4">
                   <span className="pill pill-ok self-center">#{i + 1}</span>
-                  <input aria-label="Goal name" className="input" value={g.name} maxLength={60} onChange={(e) => update(g.id, { name: e.target.value })} />
+                  <input aria-label="Goal name" className="input" value={g.name} maxLength={60} disabled={locked} onChange={(e) => update(g.id, { name: e.target.value })} />
                   {isPro && (
                     <>
                       <button type="button" className="btn btn-ghost btn-sm" onClick={() => move(i, -1)} aria-label={`Move ${g.name} up`} disabled={i === 0}>
@@ -96,6 +96,12 @@ export function GoalPlanner() {
                     ✕
                   </button>
                 </div>
+                {locked && (
+                  <p className="m-0 mb-3 text-sm text-amber-300" data-testid={`goal-${i}-locked`}>
+                    Saved, but not planned on the free plan. It comes back with Pro.
+                  </p>
+                )}
+                <fieldset disabled={locked} className="m-0 p-0 border-0 min-w-0 disabled:opacity-60">
                 <div className="fieldgrid grid gap-x-3 gap-y-3">
                   <NumberField label="Cost today" value={g.costToday} onChange={(n) => update(g.id, { costToday: n })} />
                   <NumberField label="In years" value={g.years} onChange={(n) => update(g.id, { years: Math.min(60, n) })} max={60} step={1} />
@@ -104,6 +110,7 @@ export function GoalPlanner() {
                   <NumberField label="Expected return" suffix="%" value={g.returnPct} onChange={(n) => update(g.id, { returnPct: n })} max={30} />
                   {isPro && <NumberField label="Yearly step-up" suffix="%" value={g.stepUpPct ?? 0} onChange={(n) => update(g.id, { stepUpPct: n })} max={50} />}
                 </div>
+                </fieldset>
                 {p && (
                   <div className="mt-4 grid gap-2">
                     <p className="m-0 text-sm text-zinc-300" data-testid={`goal-${i}-result`}>
