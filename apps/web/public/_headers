@@ -1,0 +1,8 @@
+# Security headers for every static page (Cloudflare Workers Static Assets reads this file; /api/* sets its own).
+# A full Content-Security-Policy is RSK-011: it needs the AdSense, consent and Razorpay origins tested on staging first.
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), usb=(), interest-cohort=()

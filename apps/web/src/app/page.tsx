@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { config as siteConfig } from "@/lib/config";
 import Link from "next/link";
 import {
   useCurrency,
@@ -267,6 +268,8 @@ export default function Home() {
       {/* Universal Header */}
       <SiteHeader />
 
+      {/* React hoists this into <head>: the home page is a client component, so it cannot export metadata. */}
+      <link rel="canonical" href={`${siteConfig.siteUrl}/`} />
       <main ref={fitRef} id="main" className="wrap home-stack pt-8 pb-6 sm:pt-12">
         {/* 1-4. What Finealth is, proof, the planners and how it works */}
         <HomeHero />

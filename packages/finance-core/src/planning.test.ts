@@ -217,6 +217,14 @@ describe('loan prepayment', () => {
     expect(r.reduceTenure.months).toBe(0);
     expect(r.reduceEmi.newEmi).toBe(0);
   });
+
+  it('the loan without prepayment ends exactly on its last month (TC-W-PRE-006)', () => {
+    for (const monthsLeft of [12, 240, 480]) {
+      const r = comparePrepayment({ outstanding: 50_000, aprPct: 10, monthsLeft, lumpSum: 80_000, extraMonthly: 0 });
+      expect(r.baseline.months).toBe(monthsLeft);
+      expect(r.reduceTenure.monthsSaved).toBe(monthsLeft);
+    }
+  });
 });
 
 describe('plan limits and CSV', () => {
