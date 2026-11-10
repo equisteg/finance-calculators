@@ -1,11 +1,20 @@
-# Test-case sheet rules (`test-cases.xlsx`)
+# Test-case sheet rules (`test-cases.xlsx`) — ClearFile format (10 Nov 2026)
 
-- One row per **step**. The first row of a test case carries TC ID, Module, REQ ID, Platform, Type, Title, Preconditions and Test data; each following row repeats the TC ID and fills Step No, Test step and Expected result.
-- Every step has its own observable expected result.
-- Type is Positive, Negative or Edge. Every REQ needs at least one of each, plus end-to-end journey cases that cross screens, payment and expiry.
-- Test data cells point to files in `tests/testdata/` instead of pasting values.
-- Automation ref = `tests/web/specs/<file>.spec.ts :: <test name>` or `tests/mobile/flows/<file>.yaml`.
-- Sheets: `Web`, `Mobile`, `API`, `Payments`, `Non-functional`, `Summary`. Summary counts update by formula.
-- `Non-functional` rows (`TC-N-xxx`) use Category and NFR ID instead of Type and REQ ID; Expected result is a measurable threshold ("p95 < 500 ms"), Measured value is the latest number. Every NFR in `docs/product-brief.md` needs at least one row.
-- Status (Pass / Fail / Flaky / Blocked / Not run) and Remarks (run ID) are written by `/test` after each staging run. Failures are tracked in `tests/bugs/bug-log.xlsx`.
-- Automated tests start their title with the TC ID so results map back to this sheet.
+- Do not edit the workbook by hand. Edit `fragments/<feature>.json` and run `npm run cases`: it rebuilds
+  `test-cases.xlsx`, runs `tests/tools/export_cases.py --check` (every REQ/NFR in `docs/product-brief.md` has cases,
+  every case names a Robot test that exists) and writes `docs/test-cases.md`.
+- Sheet **Test Cases**: one row per test case with 19 columns: TC ID, Feature, Platform (Web / Android / API), Test Type
+  (Functional / Non-functional), Scenario (Positive, Negative, Edge, Performance, Load, Security, Accessibility,
+  Compatibility, Reliability, Compliance, Privacy, SEO, Accuracy), Test Case Description, REQ / NFR, Priority (P1–P3),
+  Sanity, Regression, Integration (Y / N), Preconditions, Test Data, Steps, Expected Result, Automatable, Automation
+  Script, Status, Remarks / old TC ID.
+- Steps and Expected Result are numbered (`1. …`); expected result 3 belongs to step 3, and each is observable.
+- TC IDs: `TC-W-<FEATURE>-001` website, `TC-M-<FEATURE>-001` Android app, `TC-A-<FEATURE>-001` Worker API,
+  `TC-N-<CATEGORY>-001` non-functional. Numbers are never reused; a dropped case gets Status Retired.
+- Automation Script = `tests/automation/<web|mobile|api>/<feature>/<file>.robot :: <TC ID>`; Playwright and unit twins go
+  in Remarks. Non-functional Expected Result states a measurable threshold ("LCP < 2.5 s", "0 serious axe issues").
+- Test Data points to `tests/testdata/` or states the values; never real customer data, live keys or production URLs.
+- Status (Not run / Pass / Fail / Flaky / Blocked / Retired) is written by `tests/tools/bug_log.py ingest` after a run
+  (`run.py --log-bugs` or `/test`); failures go to `tests/bugs/bug-log.xlsx`.
+- Sheet **Archive** keeps the 123 cases of the older one-row-per-step sheet with their old IDs; each new case names the
+  old ID it replaces in Remarks, and the Archive row says which new case(s) it became.

@@ -1,6 +1,6 @@
 # Finealth
 
-Private financial health check and planner by Equisteg. A 0-100 money score with ranked actions, a debt payoff planner (snowball vs avalanche), goal planner, retirement projection with Monte Carlo odds, loan prepayment optimiser and 20+ free calculators. No login, no bank link: every number stays on the user's device. Freemium: free with ads, **Pro** (₹199/yr, ₹499 lifetime) for the full plan and no ads.
+Private financial health check and planner by Equisteg. A 0-100 money score with ranked actions, a debt payoff planner (snowball vs avalanche), goal planner, retirement projection with Monte Carlo odds, loan prepayment optimiser and 35+ free calculators. No login, no bank link: every number stays on the user's device. Freemium: free with ads, **Pro** (₹199/yr, ₹499 lifetime) for the full plan and no ads.
 
 Built on the Equisteg monorepo template v4 (same layout as InvoiceKit).
 

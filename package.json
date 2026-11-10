@@ -26,7 +26,8 @@
     "licence:test": "node scripts/make-test-licence.mjs",
     "robot": "python tests/automation/run.py --env local --serve",
     "robot:pro-site": "node tests/automation/tools/build-pro-site.mjs",
-    "robot:dryrun": "python tests/automation/run.py --dryrun --no-open"
+    "robot:dryrun": "python tests/automation/run.py --dryrun --no-open",
+    "docs:shots": "node scripts/manual-screenshots.mjs"
   },
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "^12.2.0",
