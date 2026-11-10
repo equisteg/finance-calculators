@@ -1,7 +1,8 @@
 flowchart TB
-  core[packages/finance-core] --> web[apps/web]
+  types[packages/shared-types] --> core[packages/finance-core]
+  types --> web[apps/web]
+  types --> api[apps/api]
+  core --> web
   core --> mobile[apps/mobile]
-  core --> api[apps/api]
-  types[packages/shared-types] --> core
-  types --> api
-  types --> web
+  core -->|licence.ts| api
+  web -->|out/ static files| api

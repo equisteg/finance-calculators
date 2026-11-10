@@ -1,0 +1,7 @@
+flowchart LR
+  dev[Developer branch] -->|PR| ci[GitHub Actions CI<br/>lint, typecheck, test, build, security]
+  ci -->|merge| main[main branch]
+  main -->|Workers Builds<br/>wrangler deploy --env prelaunch| pre[Worker finealth<br/>test keys, noindex]
+  main -.->|after launch| prod[Worker finealth --env production<br/>finealth.teiqtools.com]
+  pre --> assets[(Static Assets<br/>apps/web/out)]
+  prod --> assets

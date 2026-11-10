@@ -2,6 +2,7 @@
 
 ## Unreleased — 2026-11-10
 ### Changed
+- HLD, LLD and User Manual rewritten (v2.0) against the current code: new home page, 36 catalog tools, Worker routes and errors, storage and token formats, the QA architecture and Robot Framework automation, and 28 fresh screenshots in the manual.
 - New "Warm Editorial" look, from the design concept the founder chose: warm paper (light) and espresso (dark) grounds, terracotta for actions, sage for gains, clay for losses and ochre for Pro; every text colour passes WCAG AA in both modes. Colours are CSS variables, so one class works in both modes.
 - Light and dark modes: the site follows the device setting, and a sun/moon switch in the header overrides it (remembered as `finealth.theme`, outside the `finealth.v1.*` data keys so backups never carry it). A tiny script in `<head>` applies the saved choice before the first paint.
 - Floating liquid-glass header; cards turn to frosted glass on hover, and on the planner cards a soft light follows the pointer.

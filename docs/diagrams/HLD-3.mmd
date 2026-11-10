@@ -1,10 +1,16 @@
 sequenceDiagram
-  participant U as User
-  participant B as Browser (Finealth web)
-  participant S as localStorage
-  U->>B: types income, debts, goals…
-  B->>B: finance-core computes score / plan (in memory)
-  B->>S: saves inputs (finealth.v1.*)
-  Note over B,S: nothing is sent over the network
-  U->>B: Download backup / CSV
-  B-->>U: file generated in the browser
+  participant B as Browser
+  participant W as Worker /api/v1
+  participant R as Razorpay
+  B->>W: POST /checkout {plan, currency}
+  W->>R: create order (Lifetime) or subscription (Yearly) at the server price
+  W-->>B: orderId or subscriptionId, public key id
+  B->>R: Razorpay Checkout modal (card, UPI, net banking)
+  R-->>B: payment id + signature
+  B->>B: save ids as pending (finealth.pending.v1)
+  B->>W: POST /checkout/confirm {ids, signature}
+  W->>W: check HMAC signature
+  W->>R: read payment, order or subscription, check notes and refunds
+  W->>R: count activation in payment notes
+  W-->>B: signed 7-day token + licence key
+  B->>B: verify signature with public key, store finealth.pro.v1, unlock Pro, remove ads

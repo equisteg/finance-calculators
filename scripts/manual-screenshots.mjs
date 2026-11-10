@@ -44,6 +44,7 @@ const pro = TOKEN ? await page({ viewport: { width: 1280, height: 860 } }, seedP
 async function open(p, url) {
   await p.goto(url, { waitUntil: 'networkidle' });
   await p.locator('main#main h1').first().waitFor({ timeout: 30_000 });
+  await p.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : undefined)); // no focused skip link
   await p.waitForTimeout(700); // fonts and charts settle
 }
 // The sticky header would cover the top of a section picture, so it scrolls away for these shots.
