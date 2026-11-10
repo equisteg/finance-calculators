@@ -19,4 +19,9 @@ regexes = [
   '''^ABCD1234-EF567890-ABCD1234-EF567890$''',
   '''^ABCD1234-EF567890-12345678-90ABCDEF$''',
   '''^finealth\.pending\.v1$''',
+  # Robot Framework fixtures (tests/automation, docs/test-cases.md): made-up IDs that never exist at Razorpay
+  '''^pay_ABCDEFGH1234$''',
+  '''^pay_LifeTime12345A$''',
+  '''^pay_ForgedKey1234567$''',
+  '''^GUMROAD-1234-5678$''',
 ]
