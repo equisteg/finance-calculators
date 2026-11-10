@@ -39,11 +39,31 @@ describe("Finealth homepage", () => {
     }
   });
 
-  it("renders the historical trajectory section", () => {
+  it("renders the price history section", () => {
     renderHome();
-    expect(
-      screen.getByRole("heading", { name: "Multi-Decade Inception Historical Trajectory" })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "How prices moved over the decades" })).toBeInTheDocument();
+  });
+
+  it("labels market values honestly as stored reference values", () => {
+    renderHome();
+    expect(screen.getByTestId("engine-badge")).toHaveTextContent("Reference values · not live");
+    expect(screen.getByText(/not live prices/)).toBeInTheDocument();
+  });
+
+  it("has one heading per section in order, from the hero to the last call to action", () => {
+    renderHome();
+    const h2 = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent?.replace(/\s+/g, " ").trim());
+    expect(h2).toEqual([
+      "Six planners, one calm picture",
+      "From ten numbers to a plan",
+      "Where prices stand in Mumbai",
+      "Quick calculators for India",
+      "The ones people use most",
+      "Free to start, Pro when you plan",
+      "Your money stays yours",
+      "Before you start",
+      "Two minutes, ten numbers.",
+    ]);
   });
 
   it("formats rates as percentages, not index points", () => {
@@ -96,14 +116,12 @@ describe("Finealth homepage", () => {
     expect(screen.queryByText(/CGST/)).not.toBeInTheDocument();
   });
 
-  it("links to the standalone calculators", () => {
+  it("links to the standalone calculators first, then popular library tools", () => {
     renderHome();
-    const nav = screen.getByRole("navigation", { name: "Standalone calculators" });
-    expect(within(nav).getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual([
-      "/sip-calculator",
-      "/emi-calculator",
-      "/compound-interest",
-      "/tools",
-    ]);
+    const nav = screen.getByRole("navigation", { name: "Popular calculators" });
+    const hrefs = within(nav).getAllByRole("link").map((a) => a.getAttribute("href")?.replace(/\/$/, ""));
+    expect(hrefs.slice(0, 3)).toEqual(["/sip-calculator", "/emi-calculator", "/compound-interest"]);
+    expect(hrefs.length).toBe(9);
+    expect(screen.getByTestId("all-tools-link")).toHaveAttribute("href", expect.stringMatching(/^\/tools\/?$/));
   });
 });

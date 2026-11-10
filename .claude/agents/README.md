@@ -2,6 +2,8 @@
 
 Claude Code loads every `.md` file in this folder as a subagent. The main session builds; these agents check the work with a fresh context and never edit files. How they are briefed, what they return and how the fix loop works: [`docs/standards/agent-reviews.md`](../../docs/standards/agent-reviews.md).
 
+The QA team (QA Lead, Functional, Automation and Non-functional QA) and the Reliability Engineer follow [`docs/standards/qa-architecture.md`](../../docs/standards/qa-architecture.md).
+
 Founders do not need to call them by hand. `/newapp`, `/change`, `/update`, `/test`, `/review` and `/market` call the right ones. To ask one directly in Claude Code: "Use the security-auditor agent on this branch."
 
 | Agent | Checks | Runs automatically in | Also runs when a diff touches |
@@ -18,6 +20,13 @@ Founders do not need to call them by hand. `/newapp`, `/change`, `/update`, `/te
 | `marketing-claims-reviewer` | Truthful, provable, allowed marketing; no fake social proof; disclosures; spam and privacy rules; zero cost | `/market`; `/newapp` phase 9 | `docs/marketing/**`, `release/listing/**`, marketing pages |
 | `release-gate` | Go/no-go for production, default NOT READY | `/test` release recommendation; `/newapp` phase 10; before `staging → production` | — |
 | `incident-investigator` | Root cause, reproduction plan, smallest fix for an incident | auto-debug (`prompts/INCIDENT_PROMPT.md`); `/change fix incident #n` | — |
+| `qa-lead` | Test strategy and plan, scope and priority, entry/exit criteria, results vs criteria, defect triage, QA sign-off (go / no-go) | start of `/update` (plan); after `/test` ingest; before `staging → production` | `tests/**`, `scripts/test-cases.mjs`, `docs/product-brief.md`, any new REQ/NFR |
+| `qa-functional` | Test design (positive, negative, edge, boundary, states), missed scenarios, end-to-end journeys, functional, money-maths and UI bugs with repro steps | every PR from `/update`, `/change`, `/test` fixes; when docs change | `apps/web/src/app/(product)/**`, `apps/web/src/components/**`, `apps/web/src/lib/**`, `apps/mobile/src/**`, `packages/finance-core/src/**`, `docs/USER_MANUAL.md` |
+| `qa-automation` | Automation architecture, TC ID ↔ script, assertions (exact figures), locators, waits, flakiness, test data, CI time and cost | PRs that add or change tests or user-visible behaviour; after `/test` runs with flaky or skipped tests | `tests/automation/**`, `tests/web/**`, `tests/mobile/**`, `**/*.test.ts`, `apps/api/test/**`, `scripts/test-cases.mjs`, `.github/workflows/*` |
+| `qa-nonfunctional` | NFR thresholds and tests; accuracy, performance, load, security testing, accessibility, compatibility, privacy, disclaimer and rates compliance | PRs affecting accuracy, speed, security, accessibility, privacy or compatibility; after `/test` non-functional runs; before production | `tests/load/**`, `tests/web/specs/**`, `packages/finance-core/src/**`, `apps/api/src/lib/security.ts`, `apps/web/src/lib/ads.ts`, consent |
+| `reliability-engineer` | SRE: SLOs, alerts, health and canary, rollback, kill switches and retries, runbooks, game days, capacity and free-tier headroom, on-device data safety across releases | before `staging → production`; after an incident | `apps/api/src/**` health, errors, retries and rate limits, `apps/api/wrangler.jsonc`, `.github/workflows/*`, `KILL_SWITCHES` |
+| `requirements-reviewer` | `docs/HLD.md`, `docs/LLD.md`, `docs/USER_MANUAL.md` (screenshots), README and on-screen help vs the brief, CLAUDE.md, CHANGELOG and code: wrong or stale statements, undocumented behaviour, design coverage, clarity | end of `/update` and `/change`; `/newapp` phases 3, 9 and 10; before docs are shared | `docs/HLD.md`, `docs/LLD.md`, `docs/USER_MANUAL.md`, `docs/product-brief.md`, `README.md`, `packages/finance-core/src/plan.ts` |
+| `solution-architect` | Whole-product architecture, free-tier headroom, stateless licence model, security and privacy, reliability, performance, accuracy approach, testing, maintainability, product gaps; prioritised roadmap | before production; after a large `/update`; `/newapp` phase 10; on request | — |
 
 ## Adding or changing an agent
 - One file per agent, file name = `name` in the frontmatter (lowercase, hyphens).

@@ -55,7 +55,7 @@ test.describe("FN-W :: Finealth Web Application", () => {
     // --- No unstyled text artifacts ---------------------------------------
     // exact:true, else the footer's "Finealth Financial Suite ..." also matches.
     await expect(page.locator("header").getByText("Finealth", { exact: true })).toBeVisible();
-    await expect(page.getByText("STATUTORY ENGINE", { exact: true })).toBeVisible();
+    await expect(page.getByText("Reference values · not live", { exact: true })).toBeVisible();
 
     // First-party only: the AdSense 400s belong to FN-W06, not here.
     expect(firstParty(), "no first-party resource failed to load").toEqual([]);
@@ -186,7 +186,7 @@ test.describe("FN-W :: Finealth Web Application", () => {
 
     // Both indices also drive the historical trajectory curves.
     await expect(
-      page.getByRole("heading", { name: /Historical Trajectory/i })
+      page.getByRole("heading", { name: /How prices moved over the decades/i })
     ).toBeVisible();
   });
 

@@ -522,12 +522,14 @@ img, svg, video, canvas { max-width: 100%; }
 /* Section reveal and hero parallax, driven by scroll (no JavaScript). Browsers without scroll timelines just show the content. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .reveal { animation: fade-up linear both; animation-timeline: view(); animation-range: entry 0% entry 35%; }
+    .reveal { animation: rise-in linear both; animation-timeline: view(); animation-range: entry 0% entry 30%; }
   }
   @media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
     .parallax-slow { animation: drift-up linear both; animation-timeline: scroll(root); animation-range: 0 60vh; }
   }
 }
+/* Transform only: content is never transparent, so screenshots, crawlers and contrast checks see it fully. */
+@keyframes rise-in { from { transform: translateY(14px); } to { transform: none; } }
 @keyframes drift-up { from { transform: translateY(0); } to { transform: translateY(-40px); } }
 
 /* Page change: each page settles in with a short fade and rise */
@@ -562,3 +564,57 @@ img, svg, video, canvas { max-width: 100%; }
 }
 /* Skip link and in-page jumps land below the floating header */
 #main { scroll-margin-top: 7.5rem; }
+
+/* v11 home page: one section rhythm, one heading style, editorial cards */
+@layer components {
+  .home-stack > * + * { margin-top: 4rem; }
+  @media (min-width: 768px) { .home-stack > * + * { margin-top: 6rem; } }
+  .home-stack > .proof-strip { margin-top: 1.5rem; }
+  .home-stack > .final-cta + .notice { margin-top: 2.5rem; }
+  .section-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 2rem; margin-bottom: 1.75rem; }
+  .section-title { margin: 0.6rem 0 0; font-family: var(--font-display), Georgia, serif; font-weight: 500; font-variation-settings: 'opsz' 144; color: var(--fg); letter-spacing: -0.02em; font-size: clamp(1.9rem, 1.35rem + 2vw, 2.75rem); line-height: 1.08; text-wrap: balance; }
+  .section-lede { margin: 0.75rem 0 0; max-width: 42rem; font-size: 1rem; line-height: 1.6; color: rgb(var(--c-zinc-400)); }
+
+  .proof-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  @media (min-width: 768px) { .proof-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .proof-item { display: grid; gap: 0.25rem; padding: 1.1rem 1rem; border-left: 1px solid var(--line); }
+  .proof-item:nth-child(odd) { border-left: 0; }
+  @media (min-width: 768px) { .proof-item:nth-child(odd) { border-left: 1px solid var(--line); } .proof-item:first-child { border-left: 0; } }
+  .proof-value { font-family: var(--font-display), Georgia, serif; font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.2rem); line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .proof-label { font-size: 0.85rem; line-height: 1.35; color: rgb(var(--c-zinc-400)); }
+
+  /* Planner cards: the extra line is always shown (no hidden text to discover) */
+  .bento-card .more { max-height: none; opacity: 1; }
+  .pill-soft-pro { color: rgb(var(--c-amber-300)); background: rgb(var(--c-amber-500) / 0.12); border: 1px solid rgb(var(--c-amber-500) / 0.3); }
+
+  /* Market reference cards: fixed rhythm so values line up across cards */
+  .asset-card { display: grid; grid-template-rows: auto auto auto 1fr auto auto; gap: 0.3rem; min-height: 13.5rem; }
+  .asset-name { margin: 0.15rem 0 0; font-size: 1.05rem; font-weight: 600; color: var(--fg); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.6em; }
+  .asset-value { align-self: end; margin-top: 0.75rem; font-size: clamp(1.2rem, 12cqi, 1.6rem); }
+  .asset-card { container-type: inline-size; }
+  .asset-note { margin: 0.6rem 0 0; padding-top: 0.6rem; border-top: 1px solid var(--line); font-size: 11px; line-height: 1.4; color: rgb(var(--c-zinc-500)); }
+
+  /* Free vs Pro */
+  .plans-grid { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 900px) { .plans-grid { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); } }
+  .plans-grid > .card { grid-template-rows: auto 1fr auto; }
+  .plan-pro { border-color: rgb(var(--c-amber-500) / 0.45); background: linear-gradient(180deg, rgb(var(--c-amber-500) / 0.07), transparent 60%), var(--card-strong); }
+  .tick-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.6rem; font-size: 0.92rem; line-height: 1.5; color: rgb(var(--c-zinc-300)); }
+  .tick-list li { position: relative; padding-left: 1.6rem; }
+  .tick-list li::before { content: ""; position: absolute; left: 0.1rem; top: 0.45em; width: 0.85rem; height: 0.5rem; border-left: 2px solid rgb(var(--c-emerald-400)); border-bottom: 2px solid rgb(var(--c-emerald-400)); transform: rotate(-45deg); }
+  .tick-pro li::before { border-color: rgb(var(--c-amber-400)); }
+
+  /* Questions */
+  .faq-list { display: grid; gap: 0.75rem; }
+  .faq { border-radius: 1.1rem; border: 1px solid var(--line); background: var(--card); padding: 0; }
+  .faq summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.05rem 1.25rem; font-weight: 600; color: var(--fg); }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; flex: none; font-family: var(--font-display), Georgia, serif; font-size: 1.5rem; line-height: 1; color: var(--accent); transition: transform var(--t-fast) var(--ease); }
+  .faq[open] summary::after { transform: rotate(45deg); }
+  .faq summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 1.1rem; }
+  .faq p { margin: 0; padding: 0 1.25rem 1.15rem; color: rgb(var(--c-zinc-400)); line-height: 1.6; max-width: 52rem; }
+
+  /* Last call to action */
+  .final-cta { display: grid; justify-items: center; gap: 1rem; text-align: center; padding: 3rem 1.25rem; border-radius: 1.75rem; border: 1px solid var(--line); background: radial-gradient(60% 120% at 50% 0%, var(--glow-a), transparent 70%), var(--card-strong); box-shadow: var(--shadow); }
+  @media (min-width: 768px) { .final-cta { padding: 4rem 2rem; } }
+}

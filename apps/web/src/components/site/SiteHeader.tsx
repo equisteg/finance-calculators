@@ -13,13 +13,12 @@ export const NAV = [
   { href: '/goal-planner/', label: 'Goals' },
   { href: '/retirement-planner/', label: 'Retirement' },
   { href: '/loan-prepayment/', label: 'Prepayment' },
-  { href: '/', label: 'Calculators' },
   { href: '/tools/', label: 'All tools' },
 ];
 
 export function Logo() {
   return (
-    <Link href="/health-check/" className="flex items-center gap-2.5 shrink-0" aria-label="Finealth home">
+    <Link href="/" className="flex items-center gap-2.5 shrink-0" aria-label="Finealth home">
       <GlassIcon name="spark" tone="terra" size={34} />
       <span className="hidden min-[400px]:block">
         <span className="block text-[17px] font-serif font-semibold tracking-tight text-white leading-none">Finealth</span>

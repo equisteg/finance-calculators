@@ -10,6 +10,7 @@ The main Claude session builds. Specialist reviewer agents in `.claude/agents/` 
 - Reviewers run in parallel, so a full panel costs minutes, not a second build.
 
 ## 2. Roster
+The QA team and the Reliability Engineer, with their duties, entry and exit criteria and when each runs: [`qa-architecture.md`](qa-architecture.md).
 The roster, with when each runs, is in [`.claude/agents/README.md`](../../.claude/agents/README.md). Refer to an agent in any instruction file as `agent:<name>` (for example `agent:security-auditor`); `npm run lint:agents` fails if a referenced agent does not exist.
 
 ## 3. What a reviewer gets (the brief)
