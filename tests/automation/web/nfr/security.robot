@@ -82,13 +82,13 @@ TC-N-SEC-006 Page security headers are defined for the static site (apps/web/pub
     Should Match Regexp    ${h.lower()}    strict-transport-security:\\s*max-age=(3153600\\d|[4-9]\\d{7})    HSTS max-age is below one year
 
 TC-N-SEC-008 Every page carries a Content-Security-Policy (header or per-page meta)
-    [Documentation]    HLD §9 / phase 6: a site-wide CSP in _headers plus per-page hashed <meta> CSP. Tracked as RSK-011.
+    [Documentation]    HLD §9 / phase 6: a site-wide CSP in _headers plus per-page hashed <meta> CSP. Tracked as RSK-015.
     [Tags]    regression    P2
     ${h}=    Page Header Lines
     ${html}=    Read Repo File    apps/web/out/health-check/index.html
     ${meta}=    Evaluate    'http-equiv="content-security-policy"' in $html.lower()
     ${header}=    Evaluate    'content-security-policy' in $h.lower()
-    Should Be True    ${header} or ${meta}    No Content-Security-Policy for pages: none in apps/web/public/_headers and no CSP meta in the built HTML (RSK-011)
+    Should Be True    ${header} or ${meta}    No Content-Security-Policy for pages: none in apps/web/public/_headers and no CSP meta in the built HTML (RSK-015)
     IF    ${header}    Should Contain    ${h.lower()}    frame-ancestors 'none'
 
 TC-N-SEC-007 API responses carry the security headers and refuse a foreign origin and a non-JSON body

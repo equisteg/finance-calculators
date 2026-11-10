@@ -1,6 +1,18 @@
 # Changelog
 
 ## Unreleased — 2026-11-10
+### Added
+- New home page: one section rhythm (hero with the example score, proof strip, planner bento, how it works, prices "where they stand", quick calculators, popular calculators, Free vs Pro, privacy promise, FAQ with FAQPage data, closing call to action).
+- QA and reliability reviewer agents from ClearFile: qa-lead, qa-functional, qa-automation, qa-nonfunctional, reliability-engineer, requirements-reviewer, solution-architect (`docs/standards/qa-architecture.md`).
+- Test cases in the ClearFile format: one *Test Cases* sheet (270 cases, numbered steps paired with expected results, Sanity / Regression / Integration flags), *Summary* and *Archive* (all 123 old cases carried over). Source: `tests/cases/fragments/*.json`, `npm run cases`.
+- Robot Framework automation for every case (`tests/automation`, `npm run robot`): web, the Android app's screens and the Worker API, with live progress, screenshots in `log.html` and `--log-bugs`.
+- `npm run docs:shots` captures the manual's screenshots; the .docx export now embeds pictures.
+### Fixed
+- Android: an "Information only" note under every result; typed amounts below zero count as zero; the non-AdMob "sponsored" card is gone.
+- Loan prepayment: the loan without prepayment ends on its last month (the rounded EMI used to add a month); durations read "1 yr" instead of "1 yr 0 mo".
+- Static pages now send security headers (`apps/web/public/_headers`); a page CSP is still open (RSK-015).
+- SIP, EMI and compound-interest pages have their own title, description and canonical; the home page has a canonical.
+- The Refund page names Equisteg; the tools page works out its VAT count (66) from the table; the "55+ calculators" claim now says 35+; a long verdict on the retirement tiles wraps instead of being cut off.
 ### Changed
 - HLD, LLD and User Manual rewritten (v2.0) against the current code: new home page, 36 catalog tools, Worker routes and errors, storage and token formats, the QA architecture and Robot Framework automation, and 28 fresh screenshots in the manual.
 - New "Warm Editorial" look, from the design concept the founder chose: warm paper (light) and espresso (dark) grounds, terracotta for actions, sage for gains, clay for losses and ochre for Pro; every text colour passes WCAG AA in both modes. Colours are CSS variables, so one class works in both modes.
