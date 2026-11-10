@@ -8,7 +8,7 @@ function resultFor(label: string): string {
 }
 
 function dock(label: string) {
-  return within(screen.getByRole("contentinfo")).getByRole("button", { name: new RegExp(label) });
+  return within(screen.getByRole("contentinfo")).getByRole("button", { name: (name) => name.includes(label) });
 }
 
 describe("Finealth mobile suite", () => {

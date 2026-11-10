@@ -1,0 +1,25 @@
+# Semgrep's built-in default ignores (a .semgrepignore file replaces them, so they are repeated here).
+.gitignore
+.git/
+:include .gitignore
+node_modules/
+build/
+dist/
+vendor/
+.env/
+.venv/
+.tox/
+*.min.js
+.npm/
+.yarn/
+test/
+tests/
+*_test.go
+.semgrep
+.semgrep_logs/
+
+# Finealth: the Android launcher activity must be exported (MAIN/LAUNCHER intent filter, required on
+# Android 12+), so java.android.security.exported_activity is a false positive here. XML has no
+# per-line nosemgrep. Review this file by hand when it changes (any new <activity>, <service> or
+# <receiver> must stay android:exported="false" unless it needs to be launched by other apps).
+apps/mobile/android/app/src/main/AndroidManifest.xml

@@ -1,14 +1,13 @@
-import path from "node:path";
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
-// This app has its own package-lock.json, but the repository root has another.
-// Without an explicit root, Next.js guesses the repo root and resolves and
-// traces files from the wrong dependency tree.
-const appRoot = path.resolve(__dirname);
-
+// Static export: `out/` is served by the Cloudflare Worker's static assets (apps/api, security headers in public/_headers).
 const nextConfig: NextConfig = {
-  turbopack: { root: appRoot },
-  outputFileTracingRoot: appRoot,
+  output: 'export',
+  trailingSlash: true,
+  images: { unoptimized: true },
+  reactStrictMode: true,
+  poweredByHeader: false,
+  transpilePackages: ['@finealth/finance-core', '@finealth/shared-types'],
 };
 
 export default nextConfig;

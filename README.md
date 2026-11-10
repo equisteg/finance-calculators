@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Finealth
 
-## Getting Started
+Private financial health check and planner by Equisteg. A 0-100 money score with ranked actions, a debt payoff planner (snowball vs avalanche), goal planner, retirement projection with Monte Carlo odds, loan prepayment optimiser and 20+ free calculators. No login, no bank link: every number stays on the user's device. Freemium: free with ads, **Pro** (₹199/yr, ₹499 lifetime) for the full plan and no ads.
 
-First, run the development server:
+Built on the Equisteg monorepo template v4 (same layout as InvoiceKit).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Structure
+
+```
+apps/
+  web/        Next.js 16 static export (calculators + product pages + Pro)     @finealth/web
+  api/        Cloudflare Worker (Hono): Razorpay/Play licence checks, serves web @finealth/api
+  mobile/     Capacitor Android/iOS shell (Expo port planned, RSK-002)          @finealth/mobile
+packages/
+  finance-core/  all formulas, health score, planners, plan limits, licence tokens
+  shared-types/  API and token types
+tests/        web (Playwright), mobile/native (Appium), cases (xlsx), bugs, load, tools
+docs/         HLD, LLD, USER_MANUAL (.md + .docx), test-cases, product brief, risks, standards
+scripts/      test-cases.mjs, docs-export.mjs, gen-licence-keys.mjs, make-test-licence.mjs
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Commands
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install            # one install for every workspace
+npm run dev:web        # http://localhost:3000
+npm run check          # lint + typecheck + unit tests + build, all workspaces
+npm run test:web       # Playwright (builds and serves the static exports)
+npm run cases          # regenerate docs/test-cases.md and tests/cases/test-cases.xlsx
+npm run docs           # regenerate HLD/LLD/USER_MANUAL .docx (needs Chrome for diagrams)
+npm run dev:api        # wrangler dev for the licence Worker
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Pro end-to-end locally: `eval "$(npm run -s licence:test)"`, build the web app with `NEXT_PUBLIC_LICENCE_PUBLIC_KEY=$PRO_TEST_PUBLIC_KEY`, then run `PRO_TEST_TOKEN=$PRO_TEST_TOKEN npm run test:web -- --project=web`.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Standing rules for contributors and Claude: `CLAUDE.md`. Progress and open founder actions: `PROGRESS.md`.

@@ -48,7 +48,7 @@ describe("Finealth homepage", () => {
 
   it("formats rates as percentages, not index points", () => {
     renderHome();
-    fireEvent.change(screen.getByRole("combobox", { name: "Jurisdiction" }), { target: { value: "GBP" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Currency" }), { target: { value: "GBP" } });
     expect(screen.getByText("4.12%")).toBeInTheDocument(); // UK 10-Year Gilt Yield
     expect(screen.queryByText("4.12 pts")).not.toBeInTheDocument();
   });
@@ -57,7 +57,7 @@ describe("Finealth homepage", () => {
     renderHome();
     expect(sliderValue("Borrowing Principal")).toBe("₹35,00,000");
 
-    fireEvent.change(screen.getByRole("combobox", { name: "Jurisdiction" }), { target: { value: "USD" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Currency" }), { target: { value: "USD" } });
 
     expect(screen.getByRole("button", { name: "30-Yr Mortgage & PITI" })).toBeInTheDocument();
     const slider = screen.getByRole("slider", { name: "Borrowing Principal" }) as HTMLInputElement;
@@ -89,7 +89,7 @@ describe("Finealth homepage", () => {
 
   it("gives UK stamp duty its own calculator", () => {
     renderHome();
-    fireEvent.change(screen.getByRole("combobox", { name: "Jurisdiction" }), { target: { value: "GBP" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Currency" }), { target: { value: "GBP" } });
     fireEvent.click(screen.getByRole("button", { name: "Stamp Duty (SDLT)" }));
     expect(screen.getByText("STAMP DUTY LAND TAX")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "First-time buyer" })).toBeInTheDocument();
@@ -103,6 +103,7 @@ describe("Finealth homepage", () => {
       "/sip-calculator",
       "/emi-calculator",
       "/compound-interest",
+      "/tools",
     ]);
   });
 });

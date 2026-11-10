@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { formatMoney as formatCurrency } from "@/lib/format";
+import { formatMoney as formatCurrency } from "@finealth/finance-core";
 
 // --- Complete 50-State + DC US Tax Matrix ---
 export interface USStateConfig {

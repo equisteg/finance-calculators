@@ -1,35 +1,53 @@
-import type { Metadata } from "next";
-import Script from "next/script";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { CurrencyProvider } from "./context/CurrencyContext";
-import { ADSENSE_CLIENT } from "@/lib/ads";
+import type { Metadata } from 'next';
+import { Fraunces, Inter } from 'next/font/google';
+import './globals.css';
+import { CurrencyProvider } from './context/CurrencyContext';
+import { ProProvider } from '@/components/ProProvider';
+import { AdLoader } from '@/components/AdLoader';
+import { config } from '@/lib/config';
+import { THEME_BOOT } from '@/lib/theme';
 
-const inter = Inter({ subsets: ["latin"], display: "swap" });
+const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-sans' });
+const fraunces = Fraunces({ subsets: ['latin'], display: 'swap', variable: '--font-display', axes: ['opsz'] });
 
 export const metadata: Metadata = {
-  title: "Finealth - Global & Domestic Financial Engines",
+  metadataBase: new URL(config.siteUrl),
+  title: {
+    default: 'Finealth: free financial health check, debt and goal planner',
+    template: '%s · Finealth',
+  },
   description:
-    "Reference bullion and index benchmarks, multi-jurisdiction tax engines, and loan and investment calculators.",
+    'Check your financial health in two minutes, then get a plan: debt payoff, goals, retirement odds and 55+ calculators. No login, no bank link, your numbers stay on your device.',
+  robots: config.noindex ? { index: false, follow: false } : undefined,
+  applicationName: 'Finealth',
+  publisher: 'Equisteg',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Finealth',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Web, Android',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },
+  publisher: { '@type': 'Organization', name: 'Equisteg', url: 'https://equisteg.com' },
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${fraunces.variable}`} suppressHydrationWarning>
       <head>
-        <Script
-          async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
-      <body className={`${inter.className} antialiased bg-[#050508] text-white`}>
-        <CurrencyProvider>{children}</CurrencyProvider>
+      <body className={`${inter.className} antialiased text-white`}>
+        <a href="#main" className="skip-link">
+          Skip to content
+        </a>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
+        <ProProvider>
+          <AdLoader />
+          <CurrencyProvider>{children}</CurrencyProvider>
+        </ProProvider>
       </body>
     </html>
   );

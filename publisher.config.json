@@ -1,0 +1,77 @@
+{
+  "_note": "Filled once for the whole company. VERIFY every value before the first product.",
+  "publisherName": "Equisteg",
+  "developerEmail": "support@equisteg.com",
+  "developerWebsite": "https://equisteg.com",
+  "legalEntityCountry": "India",
+  "androidPackagePrefix": "com.equisteg",
+  "adsensePublisherId": "ca-pub-0000000000000000",
+  "admobPublisherId": "pub-0000000000000000",
+  "githubOrg": "equisteg-com",
+  "defaultRegion": "IN",
+  "defaultLanguages": [
+    "en"
+  ],
+  "hosting": {
+    "web": "cloudflare-workers static assets (apps/web/out served by apps/api Worker)",
+    "api": "cloudflare-workers (Hono), stateless for InvoiceKit: no D1/KV/R2",
+    "mobile": "expo eas (free) or local gradle builds",
+    "platform": "equisteg-platform Worker (shared payments/entitlement) via service binding"
+  },
+  "existingProducts": [
+    {
+      "name": "InvoiceKit",
+      "slug": "invoicekit",
+      "domain": "<to be confirmed>",
+      "url": "<to be confirmed>",
+      "playUrl": "<to be confirmed: app.invoicekit.android may already be on Play>",
+      "androidPackage": "app.invoicekit.android",
+      "androidPackageNote": "deviation from androidPackagePrefix com.equisteg: kept because changing a published package creates a new Play app (founder decision 29 Oct 2026)",
+      "category": "finance",
+      "domainRenewal": "<to be confirmed> (auto-renew on, company Cloudflare account)"
+    },
+    {
+      "name": "Finealth",
+      "slug": "finealth",
+      "domain": "finealth.teiqtools.com",
+      "domainNote": "deviation from one-domain-per-product: a subdomain of teiqtools.com (founder decision 9 Nov 2026, RSK-010)",
+      "url": "https://finealth.teiqtools.com",
+      "androidPackage": "com.tezech.finealth",
+      "androidPackageNote": "deviation from com.equisteg prefix: existing Capacitor app id kept (may already be on Play)",
+      "category": "finance",
+      "domainRenewal": "covered by teiqtools.com (auto-renew on)"
+    }
+  ],
+  "branches": {
+    "default": "development",
+    "flow": [
+      "development",
+      "staging",
+      "production"
+    ],
+    "environments": {
+      "development": "dev",
+      "staging": "staging",
+      "production": "production"
+    }
+  },
+  "payments": {
+    "web": "razorpay (Equisteg is the seller, not a merchant of record: Equisteg issues GST invoices; Pro yearly = Razorpay subscription, lifetime = one-time order; test keys on dev/staging, live keys only in production after Gate 9)",
+    "android": "google-play-billing (subscription pro: base plans monthly + yearly; in-app product pro_lifetime), verified server-side with the Play Developer API",
+    "signup": "none — the device sends the licence key (Razorpay payment id pay_… or subscription id sub_…) or Play purchase token; the stateless Worker verifies it with the store and returns a 7-day Ed25519-signed token (packages/invoice-core/src/licence.ts)",
+    "database": "none — InvoiceKit stores no user data (no D1/KV/R2); the store is the only purchase record",
+    "email": "none (no magic links; restore = re-enter the licence key shown after checkout and on the Razorpay receipt, or Restore purchases on Play)",
+    "note": "InvoiceKit-specific; other products follow phase 04b (D1 entitlements) unless a founder decides otherwise"
+  },
+  "costPolicy": "zero-cost: free tiers or open source only; see docs/standards/zero-cost.md",
+  "repoVisibility": "private",
+  "domains": {
+    "perProduct": true,
+    "pattern": "each product has its own domain (apex, www redirects); dev/staging on *.workers.dev",
+    "registrar": "Cloudflare Registrar in the company (Equisteg) account, registrant org Equisteg, auto-renew on — bought by a founder",
+    "companySite": "https://equisteg.com",
+    "emailFrom": "no-reply@equisteg.com via Resend (free plan verifies 3 domains — never one per product)",
+    "supportEmail": "support@<domain> via Cloudflare Email Routing → developerEmail",
+    "attribution": "own product name/logo + 'A product by Equisteg' (footer, About, app About); Equisteg is the legal entity and JSON-LD publisher"
+  }
+}

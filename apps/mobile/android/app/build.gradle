@@ -16,18 +16,26 @@ android {
         }
     }
 
+    // Release signing comes from the environment or a git-ignored keystore.properties, never from git:
+    //   FINEALTH_KEYSTORE=/path/to/finealth-release-key.jks FINEALTH_KEYSTORE_PASSWORD=… FINEALTH_KEY_ALIAS=finealth FINEALTH_KEY_PASSWORD=…
+    def ksProps = new Properties()
+    def ksFile = rootProject.file('keystore.properties')
+    if (ksFile.exists()) ksFile.withInputStream { ksProps.load(it) }
+    def ks = { String name -> System.getenv(name) ?: ksProps.getProperty(name) }
     signingConfigs {
         release {
-            storeFile file('finealth-release-key.jks')
-            storePassword 'Simpleisbest@02'
-            keyAlias 'finealth'
-            keyPassword 'Simpleisbest@02'
+            if (ks('FINEALTH_KEYSTORE')) {
+                storeFile file(ks('FINEALTH_KEYSTORE'))
+                storePassword ks('FINEALTH_KEYSTORE_PASSWORD')
+                keyAlias ks('FINEALTH_KEY_ALIAS') ?: 'finealth'
+                keyPassword ks('FINEALTH_KEY_PASSWORD')
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            if (signingConfigs.release.storeFile) signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

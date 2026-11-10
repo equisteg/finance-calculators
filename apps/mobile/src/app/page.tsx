@@ -5,7 +5,7 @@ import Image from "next/image";
 import SplashSequence from "@/components/SplashSequence";
 import { Capacitor } from "@capacitor/core";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
-import { formatMoney } from "@/lib/format";
+import { formatMoney } from "@finealth/finance-core";
 import {
   compareIndiaRegimes,
   gstBreakdown,
@@ -16,7 +16,7 @@ import {
   systematicWithdrawal,
   yearsToFinancialIndependence,
   INDIA_GST_RATES,
-} from "@/lib/finance";
+} from "@finealth/finance-core";
 
 export type Category = "wealth" | "income" | "debts" | "macro";
 
