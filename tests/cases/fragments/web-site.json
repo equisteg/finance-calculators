@@ -1155,6 +1155,27 @@
   "Remarks / old TC ID": "New case"
  },
  {
+  "TC ID": "TC-W-SEO-009",
+  "Feature": "SEO",
+  "Platform": "Web",
+  "Test Type": "Functional",
+  "Scenario": "Positive",
+  "Test Case Description": "The browser tab and home-screen shortcut show the Finealth icon, not the Next.js default",
+  "REQ / NFR": "REQ-017",
+  "Priority": "P3",
+  "Sanity": "N",
+  "Regression": "Y",
+  "Integration": "N",
+  "Preconditions": "Website build served",
+  "Test Data": "/, /health-check/, /tools/",
+  "Steps": "1. Open each page and read the icon links in <head>\n2. Open /icon.svg\n3. Download /favicon.ico\n4. Open /apple-icon.png",
+  "Expected Result": "1. Links to /favicon.ico, /icon.svg and the apple-touch-icon /apple-icon.png on every page\n2. The Finealth mark (terracotta #d4683f square, white spark)\n3. Not the create-next-app default file\n4. HTTP 200",
+  "Automatable": "Y",
+  "Automation Script": "tests/automation/web/seo/seo.robot :: TC-W-SEO-009",
+  "Status": "Not run",
+  "Remarks / old TC ID": "New 11 Nov 2026 (founder: logo not shown in the address bar)"
+ },
+ {
   "TC ID": "TC-W-NAV-001",
   "Feature": "Navigation",
   "Platform": "Web",

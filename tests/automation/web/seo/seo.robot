@@ -140,3 +140,22 @@ TC-W-SEO-008 Each indexable planner page has exactly one h1 and the html lang is
         Should Be Equal As Integers    ${n}    1    ${path} has ${n} h1
         Element Attribute Value Should Be    css=html    lang    en
     END
+
+TC-W-SEO-009 The browser tab shows the Finealth icon, not the Next.js default
+    [Documentation]    The favicon, the SVG icon and the Apple touch icon are linked from every page and are the Finealth
+    ...    mark (terracotta square with a white spark). c30c7d42… is the md5 of the favicon create-next-app ships.
+    [Tags]    regression    P3
+    Open Finealth    /
+    FOR    ${path}    IN    /    /health-check/    /tools/
+        Go To Page    ${path}
+        Page Should Contain Element    css=head link[rel="icon"][href^="/favicon.ico"]
+        Page Should Contain Element    css=head link[rel="icon"][href^="/icon.svg"]
+        Page Should Contain Element    css=head link[rel="apple-touch-icon"][href^="/apple-icon.png"]
+    END
+    ${svg}=    Fetch OK    /icon.svg
+    Should Contain    ${svg}    \#d4683f    icon.svg is not the Finealth mark
+    ${md5}=    Evaluate    hashlib.md5(requests.get($BASE_URL + '/favicon.ico', timeout=30).content).hexdigest()    modules=hashlib,requests
+    Should Not Be Equal    ${md5}    c30c7d42707a47a3f4591831641e50dc    favicon.ico is still the Next.js default
+    ${apple}=    Fetch Text    ${BASE_URL}/apple-icon.png
+    Should Be Equal As Integers    ${apple}[status]    200
+    Evidence    Finealth icon linked on 3 pages; favicon md5 ${md5}
