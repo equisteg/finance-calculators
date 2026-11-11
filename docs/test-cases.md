@@ -10,10 +10,10 @@ Generated from `tests/cases/test-cases.xlsx` (sheet "Test Cases") by `tests/tool
 | API | Non-functional | 1 |
 | Android | Functional | 16 |
 | Android | Non-functional | 2 |
-| Web | Functional | 174 |
+| Web | Functional | 175 |
 | Web | Non-functional | 43 |
 
-Sanity: 66 · Regression: 273 · Integration: 36 · Automatable: 271 · total: 273
+Sanity: 66 · Regression: 274 · Integration: 36 · Automatable: 272 · total: 274
 
 REQs covered: 25/25 · NFRs covered: 14/14
 
@@ -403,6 +403,7 @@ REQs covered: 25/25 · NFRs covered: 14/14
 | TC-W-SEO-006 | SEO | Web | Functional | Negative | Private and error pages are noindex, carry no canonical and stay out of the sitemap | REQ-017 | P2 | N | Y | N | Website build served locally | /pro/, /my-plan/, /no-such-page/ | 1. Fetch /pro/ and /my-plan/<br>2. Fetch /no-such-page/ | 1. meta robots noindex, no canonical, not in the sitemap<br>2. HTTP 404, title "Page not found · Finealth", meta robots "noindex, follow", no canonical | Y | tests/automation/web/seo/seo.robot :: TC-W-SEO-006 | Pass | TC-060 (private pages) |
 | TC-W-SEO-007 | SEO | Web | Functional | Positive | Every page's structured data names Finealth with Equisteg as the publishing Organization | REQ-017 | P1 | Y | Y | N | Website open in Chrome, fresh browser storage (example household), currency INR | /, /health-check/, AU tax tool, /pricing/, /about/, /no-such-page/ | 1. Open each page and read its JSON-LD<br>2. Read meta publisher | 1. One WebApplication "Finealth", FinanceApplication, publisher Organization "Equisteg" https://equisteg.com<br>2. meta publisher "Equisteg" | Y | tests/automation/web/seo/seo.robot :: TC-W-SEO-007 | Pass | New case (CLAUDE.md: Organization JSON-LD names Equisteg) |
 | TC-W-SEO-008 | SEO | Web | Functional | Positive | Each indexable planner page has exactly one h1 and the html lang is English | REQ-017 | P3 | N | Y | N | Website open in Chrome, fresh browser storage (example household), currency INR | /, 5 planners, /pricing/, /tools/ | 1. Open each page and count h1<br>2. Read the html lang | 1. Exactly 1 h1 on each<br>2. lang="en" | Y | tests/automation/web/seo/seo.robot :: TC-W-SEO-008 | Pass | New case |
+| TC-W-SEO-009 | SEO | Web | Functional | Positive | The browser tab and home-screen shortcut show the Finealth icon, not the Next.js default | REQ-017 | P3 | N | Y | N | Website build served | /, /health-check/, /tools/ | 1. Open each page and read the icon links in <head><br>2. Open /icon.svg<br>3. Download /favicon.ico<br>4. Open /apple-icon.png | 1. Links to /favicon.ico, /icon.svg and the apple-touch-icon /apple-icon.png on every page<br>2. The Finealth mark (terracotta #d4683f square, white spark)<br>3. Not the create-next-app default file<br>4. HTTP 200 | Y | tests/automation/web/seo/seo.robot :: TC-W-SEO-009 | Pass | New 11 Nov 2026 (founder: logo not shown in the address bar) |
 
 ## Web · Security
 

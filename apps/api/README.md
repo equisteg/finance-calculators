@@ -50,9 +50,9 @@ How the store answers are read:
    - Delete the `.secret` file afterwards.
    - Put the printed public key in the GitHub variable `LICENCE_PUBLIC_KEY`. Web and mobile read it as `NEXT_PUBLIC_LICENCE_PUBLIC_KEY` / `EXPO_PUBLIC_LICENCE_PUBLIC_KEY`.
 2. **Razorpay** (click by click: `docs/MIGRATION-cloudflare.md` §7):
-   - Dashboard → Test Mode → Account & Settings → API Keys → *Generate Key*. Key Id → GitHub variable `RAZORPAY_KEY_ID_TEST` (deploy passes it as the Worker var `RAZORPAY_KEY_ID`); secret → `npx wrangler secret put RAZORPAY_KEY_SECRET --env dev` and `--env staging`. Live mode: `RAZORPAY_KEY_ID` (`rzp_live_…`) and `--env production`.
+   - Dashboard → Test Mode → Account & Settings → API Keys → *Generate Key*. Key Id → Worker variable `RAZORPAY_KEY_ID` in the Cloudflare dashboard (Worker → Settings → Variables and Secrets) on `finealth-staging` and `finealth`; secret → `npx wrangler secret put RAZORPAY_KEY_SECRET --env dev` and `--env staging`. Live mode: `RAZORPAY_KEY_ID` (`rzp_live_…`) and `--env production`.
    - Account & Settings → Payment capture → *Automatic*.
-   - Subscriptions → Plans → *Create Plan*: yearly, every 1, ₹199 INR and US$7.99 USD (USD after international payments are approved). Put the `plan_…` ids in `wrangler.jsonc` as `RAZORPAY_PLAN_ID_YEARLY_INR` / `_USD` per env (test and live plans differ). Lifetime needs no plan.
+   - Subscriptions → Plans → *Create Plan*: yearly, every 1, ₹199 INR and US$7.99 USD (USD after international payments are approved). Put the `plan_…` ids in the Cloudflare dashboard (Worker → Settings → Variables and Secrets) as `RAZORPAY_PLAN_ID_YEARLY_INR` / `_USD` on each Worker, together with `RAZORPAY_KEY_ID` (test and live plans differ). `wrangler.jsonc` deliberately leaves them out so deploys keep the dashboard values. Lifetime needs no plan.
 3. **Google Play**:
    - In Google Cloud Console, go to the project linked to Play → IAM & Admin → Service accounts → **Create service account** (no roles needed).
    - Open it → Keys → **Add key → JSON** and download it.

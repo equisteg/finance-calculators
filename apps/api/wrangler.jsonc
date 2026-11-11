@@ -30,13 +30,9 @@
         "ENVIRONMENT": "dev",
         "CANONICAL_HOST": "",
         "ALLOWED_ORIGINS": "",
-        // Razorpay (web Pro). Key id is public: Dashboard -> Account & Settings -> API Keys. dev/staging MUST use a
-        // rzp_test_ key and production a rzp_live_ key — the Worker refuses the wrong mode (503).
-        "RAZORPAY_KEY_ID": "<razorpay-test-key-id>",
-        // Dashboard -> Subscriptions -> Plans: yearly, interval 1, Rs 199 (INR) and US$7.99 (USD). Leave USD as a
-        // placeholder until international payments are enabled: USD yearly checkout then answers 503.
-        "RAZORPAY_PLAN_ID_YEARLY_INR": "<razorpay-plan-id-yearly-inr>",
-        "RAZORPAY_PLAN_ID_YEARLY_USD": "<razorpay-plan-id-yearly-usd>",
+        // Razorpay (web Pro): RAZORPAY_KEY_ID (rzp_test_ here; the Worker refuses the wrong mode), RAZORPAY_PLAN_ID_YEARLY_INR
+        // (+ _USD once international payments are on) are set in the Cloudflare dashboard (keep_vars), not here, so a
+        // deploy never overwrites them with placeholders. Key id: Account & Settings -> API Keys; plans: Subscriptions -> Plans.
         // Retired yearly plan ids (comma list) whose subscriptions must keep working. Never edit a Razorpay plan:
         // create a new one, point the INR/USD var at it and add the old id here.
         "RAZORPAY_PLAN_IDS_YEARLY_LEGACY": "",
@@ -59,9 +55,6 @@
         "ENVIRONMENT": "staging",
         "CANONICAL_HOST": "",
         "ALLOWED_ORIGINS": "",
-        "RAZORPAY_KEY_ID": "<razorpay-test-key-id>",
-        "RAZORPAY_PLAN_ID_YEARLY_INR": "<razorpay-plan-id-yearly-inr>",
-        "RAZORPAY_PLAN_ID_YEARLY_USD": "<razorpay-plan-id-yearly-usd>",
         "RAZORPAY_PLAN_IDS_YEARLY_LEGACY": "",
         "KILL_SWITCHES": "",
         "MAX_ACTIVATIONS": "5",
