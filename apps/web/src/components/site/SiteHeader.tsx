@@ -13,13 +13,12 @@ export const NAV = [
   { href: '/goal-planner/', label: 'Goals' },
   { href: '/retirement-planner/', label: 'Retirement' },
   { href: '/loan-prepayment/', label: 'Prepayment' },
-  { href: '/', label: 'Calculators' },
   { href: '/tools/', label: 'All tools' },
 ];
 
 export function Logo() {
   return (
-    <Link href="/health-check/" className="flex items-center gap-2.5 shrink-0" aria-label="Finealth home">
+    <Link href="/" className="flex items-center gap-2.5 shrink-0 min-h-11 min-w-11" aria-label="Finealth home">
       <GlassIcon name="spark" tone="terra" size={34} />
       <span className="hidden min-[400px]:block">
         <span className="block text-[17px] font-serif font-semibold tracking-tight text-white leading-none">Finealth</span>
@@ -44,7 +43,7 @@ export function SiteHeader() {
           key={n.href}
           href={n.href}
           aria-current={on ? 'page' : undefined}
-          className={compact ? 'chip !py-1 !pl-1' : `flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-sm transition ${on ? 'bg-white/[0.08] text-white' : 'text-zinc-400 hover:text-white hover:bg-white/[0.04]'}`}
+          className={compact ? 'chip !py-1 !pl-1 min-h-11' : `flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-sm transition ${on ? 'bg-white/[0.08] text-white' : 'text-zinc-400 hover:text-white hover:bg-white/[0.04]'}`}
         >
           {icon && <GlassIcon name={icon.name} tone={on ? icon.tone : 'slate'} size={compact ? 24 : 26} />}
           <span className="whitespace-nowrap">{n.label}</span>
@@ -63,7 +62,7 @@ export function SiteHeader() {
             aria-label="Currency"
             value={baseCurrency}
             onChange={(e) => setBaseCurrency(e.target.value)}
-            className="input !w-auto !py-1.5 !pl-2.5 !text-xs !rounded-lg"
+            className="input !w-auto !py-1.5 !pl-2.5 !text-xs !rounded-lg min-h-11"
           >
             <option value="INR">₹ INR</option>
             <option value="USD">$ USD</option>
@@ -71,11 +70,11 @@ export function SiteHeader() {
             <option value="GBP">£ GBP</option>
           </select>
           {isPro ? (
-            <Link href="/pro/" className="pill pill-pro" data-testid="pro-badge">
+            <Link href="/pro/" className="pill pill-pro min-h-11 inline-flex items-center" data-testid="pro-badge">
               Pro
             </Link>
           ) : (
-            <Link href="/pricing/" className="btn btn-primary btn-sm" data-testid="go-pro">
+            <Link href="/pricing/" className="btn btn-primary btn-sm min-h-11 inline-flex items-center" data-testid="go-pro">
               Go Pro
             </Link>
           )}

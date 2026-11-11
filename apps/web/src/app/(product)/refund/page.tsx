@@ -7,6 +7,7 @@ export const metadata: Metadata = { title: 'Refunds & cancellation', description
 export default function Page() {
   return (
     <LegalPage title="Refunds & cancellation">
+      <p>Equisteg (&quot;we&quot;) makes Finealth and sells Finealth Pro. This page explains how to cancel Pro and get your money back.</p>
       <h2>14-day refund</h2>
       <p>
         If Pro is not right for you, email <a href={`mailto:${config.contactEmail}`}>{config.contactEmail}</a> within 14 days of paying, with your payment or subscription ID. We refund the full amount to the original payment method. Razorpay usually returns it within 5-7 working days.

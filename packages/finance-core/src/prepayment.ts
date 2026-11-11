@@ -35,8 +35,12 @@ export interface PrepaymentResult {
 
 const minor = (n: number) => (Number.isFinite(n) && n > 0 ? Math.round(n * 100) : 0);
 
-/** Pays `payment` (minor units) a month until the balance is zero; caps at 1200 months. */
-export function amortise(balanceMinor: number, aprPct: number, paymentMinor: number): Amortisation {
+/**
+ * Pays `payment` (minor units) a month until the balance is zero; caps at 1200 months.
+ * `termMonths` (a scheduled loan): the last instalment clears what is left, as banks do, because the rounded EMI can leave
+ * a few paise that would otherwise add a 241st month to a 240-month loan.
+ */
+export function amortise(balanceMinor: number, aprPct: number, paymentMinor: number, termMonths?: number): Amortisation {
   const r = aprPct > 0 ? aprPct / 1200 : 0;
   let bal = balanceMinor;
   let interest = 0;
@@ -46,8 +50,8 @@ export function amortise(balanceMinor: number, aprPct: number, paymentMinor: num
     if (paymentMinor <= i) return { months: Infinity, totalInterest: Infinity };
     bal += i;
     interest += i;
-    bal -= Math.min(paymentMinor, bal);
     months++;
+    bal -= months === termMonths ? bal : Math.min(paymentMinor, bal);
   }
   return { months, totalInterest: interest / 100 };
 }
@@ -57,12 +61,12 @@ export function comparePrepayment(input: PrepaymentInput): PrepaymentResult {
   const outstanding = minor(input.outstanding);
   const lump = Math.min(minor(input.lumpSum), outstanding);
   const emiMinor = Math.round(monthlyInstallment(outstanding, input.aprPct, n));
-  const baseline = amortise(outstanding, input.aprPct, emiMinor);
+  const baseline = amortise(outstanding, input.aprPct, emiMinor, n);
 
   const afterLump = outstanding - lump;
   const tenure = amortise(afterLump, input.aprPct, emiMinor + minor(input.extraMonthly));
   const newEmiMinor = afterLump > 0 ? Math.round(monthlyInstallment(afterLump, input.aprPct, n)) : 0;
-  const emiOpt = afterLump > 0 ? amortise(afterLump, input.aprPct, newEmiMinor) : { months: 0, totalInterest: 0 };
+  const emiOpt = afterLump > 0 ? amortise(afterLump, input.aprPct, newEmiMinor, n) : { months: 0, totalInterest: 0 };
 
   const r2 = (x: number) => Math.round(x * 100) / 100;
   const reduceTenure = {

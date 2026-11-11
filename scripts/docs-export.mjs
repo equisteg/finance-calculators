@@ -55,6 +55,17 @@ async function mermaidPng(code, out) {
   });
 }
 
+// A screenshot (PNG) scaled to the page width, with its caption in italics underneath.
+async function picture(path, caption) {
+  const buf = await readFile(path);
+  const { width, height } = await sharp(buf).metadata();
+  const w = Math.min(600, width / 2);
+  return [
+    new Paragraph({ alignment: AlignmentType.CENTER, children: [new ImageRun({ type: 'png', data: buf, transformation: { width: w, height: (height / width) * w } })] }),
+    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 }, children: [new TextRun({ text: decode(caption ?? ''), italics: true, size: 18, color: '5B6478' })] }),
+  ];
+}
+
 async function convert(file) {
   const [meta, body] = frontMatter((await readFile(file, 'utf8')).replace(/\r\n/g, '\n'));
   const name = basename(file, '.md');
@@ -68,9 +79,16 @@ async function convert(file) {
       case 'heading':
         children.push(new Paragraph({ heading: [HeadingLevel.HEADING_1, HeadingLevel.HEADING_2, HeadingLevel.HEADING_3][Math.min(tok.depth, 3) - 1], children: runs(tok.tokens) }));
         break;
-      case 'paragraph':
+      case 'paragraph': {
+        // A paragraph that is only a picture (![caption](manual/01-home.png)) becomes the image plus its caption.
+        const imgs = tok.tokens.filter((t) => t.type === 'image');
+        if (imgs.length && tok.tokens.every((t) => t.type === 'image' || (t.type === 'text' && !t.text.trim()))) {
+          for (const img of imgs) children.push(...(await picture(resolve(dirname(file), img.href), img.text)));
+          break;
+        }
         children.push(new Paragraph({ children: runs(tok.tokens), spacing: { after: 120 } }));
         break;
+      }
       case 'list':
         for (const item of tok.items) {
           const inline = item.tokens.flatMap((t) => (t.type === 'text' || t.type === 'paragraph' ? t.tokens ?? [t] : []));

@@ -5,6 +5,7 @@
 // Reads, when present:
 //   playwright.json            Playwright JSON reporter (functional E2E + @nfr specs such as axe, offline)
 //   maestro*.xml               Maestro JUnit (Android)
+//   output.xml                 Robot Framework (tests/automation: web Selenium suites)
 //   lhci/assertion-results.json + lhci.exit   Lighthouse CI assertions
 //   k6-<name>.json + k6-<name>.exit           k6 --summary-export per load script
 //   zap.json                   OWASP ZAP baseline JSON report
@@ -49,6 +50,30 @@ if (pw) {
     for (const child of s.suites ?? []) walk(child, child.file ?? file);
   };
   for (const s of pw.suites ?? []) walk(s, s.file);
+}
+
+// ---- Robot Framework (output.xml) -----------------------------------------
+// Web suites in tests/automation (adopted from ClearFile, 10 Nov 2026). Each test is named "<TC ID> <title>".
+for (const f of existsSync(dir) ? readdirSync(dir).filter((n) => /^(robot-)?output.*\.xml$/.test(n)) : []) {
+  const xml = readFileSync(join(dir, f), 'utf8');
+  const unxml = (s) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');
+  const sources = [...xml.matchAll(/<suite\b[^>]*\bsource="([^"]+\.robot)"/g)].map((m) => ({ at: m.index, source: m[1] }));
+  for (const m of xml.matchAll(/<test\b[^>]*\bname="([^"]*)"[^>]*>([\s\S]*?)<\/test>/g)) {
+    const name = unxml(m[1]);
+    const body = m[2];
+    const st = [...body.matchAll(/<status\b[^>]*\bstatus="(PASS|FAIL|SKIP|NOT RUN)"[^>]*?(?:\/>|>([\s\S]*?)<\/status>)/g)].at(-1);
+    const tags = [...body.matchAll(/<tag>([^<]+)<\/tag>/g)].map((t) => t[1].toLowerCase());
+    const source = (sources.filter((s) => s.at < m.index).at(-1)?.source ?? '').replace(/\\/g, '/').replace(/^.*?(tests\/automation\/)/, '$1');
+    const mobile = tags.includes('android') || source.includes('/mobile/');
+    add(mobile ? 'mobile-e2e' : 'web-e2e', tags.includes('non-functional') ? 'non-functional' : 'functional', {
+      title: name,
+      platform: mobile ? 'Android' : 'Web (Robot)',
+      status: { PASS: 'pass', FAIL: 'fail', SKIP: 'skipped', 'NOT RUN': 'skipped' }[st?.[1] ?? 'FAIL'],
+      ref: `${source} :: ${name.split(' ')[0]}`,
+      error: clip(unxml(st?.[2] ?? '')),
+      evidence: join(dir, f.replace(/output/, 'log').replace(/\.xml$/, '.html')), // robot-output.xml → robot-log.html in CI
+    });
+  }
 }
 
 // ---- Maestro (JUnit) ------------------------------------------------------

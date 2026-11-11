@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { CATEGORIES, CHECKED_LABEL, TOOLS } from '@/lib/toolCatalog';
 import { AREA_ICON, CATEGORY_ICON, GlassIcon, toolIcon } from '@/components/GlassIcon';
 import { FitArea } from '@/components/ui';
+import { WORLD_VAT_RATES } from '@finealth/finance-core';
 
 export const metadata: Metadata = {
   title: 'All money tools: tax, loans, savings and business calculators',
@@ -27,7 +28,7 @@ export default function ToolsIndex() {
     <FitArea className="fade-up">
       <section className="glass glass-strong p-6 sm:p-8 mb-6 grid gap-6 md:grid-cols-[1.4fr_1fr] md:items-center">
         <div className="min-w-0">
-          <span className="eyebrow block mb-2">{TOOLS.length + PLANNERS.length} free tools · 7 countries · 67 VAT rates</span>
+          <span className="eyebrow block mb-2">{TOOLS.length + PLANNERS.length} free tools · 7 countries · {Object.keys(WORLD_VAT_RATES).length} VAT rates</span>
           <h1 className="heading-xl">
             Every money tool, <span className="gradient-text">in one calm place</span>
           </h1>

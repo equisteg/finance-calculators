@@ -1,10 +1,11 @@
 flowchart LR
-  user([User]) -->|numbers typed in| web[Finealth Web\nNext.js static export]
-  user --> app[Finealth Android\nCapacitor WebView]
-  web -->|HTML/JS/CSS| cf[(Cloudflare Worker\nstatic assets)]
-  web -->|licence key only| api[Licence API\nCloudflare Worker + Hono]
-  app -->|licence key / Play token| api
-  api -->|verify purchase| rzp[Razorpay]
-  api -->|verify purchase| play[Google Play Developer API]
-  web -.->|free users, after consent| adsense[Google AdSense]
-  app -.->|free users| admob[Google AdMob]
+  user([Person]) -->|types numbers| web[Finealth website<br/>static pages + browser maths]
+  user --> app[Finealth Android<br/>Capacitor WebView]
+  web -->|pages, scripts, styles| cf[(Cloudflare Worker<br/>Static Assets)]
+  web -->|licence key only| api[Licence API<br/>same Worker, /api/v1/*]
+  app -.->|planned: Play token| api
+  api -->|check purchase| rzp[Razorpay API]
+  api -->|check purchase| play[Google Play Developer API]
+  web -->|Pro checkout modal| rzpjs[Razorpay Checkout]
+  web -.->|free plan only| adsense[Google AdSense]
+  web -.->|daily FX rates, no user data| fx[open.er-api.com]

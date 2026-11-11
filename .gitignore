@@ -87,3 +87,13 @@ apps/web/out/
 apps/web/.next/
 run-agent-qa.js
 apps/mobile/android/keystore.properties
+
+# Robot Framework automation (evidence and local test builds)
+tests/automation/results/
+tests/automation/.cache/
+tests/automation/.pro-site/
+tests/automation/.pro-site.token
+tests/automation/.pro-site.token-refresh
+tests/automation/.pro-site.token-expired
+tests/automation/.venv/
+__pycache__/

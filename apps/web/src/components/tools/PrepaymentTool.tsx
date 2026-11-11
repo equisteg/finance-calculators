@@ -5,7 +5,11 @@ import { comparePrepayment } from '@finealth/finance-core';
 import { NumberField, Panel, Stat, ToolPage, useMoney } from '../ui';
 import { AREA_ICON } from '../GlassIcon';
 
-const span = (m: number) => (!Number.isFinite(m) ? 'never' : m < 12 ? `${m} months` : `${Math.floor(m / 12)} yr ${m % 12} mo`);
+const span = (m: number) => {
+  if (!Number.isFinite(m)) return 'never';
+  if (m < 12) return m === 1 ? '1 month' : `${m} months`;
+  return m % 12 ? `${Math.floor(m / 12)} yr ${m % 12} mo` : `${m / 12} yr`;
+};
 
 export function PrepaymentTool() {
   const { currency, money } = useMoney();

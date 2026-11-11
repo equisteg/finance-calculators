@@ -1,6 +1,6 @@
 # Finealth
 
-Private financial health check and planner by Equisteg. A 0-100 money score with ranked actions, a debt payoff planner (snowball vs avalanche), goal planner, retirement projection with Monte Carlo odds, loan prepayment optimiser and 20+ free calculators. No login, no bank link: every number stays on the user's device. Freemium: free with ads, **Pro** (₹199/yr, ₹499 lifetime) for the full plan and no ads.
+Private financial health check and planner by Equisteg. A 0-100 money score with ranked actions, a debt payoff planner (snowball vs avalanche), goal planner, retirement projection with Monte Carlo odds, loan prepayment optimiser and 36 free calculators. No login, no bank link: every number stays on the user's device. Freemium: free with ads, **Pro** (₹199/yr, ₹499 lifetime) for the full plan and no ads.
 
 Built on the Equisteg monorepo template v4 (same layout as InvoiceKit).
 
@@ -14,7 +14,7 @@ apps/
 packages/
   finance-core/  all formulas, health score, planners, plan limits, licence tokens
   shared-types/  API and token types
-tests/        web (Playwright), mobile/native (Appium), cases (xlsx), bugs, load, tools
+tests/        automation (Robot Framework: one test per case, web + Android screens + API), web (Playwright), mobile/native (Appium), cases (xlsx), bugs, load, tools
 docs/         HLD, LLD, USER_MANUAL (.md + .docx), test-cases, product brief, risks, standards
 scripts/      test-cases.mjs, docs-export.mjs, gen-licence-keys.mjs, make-test-licence.mjs
 ```

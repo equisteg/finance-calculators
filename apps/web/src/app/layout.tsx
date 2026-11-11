@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     template: '%s · Finealth',
   },
   description:
-    'Check your financial health in two minutes, then get a plan: debt payoff, goals, retirement odds and 55+ calculators. No login, no bank link, your numbers stay on your device.',
+    'Check your financial health in two minutes, then get a plan: debt payoff, goals, retirement odds and 36 calculators. No login, no bank link, your numbers stay on your device.',
   robots: config.noindex ? { index: false, follow: false } : undefined,
   applicationName: 'Finealth',
   publisher: 'Equisteg',

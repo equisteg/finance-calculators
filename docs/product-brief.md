@@ -10,13 +10,59 @@ A private money check-up: a financial health score out of 100 in two minutes, th
 Salaried adults (25-45) in India first, then US/UK/EU, who earn steadily but do not know whether they are "on track": carrying card debt, unsure how much to save for a house or a child's education, worried about retirement. Existing apps either need a bank login (privacy worry, and limited in India) or are single calculators that give a number but no plan.
 
 ## 3. Screens
-Calculators dashboard (`/`), Health Check, Debt Payoff Planner, Goal Planner, Retirement Planner, Loan Prepayment, My Plan, Pricing, Restore Pro, About, Privacy, Terms, Refunds, Contact.
+Home (`/`: hero with a live example score, planners, markets, quick calculators, Free vs Pro, questions), All tools (`/tools/` and one page per tool), SIP, EMI and compound interest calculators, Health Check, Debt Payoff Planner, Goal Planner, Retirement Planner, Loan Prepayment, My Plan, Pricing, Restore Pro, About, Privacy, Terms, Refunds, Contact.
 
 ## 4. Functional requirements
-REQ-001…REQ-018, listed with test cases in `docs/test-cases.md`.
+Every REQ has test cases in `tests/cases/test-cases.xlsx` (sheet Test Cases; readable copy `docs/test-cases.md`) and a Robot Framework test per case in `tests/automation/`.
+
+| REQ | Requirement |
+|---|---|
+| REQ-001 | Health check score |
+| REQ-002 | Health action plan |
+| REQ-003 | Debt payoff planner |
+| REQ-004 | Debt what-if and schedule (Pro) |
+| REQ-005 | Goal planner |
+| REQ-006 | Retirement projection |
+| REQ-007 | Retirement odds (Pro) |
+| REQ-008 | Loan prepayment |
+| REQ-009 | Local storage, backup and restore |
+| REQ-010 | Progress snapshots (Pro) |
+| REQ-011 | Pricing and checkout |
+| REQ-012 | Restore Pro and licence token |
+| REQ-013 | Ads gating |
+| REQ-014 | Disclaimer and legal pages |
+| REQ-015 | Calculators (SIP, EMI, tax, GST…) |
+| REQ-016 | CSV export |
+| REQ-017 | SEO |
+| REQ-018 | Licence API |
+| REQ-019 | Global tools library (/tools) |
+| REQ-020 | Country tax engines (AU, CA, SG, NZ, US joint, India detail) |
+| REQ-021 | Payment acknowledgement and strengthened disclaimers |
+| REQ-022 | Gap-free tool layouts with key figures in the heading |
+| REQ-023 | Warm Editorial look: light and dark modes, floating glass nav, bento planners, calm motion |
+| REQ-024 | One header and footer on every page, skip link, compact phone home, stable planner layout, honest market labels |
+| REQ-025 | Home page: hero with a live score card, planners, how it works, honest market reference values, quick calculators, popular calculators, Free vs Pro, privacy promise, questions and a final call to action |
 
 ## 4b. Non-functional requirements
-NFR-001…NFR-013 and NFR-015 in `docs/test-cases.md`, NFR-014 unused (accuracy 100 % on golden cases, Monte Carlo < 100 ms, Lighthouse ≥ 90, layout shift (CLS) < 0.1, no financial data off-device, no ad script for Pro, WCAG 2.2 AA, disclaimer on every result).
+Every NFR has a measurable threshold and at least one non-functional test case.
+
+| NFR | Area | Requirement | Threshold |
+|---|---|---|---|
+| NFR-001 | Accuracy | Golden formula cases match independent calculations | 100 % match |
+| NFR-002 | Performance | Monte Carlo 1,000 runs × 80 years | < 100 ms on a mid-range phone |
+| NFR-003 | Performance | Tool pages Lighthouse performance (mobile) | ≥ 90 |
+| NFR-004 | Privacy | No financial input leaves the device | 0 requests carrying form values |
+| NFR-005 | Privacy | Pro users load no ad script | 0 ad scripts |
+| NFR-006 | Security | Pro token cannot be forged or tampered | Tampered token → free |
+| NFR-007 | Security | No secrets in repo or bundle | 0 findings |
+| NFR-008 | Reliability | Static pages work when the API is down | All tools usable |
+| NFR-009 | Accessibility | WCAG 2.2 AA on key pages, light and dark modes | 0 serious/critical axe issues (glass gradients flattened so contrast is measured) |
+| NFR-010 | Compliance | Disclaimer on every result screen | Visible on 5/5 tools |
+| NFR-011 | Compatibility | Layout at 360 px width | No horizontal scroll |
+| NFR-012 | Load | Licence API under load | p95 < 300 ms, errors < 1 % at 20 rps |
+| NFR-013 | Performance | Layout stability on the debt planner and home pages (phone 412 px) | CLS < 0.1 |
+| NFR-015 | Compliance | Statutory rates carry a last-checked date no older than 12 months | Date shown on every tax tool; yearly re-check issue |
+| NFR-014 | — | **Retired** (number not used) | — |
 
 ## 5. Data entities & storage
 `HealthInput`, `Debt[]`, `Goal[]`, `RetirementInput`, `Snapshot[]` in browser `localStorage` (`finealth.v1.*`); Pro licence record `finealth.pro.v1`. Nothing on the server.

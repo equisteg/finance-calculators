@@ -1,0 +1,1 @@
+{ "app": "finealth", "version": 1, "exportedAt": "2026-11-01T09:00:00.000Z", "data": { "health": { "monthlyIncome": "lots" }, "goals": [ { "bad": true } ], "debts": "none" } }

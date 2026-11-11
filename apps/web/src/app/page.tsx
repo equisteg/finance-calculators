@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { config as siteConfig } from "@/lib/config";
 import Link from "next/link";
 import {
   useCurrency,
@@ -9,10 +10,20 @@ import {
   type PriorityAsset,
 } from "./context/CurrencyContext";
 import AdSenseBanner from "../components/AdSenseBanner";
-import { GlassIcon } from "../components/GlassIcon";
 import { SiteHeader } from '@/components/site/SiteHeader';
 import { SiteFooter } from '@/components/site/SiteFooter';
-import { HomeHero, HowItWorks, PlannerCards, PopularTools } from "../components/site/HomeHero";
+import {
+  FinalCta,
+  FreeVsPro,
+  HomeFaq,
+  HomeHero,
+  HowItWorks,
+  PlannerCards,
+  PopularTools,
+  PrivacyPromise,
+  ProofStrip,
+  SectionHead,
+} from "../components/site/HomeHero";
 import { useFitRows } from "../components/ui";
 import { ADSENSE_CLIENT, AD_SLOTS } from "@/lib/ads";
 import { formatMoney, formatNumber } from "@finealth/finance-core";
@@ -257,38 +268,49 @@ export default function Home() {
       {/* Universal Header */}
       <SiteHeader />
 
-      <main ref={fitRef} id="main" className="wrap pt-8 pb-6 sm:pt-12">
-        {/* Product entry points: the free health check and the planners (Pro features live there) */}
+      {/* React hoists this into <head>: the home page is a client component, so it cannot export metadata. */}
+      <link rel="canonical" href={`${siteConfig.siteUrl}/`} />
+      <main ref={fitRef} id="main" className="wrap home-stack pt-8 pb-6 sm:pt-12">
+        {/* 1-4. What Finealth is, proof, the planners and how it works */}
         <HomeHero />
+        <ProofStrip />
         <PlannerCards />
-        <PopularTools />
+        <HowItWorks />
 
+        {/* Ads only ever sit between sections, never beside a control or inside a result */}
         <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.top} />
 
-        {/* Region & Benchmark Header: heading first, so an ad never sits right above a control */}
-        <div className="mb-8 pt-8">
-          <h2 className="heading-xl">
-            Financial & Bullion Markets in {currency === "INR" ? selectedIndianCity : activeProfile.name}
-          </h2>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1.5 mb-4 font-light">
-            Priority coverage: <span className="text-emerald-400 font-medium">{activeProfile.headlinePriority}</span>. Reference values stored in the app, not live prices; the day change is from the reference date. Confirm live quotes before you trade.
-          </p>
+        {/* 5. Market reference values: honest labels first, then the cards and the long-run history */}
+        <section aria-labelledby="markets-title" data-testid="markets">
+        <SectionHead
+          id="markets-title"
+          eyebrow="Markets at a glance"
+          title="Where prices stand"
+          accent={`in ${currency === "INR" ? selectedIndianCity : activeProfile.name}`}
+          lede={
+            <>
+              {activeProfile.headlinePriority}. These are reference values stored in the app, not live prices; the change is
+              against the reference date. Confirm live quotes before you trade.
+            </>
+          }
+        />
+        <div className="mb-6">
           <div className="flex flex-wrap items-center gap-2">
-            <span data-testid="engine-badge" className="text-[10px] font-semibold uppercase bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full tracking-widest whitespace-nowrap">
-              STATUTORY ENGINE
+            <span data-testid="engine-badge" className="pill pill-ok">
+              Reference values · not live
             </span>
             <span className="chip !text-xs max-w-full !whitespace-normal">
               {activeProfile.flag} {activeProfile.name} · {activeProfile.primaryExchange}
             </span>
 
             {currency === "INR" && (
-              <div className="chip !text-xs max-w-full">
-                <span className="text-zinc-400">CITY SPREAD:</span>
+              <label className="chip !text-xs max-w-full">
+                <span className="text-zinc-400">City</span>
                 <select
                   aria-label="City"
                   value={selectedIndianCity}
                   onChange={(e) => setSelectedIndianCity(e.target.value)}
-                  className="bg-transparent text-emerald-400 font-bold outline-none cursor-pointer"
+                  className="bg-transparent text-white font-semibold outline-none cursor-pointer"
                 >
                   {Object.keys(INDIAN_CITIES).map((city) => (
                     <option key={city} value={city} className="bg-zinc-900 text-white">
@@ -296,17 +318,17 @@ export default function Home() {
                     </option>
                   ))}
                 </select>
-              </div>
+              </label>
             )}
 
             {currency === "USD" && (
-              <div className="chip !text-xs max-w-full">
-                <span className="text-zinc-400">STATE TAX MATRIX:</span>
+              <label className="chip !text-xs max-w-full">
+                <span className="text-zinc-400">State</span>
                 <select
                   aria-label="US state"
                   value={selectedUsState}
                   onChange={(e) => setSelectedUsState(e.target.value)}
-                  className="bg-transparent text-emerald-400 font-bold outline-none cursor-pointer"
+                  className="bg-transparent text-white font-semibold outline-none cursor-pointer"
                 >
                   {Object.entries(ALL_50_US_STATES).map(([code, config]) => (
                     <option key={code} value={code} className="bg-zinc-900 text-white">
@@ -314,63 +336,35 @@ export default function Home() {
                     </option>
                   ))}
                 </select>
-              </div>
+              </label>
             )}
           </div>
-
         </div>
 
-        {/* Priority Asset Grid */}
-        <section aria-label="Market reference values" tabIndex={0} className={`asset-rail grid grid-cols-1 ${assetGridColumns} gap-4 mb-10`}>
+        {/* Reference cards: one row on desktop, a sideways rail on phones */}
+        <div role="region" aria-label="Market reference values" tabIndex={0} className={`asset-rail grid grid-cols-1 ${assetGridColumns} gap-4 mb-6`}>
           {activeProfile.priorityAssets.map((asset) => (
-            <div
-              key={asset.id}
-              data-testid="asset-card"
-              className="card lift p-5 flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex flex-wrap justify-between items-start mb-2 gap-x-2 gap-y-1">
-                  <div>
-                    <span className="text-[10px] tabular-nums uppercase tracking-widest text-emerald-400 block">
-                      {asset.category}
-                    </span>
-                    <h3 className="text-lg font-bold text-white mt-0.5">{asset.name}</h3>
-                    <p className="text-xs text-zinc-400 tabular-nums">{asset.unit}</p>
-                  </div>
-                  <span
-                    className={`shrink-0 text-xs tabular-nums font-bold whitespace-nowrap ${
-                      asset.changePct >= 0 ? "text-emerald-400" : "text-rose-400"
-                    }`}
-                  >
-                    {asset.changePct >= 0 ? "▲" : "▼"} {Math.abs(asset.changePct)}%
-                  </span>
-                </div>
-
-                <div className="my-3 stat !p-3">
-                  <span className="text-[9px] tabular-nums uppercase tracking-wider text-zinc-500 block mb-0.5">
-                    REFERENCE BENCHMARK
-                  </span>
-                  <div className="stat-value text-white">
-                    {formatAssetValue(asset, priceFor(asset))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-[11px] tabular-nums text-zinc-500 pt-2 border-t border-white/[0.06]">
-                {asset.taxNote}
-              </div>
-            </div>
+            <article key={asset.id} data-testid="asset-card" className="card asset-card p-5">
+              <span className="text-[10px] uppercase tracking-[0.16em] text-zinc-500 font-semibold">{asset.category}</span>
+              <h3 className="asset-name">{asset.name}</h3>
+              <p className="m-0 text-xs text-zinc-400 tabular-nums">{asset.unit}</p>
+              <div className="asset-value stat-value text-white">{formatAssetValue(asset, priceFor(asset))}</div>
+              <span
+                className={`text-xs tabular-nums font-semibold ${asset.changePct >= 0 ? "text-emerald-400" : "text-rose-400"}`}
+              >
+                {asset.changePct >= 0 ? "▲" : "▼"} {Math.abs(asset.changePct)}% <span className="font-normal text-zinc-500">vs reference date</span>
+              </span>
+              <p className="asset-note">{asset.taxNote}</p>
+            </article>
           ))}
-        </section>
+        </div>
 
-        {/* Graphical Trajectory Curves */}
-        <section className="mb-12 glass p-5 sm:p-7">
+        {/* Long-run history of the first two quoted assets */}
+        <div className="card p-5 sm:p-7">
           <div className="mb-5">
-            <h2 className="text-lg sm:text-xl font-bold text-white">
-              Multi-Decade Inception Historical Trajectory
-            </h2>
-            <p className="text-xs text-zinc-400 mt-1 tabular-nums">
-              Historical pricing milestones from {activeProfile.name} records.
+            <h3 className="text-[17px] font-semibold text-white m-0">How prices moved over the decades</h3>
+            <p className="text-xs text-zinc-400 mt-1 mb-0">
+              Milestones from {activeProfile.name} records. Past prices do not predict future returns.
             </p>
           </div>
 
@@ -386,9 +380,9 @@ export default function Home() {
                     className="stat !p-5"
                   >
                     <div className="flex flex-wrap justify-between items-center mb-4 gap-x-3 gap-y-1">
-                      <h3 className="text-sm font-bold text-white">
+                      <h4 className="text-sm font-semibold text-white m-0">
                         {asset.name} ({asset.unit})
-                      </h3>
+                      </h4>
                       <span className="text-[11px] text-emerald-300">
                         Source: {asset.sourceAuthority}
                       </span>
@@ -429,20 +423,19 @@ export default function Home() {
                 );
               })}
           </div>
+        </div>
         </section>
 
-        <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.mid} className="my-4" />
-
-        {/* WORKSPACE TOOLS SECTION */}
-        <section className="glass p-5 sm:p-7">
-          <div className="mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-white">
-              {activeProfile.name} Specific Tools & Financial Engines
-            </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 mt-1 tabular-nums">
-              Calibrated statutory tools for {activeProfile.name} currency and laws.
-            </p>
-          </div>
+        {/* 6. Quick calculators for the visitor's country */}
+        <section aria-labelledby="quick-title" data-testid="quick-calcs">
+        <SectionHead
+          id="quick-title"
+          eyebrow="Try it now"
+          title="Quick calculators"
+          accent={`for ${activeProfile.name}`}
+          lede={`Move a slider and the answer changes at once. Rules and rates are the published ones for ${activeProfile.name}; the period is shown under each calculator.`}
+        />
+        <div className="card p-5 sm:p-7">
 
           {/* Region Tool Tab Selector */}
           <div className="rail mb-8 border-b border-white/[0.06] pb-4">
@@ -892,40 +885,25 @@ export default function Home() {
               </ResultPanel>
             </div>
           )}
+        </div>
         </section>
 
-        {/* Standalone calculators */}
-        <nav aria-label="Standalone calculators" className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {[
-            { href: "/sip-calculator", title: "SIP Wealth Compounder", blurb: "Monthly investing with a return breakdown", icon: "coins" as const, tone: "emerald" as const },
-            { href: "/emi-calculator", title: "EMI & Debt Schedule", blurb: "Loan installment and interest split", icon: "debt" as const, tone: "rose" as const },
-            { href: "/compound-interest", title: "Compound Interest Engine", blurb: "Growth with yearly additions", icon: "trend" as const, tone: "sky" as const },
-            { href: "/tools", title: "All money tools", blurb: "Tax for 7 countries, world VAT/GST, NPV/IRR, XIRR and 30+ more", icon: "grid" as const, tone: "teal" as const },
-          ].map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="card lift flex items-center gap-3 p-4"
-            >
-              <GlassIcon name={link.icon} tone={link.tone} size={42} />
-              <span className="min-w-0">
-                <span className="text-sm font-bold text-white block">{link.title}</span>
-                <span className="text-xs text-zinc-400 block leading-snug mt-0.5">{link.blurb}</span>
-              </span>
-            </Link>
-          ))}
-        </nav>
+        {/* 7-11. Calculators, Free vs Pro, privacy, questions and the last call to action. Ads sit between whole
+            sections, away from any result panel and from the footer navigation. */}
+        <PopularTools />
+        <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.mid} />
+        <FreeVsPro />
+        <PrivacyPromise />
+        <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.bottom} />
+        <HomeFaq />
+        <FinalCta />
 
-        <HowItWorks />
-
-        <p className="notice notice-warn mt-8 text-sm" data-testid="disclaimer">
+        <p className="notice notice-warn text-sm" data-testid="disclaimer">
           <strong>Information only.</strong> Every figure here is an estimate from the numbers you enter and the published rules
           and rates for the period shown under each calculator. It is not financial, tax, investment or legal advice, may contain
           errors, and rates change in each budget. Check important decisions with the official source or a qualified
           professional. <Link href="/terms/" className="underline">Terms</Link>
         </p>
-
-        <AdSenseBanner client={ADSENSE_CLIENT} slot={AD_SLOTS.bottom} className="my-6" />
       </main>
 
       <SiteFooter />

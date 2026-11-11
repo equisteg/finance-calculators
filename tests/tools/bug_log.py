@@ -130,21 +130,29 @@ def load_cases():
     wb = load_workbook(CASES)
     for ws in wb.worksheets:
         idx = header_index(ws)
-        if "TC ID" not in idx:
+        if "TC ID" not in idx or ws.title == "Archive":
             continue
-        req_col = "REQ ID" if "REQ ID" in idx else "NFR ID"
+        # 10 Nov 2026 format: one row per case ("Steps" / "Expected Result" already numbered); older one-row-per-step sheets too
+        req_col = next((k for k in ("REQ / NFR", "REQ ID", "NFR ID") if k in idx), None)
         for r, row in read_rows(ws):
             tc = row.get("TC ID")
             if not tc:
                 continue
-            c = cases.setdefault(tc, {"sheet": ws.title, "row": r, "req": row.get(req_col),
-                                      "priority": row.get("Priority"), "steps": [], "expected": []})
+            c = cases.setdefault(tc, {"sheet": ws.title, "row": r, "req": row.get(req_col) if req_col else None,
+                                      "priority": row.get("Priority"), "type": row.get("Test Type"), "steps": [], "expected": []})
+            if row.get("Steps"):
+                c["steps"] = str(row["Steps"]).splitlines()
+            if row.get("Expected Result"):
+                c["expected"] = str(row["Expected Result"]).splitlines()
             if row.get("Test step"):
                 c["steps"].append(f"{row.get('Step No') or len(c['steps']) + 1}. {row['Test step']}")
             if row.get("Expected result"):
                 c["expected"].append(f"{row.get('Step No') or len(c['expected']) + 1}. {row['Expected result']}")
-            if row.get("Automation ref"):
-                refs.append((str(row["Automation ref"]).strip(), tc))
+            ref = row.get("Automation Script") or row.get("Automation ref")
+            # several scripts in one cell are separated by "; " before the next path
+            for one in re.split(r";\s+(?=(?:tests|apps|packages|\.github)/)", str(ref or "")):
+                if one.strip():
+                    refs.append((one.strip(), tc))
     return wb, cases, refs
 
 
@@ -244,7 +252,7 @@ def ingest(summary_path, report=""):
             "Bug ID": bug_id, "Status": "New", "Severity": guess_severity(r0, case),
             "Priority": (case or {}).get("priority") or "P2", "Environment": env,
             "Platform": ", ".join(platforms), "Suite": r0["suite"],
-            "Kind": "Non-functional" if r0["kind"] == "non-functional" or (case or {}).get("sheet") == "Non-functional" else "Functional",
+            "Kind": "Non-functional" if r0["kind"] == "non-functional" or "Non-functional" in ((case or {}).get("sheet"), (case or {}).get("type")) else "Functional",
             "TC ID": tc, "REQ / NFR ID": (case or {}).get("req"),
             "Title": ("Flaky: " if r0["status"] == "flaky" else "") + r0["title"][:200],
             "Steps to reproduce": "\n".join((case or {}).get("steps") or [f"Run {r0.get('ref')} against {s.get('baseUrl') or env}"]),
