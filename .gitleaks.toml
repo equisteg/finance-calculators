@@ -24,4 +24,7 @@ regexes = [
   '''^pay_LifeTime12345A$''',
   '''^pay_ForgedKey1234567$''',
   '''^GUMROAD-1234-5678$''',
+  # Android app unit tests (apps/mobile/__tests__/pro.test.ts): made-up IDs that never exist at Razorpay
+  '''^pay_ABCdef123456$''',
+  '''^sub_ABCdef123456$''',
 ]
