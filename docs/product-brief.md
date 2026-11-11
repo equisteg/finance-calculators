@@ -13,7 +13,7 @@ Salaried adults (25-45) in India first, then US/UK/EU, who earn steadily but do 
 Home (`/`: hero with a live example score, planners, markets, quick calculators, Free vs Pro, questions), All tools (`/tools/` and one page per tool), SIP, EMI and compound interest calculators, Health Check, Debt Payoff Planner, Goal Planner, Retirement Planner, Loan Prepayment, My Plan, Pricing, Restore Pro, About, Privacy, Terms, Refunds, Contact.
 
 ## 4. Functional requirements
-Every REQ has test cases in `tests/cases/test-cases.xlsx` (sheet Test Cases; readable copy `docs/test-cases.md`) and a Robot Framework test per case in `tests/automation/`.
+Every REQ has test cases in `tests/cases/test-cases.xlsx` (sheet Test Cases; readable copy `docs/test-cases.md`) and a Robot Framework test per case in `tests/automation/` (Android app cases: a Maestro flow in `tests/mobile/flows/`).
 
 | REQ | Requirement |
 |---|---|
@@ -43,6 +43,7 @@ Every REQ has test cases in `tests/cases/test-cases.xlsx` (sheet Test Cases; rea
 | REQ-024 | One header and footer on every page, skip link, compact phone home, stable planner layout, honest market labels |
 | REQ-025 | Home page, a landing page only (no calculator inputs): hero with a live score card, planners, how it works, popular calculators, a quick calculators card, Free vs Pro, privacy promise, questions and a final call to action |
 | REQ-026 | Quick calculators page (/quick-calculators/): honest market reference values with their history and the quick calculators for the visitor's country (moved off the home page, founder request 11 Nov 2026) |
+| REQ-027 | Android app built with Expo (React Native) on the shared engine: health check, the four planners and every calculator as native screens, the same free limits, Pro through Google Play Billing or a website licence key, AdMob with Google's consent message for free users only (founder request 11 Nov 2026, closes RSK-002) |
 
 ## 4b. Non-functional requirements
 Every NFR has a measurable threshold and at least one non-functional test case.
@@ -88,7 +89,7 @@ AdSense: finance tools allowed; ads kept outside results. Play: no financial-ser
 |---|---|---|
 | A1 | "Our repo template" = Equisteg template v4 as used by InvoiceKit | Newest, most complete company repo |
 | A2 | Same Pro prices as InvoiceKit | Shared payment code and Razorpay setup |
-| A3 | Keep Capacitor mobile for this release | Avoid breaking the existing Android app; Expo port next |
+| A3 | Keep Capacitor mobile for this release | Avoid breaking the existing Android app; Expo port next (**superseded 11 Nov 2026**: the Expo app replaced it, REQ-027) |
 | A4 | Keep app id `com.tezech.finealth` | It may already be on Play |
 
 ## 12. Market research summary (Nov 2026)

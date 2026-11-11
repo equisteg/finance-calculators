@@ -1,17 +1,4 @@
-import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react";
-import path from "path";
+import { defineConfig } from 'vitest/config';
 
-export default defineConfig({
-  plugins: [react()],
-  test: {
-    environment: "jsdom",
-    globals: true,
-    setupFiles: ["./vitest.setup.ts"],
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-});
+// Unit tests for the app's pure logic (src/lib). Screens are covered by the Maestro flows in tests/mobile/flows.
+export default defineConfig({ test: { include: ['__tests__/**/*.test.ts'], environment: 'node' } });

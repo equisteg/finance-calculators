@@ -10,3 +10,5 @@ export * from './licence';
 export * from './csv';
 export * from './tools';
 export * from './world';
+export * from './examples';
+export * from './schema';

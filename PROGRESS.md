@@ -7,7 +7,7 @@
 | 2 Brand | ✅ (kept) | Existing Finealth name, dark theme and logo |
 | 3 Architecture | ✅ | `docs/HLD.md`, `docs/LLD.md` (+ .docx) |
 | 4 Build — web, engine | ✅ | `apps/web`, `packages/finance-core` |
-| 4 Build — mobile | ⏳ | Capacitor shell uses the shared engine; Expo port pending (RSK-002) |
+| 4 Build — mobile | ✅ code / ⏳ device | `apps/mobile`: Expo SDK 58 app on the shared engine (planners, calculators, Play Billing, AdMob + UMP), 11 Nov 2026; first EAS build and Play internal test NEEDS HUMAN |
 | 4b Payments | ✅ code / ⏳ live | `apps/api` (Razorpay + Play verify); live keys NEEDS HUMAN |
 | 5 SEO | ✅ basic | metadata, canonical, robots, sitemap, JSON-LD |
 | 6 Security | ✅ CI | secret guards, Gitleaks, Semgrep, OSV in `ci.yml` |
@@ -25,4 +25,5 @@
 7. Legal review of Privacy, Terms and Refund pages (Terms rewritten 9 Nov 2026 with stronger no-advice, accuracy and liability wording; still needs a lawyer, RSK-006).
 9. AdSense: create four display ad units (Ads → By ad unit → Display ads) named finealth-top, finealth-mid, finealth-bottom, finealth-calculator; put their slot ids in `NEXT_PUBLIC_ADSENSE_SLOT_TOP/MID/BOTTOM/CALCULATOR` (GitHub → Settings → Secrets and variables → Actions → Variables) and redeploy. Until then no ads show on the live site. Set `NEXT_PUBLIC_AD_PLACEHOLDERS=1` on dev/staging only.
 10. Play Console: set the new prices (monthly ₹29 / US$0.99, yearly ₹199 / US$7.99, lifetime ₹499 / US$19.99) to match `apps/api/src/config/skus.ts`.
+11. Expo / Play for the new Android app: (a) EAS project linked to this repo (expo.dev → Projects → Finealth → GitHub, base directory `apps/mobile`); (b) EAS environment variables for the staging and production profiles: `EXPO_PUBLIC_LICENCE_PUBLIC_KEY`, `EXPO_PUBLIC_ADMOB_BANNER_ID`, `ADMOB_ANDROID_APP_ID`, `EAS_PROJECT_ID`; (c) Android upload key: EAS-managed (`eas credentials`) or the new key from RSK-008, never the leaked one; (d) Play Console: subscription `pro` with base plans `monthly` and `yearly`, in-app product `pro_lifetime`, licence-tester accounts, and the Data safety form (AdMob: device or other IDs; no financial data collected); (e) AdMob: app + banner unit, Privacy & messaging → GDPR message published.
 8. Yearly: re-check every statutory rate in `packages/finance-core/src/finance.ts` and `world.ts` after each country's budget and update `RATES_LAST_CHECKED` (RSK-005).

@@ -2,30 +2,14 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { financialHealth, FREE_LIMITS, type HealthInput } from '@finealth/finance-core';
+import { financialHealth, FREE_LIMITS, type HealthInput, exampleHealth } from '@finealth/finance-core';
 import { isHealthInput, isSnapshotList, KEYS, load, save, type Snapshot } from '@/lib/storage';
 import { usePersistent } from '@/lib/usePersistent';
 import { usePro } from '../ProProvider';
-import { Bar, NumberField, Panel, ProGate, ScoreRing, Stat, ToolPage, useMoney, type ToolCurrency } from '../ui';
+import { Bar, NumberField, Panel, ProGate, ScoreRing, Stat, ToolPage, useMoney } from '../ui';
 import { AREA_ICON } from '../GlassIcon';
 
 /** Example household per currency so the first visit shows a real result. */
-export function exampleHealth(currency: ToolCurrency): HealthInput {
-  const k = currency === 'INR' ? 1 : 1 / 20;
-  const r = (n: number) => Math.round(n * k);
-  return {
-    monthlyIncome: r(100_000),
-    monthlyExpenses: r(60_000),
-    monthlyDebtPayments: r(15_000),
-    emergencyFund: r(225_000),
-    costlyDebt: r(60_000),
-    investments: r(1_200_000),
-    age: 35,
-    dependents: 2,
-    lifeCover: r(5_000_000),
-    hasHealthCover: true,
-  };
-}
 
 const isNullableHealth = (v: unknown): v is HealthInput | null => v === null || isHealthInput(v);
 const STATUS_TONE = { good: 'ok', fair: 'warn', poor: 'bad' } as const;

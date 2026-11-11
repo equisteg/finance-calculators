@@ -41,6 +41,9 @@ def check_ref(tc_id, ref):
     if path.endswith('.robot'):
         # Robot tests start a line with the TC ID
         ok = re.search(rf'(?m)^{re.escape(name)}\b', text)
+    elif path.endswith('.yaml'):
+        # Maestro flows (Android app) name each case in a comment: "# TC-M-HLT-001 …"
+        ok = re.search(rf'(?m)^#\s*{re.escape(name)}\b', text)
     else:
         # Playwright / node:test: test('<TC ID> …') or test("<title>…"); the reference is the TC ID, the full title or its start
         ok = re.search(r'\b(?:test|it)(?:\.\w+)?\(\s*[\'"`]' + re.escape(name), text)
@@ -71,7 +74,13 @@ def main():
             if ref.strip():
                 p = check_ref(r[0], ref.strip())
                 if p: problems.append(p)
-        if '.robot :: ' not in str(r[col['Automation Script']] or ''): problems.append(f'{r[0]}: no Robot Framework test named')
+        script = str(r[col['Automation Script']] or '')
+        # Android app cases run as Maestro flows on a phone (tests/mobile/flows) or as unit tests of the app's pure logic
+        # (apps/mobile/__tests__, packages/finance-core); manual Android cases need no script
+        android = r[col['Platform']] == 'Android'
+        unit = '.test.ts :: ' in script
+        if '.robot :: ' not in script and not (android and ('.yaml :: ' in script or unit or r[col['Automatable']] == 'N')):
+            problems.append(f'{r[0]}: no Robot Framework test (or Maestro flow / unit test for Android) named')
         for f in ('Sanity', 'Regression', 'Integration', 'Automatable'):
             if r[col[f]] not in ('Y', 'N'): problems.append(f'{r[0]}: {f} must be Y or N')
     missing_req = [q for q in reqs if q not in covered]
@@ -96,7 +105,7 @@ def main():
         if '--check' in sys.argv:
             sys.exit(1)
     else:
-        print('coverage complete: every live REQ and NFR has a case; IDs unique; steps and expected results pair up; every case has a Robot test; every named script and test exists')
+        print('coverage complete: every live REQ and NFR has a case; IDs unique; steps and expected results pair up; every case has a Robot test (Android: a Maestro flow or app unit test); every named script and test exists')
 
 
 if __name__ == '__main__':

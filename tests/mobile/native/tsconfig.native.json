@@ -1,8 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "types": ["node", "@wdio/globals/types", "@wdio/mocha-framework"]
-  },
-  "include": ["tests/native/**/*.ts", "wdio.conf.ts", "fixtures/**/*.ts"],
-  "exclude": ["node_modules"]
-}

@@ -37,7 +37,7 @@
       "domainNote": "deviation from one-domain-per-product: a subdomain of teiqtools.com (founder decision 9 Nov 2026, RSK-010)",
       "url": "https://finealth.teiqtools.com",
       "androidPackage": "com.tezech.finealth",
-      "androidPackageNote": "deviation from com.equisteg prefix: existing Capacitor app id kept (may already be on Play)",
+      "androidPackageNote": "deviation from com.equisteg prefix: the old Capacitor app id is kept by the Expo app (may already be on Play)",
       "category": "finance",
       "domainRenewal": "covered by teiqtools.com (auto-renew on)"
     }

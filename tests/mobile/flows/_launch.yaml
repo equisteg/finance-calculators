@@ -1,0 +1,10 @@
+# Shared start: fresh install state, app open on the Health tab. Used by every flow with runFlow.
+appId: com.tezech.finealth
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- extendedWaitUntil:
+    visible:
+      id: screen-health
+    timeout: 20000

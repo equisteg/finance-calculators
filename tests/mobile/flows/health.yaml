@@ -1,0 +1,48 @@
+# TC-M-HLT-001 example household scores 75 (Good) with the top action and the disclaimer
+# TC-M-HLT-002 changing an input re-scores at once and is kept after a restart
+appId: com.tezech.finealth
+name: Health check
+tags: [android, sanity, regression]
+---
+- runFlow: _launch.yaml
+# TC-M-HLT-001
+- assertVisible:
+    id: health-score
+    text: '75'
+- assertVisible:
+    id: health-grade
+    text: Good
+- assertVisible:
+    id: health-actions
+- assertVisible:
+    id: health-pro-gate
+- scrollUntilVisible:
+    element:
+      id: disclaimer
+- assertVisible: 'Information only.*'
+# TC-M-HLT-002
+- scrollUntilVisible:
+    element:
+      id: in-income
+    direction: UP
+- tapOn:
+    id: in-income
+- eraseText: 12
+- inputText: '200000'
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: health-score
+    direction: UP
+- assertNotVisible:
+    id: health-score
+    text: '75'
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: screen-health
+    timeout: 20000
+- assertNotVisible:
+    id: health-score
+    text: '75'

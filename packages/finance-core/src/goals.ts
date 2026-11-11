@@ -39,7 +39,8 @@ const nonNeg = (n: number) => (Number.isFinite(n) && n > 0 ? n : 0);
 /** Future value of saving 1 a month at the start of each month for `years`, stepping up yearly. */
 export function monthlySavingFactor(returnPct: number, years: number, stepUpPct = 0): number {
   const i = nonNeg(returnPct) / 1200;
-  const n = Math.round(nonNeg(years) * 12);
+  // At most 100 years (1,200 months), whatever the inputs say, so the step-up loop stays short.
+  const n = Math.min(1200, Math.round(nonNeg(years) * 12));
   if (n === 0) return 0;
   if (!stepUpPct) return i === 0 ? n : ((Math.pow(1 + i, n) - 1) / i) * (1 + i);
   let fv = 0;

@@ -1,0 +1,53 @@
+# TC-M-DBT-001 free plan: three example debts are planned, a fourth cannot be added, what-if is locked
+# TC-M-GOL-001 free plan: one goal is planned, the others are kept but marked as not planned
+# TC-M-RET-001 retirement projection shows a verdict; the odds are locked on the free plan
+# TC-M-PRE-001 prepayment compares both options and highlights the better one
+appId: com.tezech.finealth
+name: Planners
+tags: [android, regression]
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: tab-plan
+# TC-M-DBT-001
+- tapOn:
+    id: planner-debt
+- assertVisible:
+    id: debt-free-in
+- scrollUntilVisible:
+    element:
+      id: debt-limit
+- assertNotVisible:
+    id: add-debt
+- scrollUntilVisible:
+    element:
+      id: debt-pro-gate
+- back
+# TC-M-GOL-001
+- tapOn:
+    id: planner-goals
+- assertVisible:
+    id: goal-0-result
+- scrollUntilVisible:
+    element:
+      id: goal-1-locked
+- scrollUntilVisible:
+    element:
+      id: goal-limit
+- back
+# TC-M-RET-001
+- tapOn:
+    id: planner-retirement
+- assertVisible:
+    id: ret-verdict
+- scrollUntilVisible:
+    element:
+      id: ret-pro-gate
+- back
+# TC-M-PRE-001
+- tapOn:
+    id: planner-prepayment
+- assertVisible:
+    id: tenure-saved
+- assertVisible:
+    id: emi-saved

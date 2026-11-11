@@ -1,9 +1,11 @@
 flowchart LR
   user([Person]) -->|types numbers| web[Finealth website<br/>static pages + browser maths]
-  user --> app[Finealth Android<br/>Capacitor WebView]
+  user --> app[Finealth Android<br/>Expo app + on-device maths]
   web -->|pages, scripts, styles| cf[(Cloudflare Worker<br/>Static Assets)]
   web -->|licence key only| api[Licence API<br/>same Worker, /api/v1/*]
-  app -.->|planned: Play token| api
+  app -->|Play purchase token or licence key only| api
+  app -->|purchase sheet| gpb[Google Play Billing]
+  app -->|banner after consent, free users only| admob[AdMob + UMP]
   api -->|check purchase| rzp[Razorpay API]
   api -->|check purchase| play[Google Play Developer API]
   web -->|Pro checkout modal| rzpjs[Razorpay Checkout]

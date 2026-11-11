@@ -1,0 +1,49 @@
+# TC-M-NAV-004 the four tabs open Health, Plan, Calculators and More without reloading
+# TC-M-NAV-005 each planner opens from the Plan tab and Back returns to it
+appId: com.tezech.finealth
+name: Navigation
+tags: [android, sanity, regression]
+---
+- runFlow: _launch.yaml
+# TC-M-NAV-004
+- tapOn:
+    id: tab-plan
+- assertVisible:
+    id: screen-plan
+- tapOn:
+    id: tab-tools
+- assertVisible:
+    id: screen-tools
+- tapOn:
+    id: tab-more
+- assertVisible:
+    id: screen-more
+- tapOn:
+    id: tab-health
+- assertVisible:
+    id: screen-health
+# TC-M-NAV-005
+- tapOn:
+    id: tab-plan
+- tapOn:
+    id: planner-debt
+- assertVisible:
+    id: screen-debt
+- back
+- tapOn:
+    id: planner-goals
+- assertVisible:
+    id: screen-goals
+- back
+- tapOn:
+    id: planner-retirement
+- assertVisible:
+    id: screen-retirement
+- back
+- tapOn:
+    id: planner-prepayment
+- assertVisible:
+    id: screen-prepayment
+- back
+- assertVisible:
+    id: screen-plan

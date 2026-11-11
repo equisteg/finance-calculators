@@ -1,23 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { FREE_LIMITS, limitFor, planGoals, toCsv, type Goal } from '@finealth/finance-core';
+import { FREE_LIMITS, limitFor, planGoals, toCsv, type Goal, exampleGoals } from '@finealth/finance-core';
 import { download, isGoalList, KEYS, newId } from '@/lib/storage';
 import { usePersistent } from '@/lib/usePersistent';
 import { usePro } from '../ProProvider';
-import { Bar, NumberField, Panel, Stat, ToolPage, useMoney, type ToolCurrency } from '../ui';
+import { Bar, NumberField, Panel, Stat, ToolPage, useMoney } from '../ui';
 import { AREA_ICON } from '../GlassIcon';
 
-export function exampleGoals(currency: ToolCurrency): Goal[] {
-  const k = currency === 'INR' ? 1 : 1 / 20;
-  const r = (n: number) => Math.round(n * k);
-  const infl = currency === 'INR' ? 6 : 3;
-  return [
-    { id: 'home', name: 'Home down payment', costToday: r(2_000_000), years: 7, inflationPct: infl, returnPct: 10, currentSavings: r(300_000), stepUpPct: 0 },
-    { id: 'edu', name: "Child's education", costToday: r(2_500_000), years: 15, inflationPct: currency === 'INR' ? 10 : 5, returnPct: 12, currentSavings: 0, stepUpPct: 0 },
-    { id: 'car', name: 'New car', costToday: r(900_000), years: 4, inflationPct: infl, returnPct: 7, currentSavings: r(100_000), stepUpPct: 0 },
-  ];
-}
 
 const isNullableGoals = (v: unknown): v is Goal[] | null => v === null || isGoalList(v);
 

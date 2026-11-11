@@ -40,9 +40,13 @@ export interface RetirementProjection {
 
 const nonNeg = (n: number) => (Number.isFinite(n) && n > 0 ? n : 0);
 
+/** A plan never spans more than 120 years, whatever the inputs say (keeps every loop short). */
+const MAX_YEARS = 120;
+const clampYears = (n: number) => (Number.isFinite(n) ? Math.min(MAX_YEARS, Math.max(0, Math.round(n))) : 0);
+
 function yearsOf(input: RetirementInput) {
-  const working = Math.max(0, Math.round(input.retireAge - input.currentAge));
-  const retired = Math.max(0, Math.round(input.planToAge - Math.max(input.retireAge, input.currentAge)));
+  const working = clampYears(input.retireAge - input.currentAge);
+  const retired = clampYears(input.planToAge - Math.max(input.retireAge, input.currentAge));
   return { working, retired };
 }
 

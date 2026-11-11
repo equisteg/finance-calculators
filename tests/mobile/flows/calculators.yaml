@@ -1,0 +1,52 @@
+# TC-M-CLC-001 search finds the EMI calculator; its default loan shows EMI ₹22,093 with the disclaimer
+# TC-M-CLC-002 a statutory tax tool shows "Rates last checked" and its source
+# TC-M-CLC-003 a letter typed in a number field shows "Enter a number." and the last good result stays
+appId: com.tezech.finealth
+name: Calculators
+tags: [android, sanity, regression]
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: tab-tools
+# TC-M-CLC-001
+- tapOn:
+    id: tools-search
+- inputText: EMI
+- hideKeyboard
+- tapOn:
+    id: tool-emi-calculator
+- assertVisible:
+    id: tool-primary
+    text: '₹22,093'
+- scrollUntilVisible:
+    element:
+      id: disclaimer
+# TC-M-CLC-003
+- scrollUntilVisible:
+    element:
+      id: in-principal
+    direction: UP
+- tapOn:
+    id: in-principal
+- inputText: x
+- assertVisible: Enter a number.
+- scrollUntilVisible:
+    element:
+      id: tool-primary
+    direction: UP
+- assertVisible:
+    id: tool-primary
+    text: '₹22,093'
+- back
+# TC-M-CLC-002
+- tapOn:
+    id: tools-search
+- eraseText: 10
+- inputText: Regime
+- hideKeyboard
+- tapOn:
+    id: tool-india-tax-regime-calculator
+- scrollUntilVisible:
+    element:
+      id: tool-source
+- assertVisible: 'Rates last checked.*'

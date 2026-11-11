@@ -2,7 +2,7 @@
 
 - Do not edit the workbook by hand. Edit `fragments/<feature>.json` and run `npm run cases`: it rebuilds
   `test-cases.xlsx`, runs `tests/tools/export_cases.py --check` (every REQ/NFR in `docs/product-brief.md` has cases,
-  every case names a Robot test that exists) and writes `docs/test-cases.md`.
+  every case names a Robot test that exists; Android app cases name a Maestro flow in `tests/mobile/flows/` instead) and writes `docs/test-cases.md`.
 - Sheet **Test Cases**: one row per test case with 19 columns: TC ID, Feature, Platform (Web / Android / API), Test Type
   (Functional / Non-functional), Scenario (Positive, Negative, Edge, Performance, Load, Security, Accessibility,
   Compatibility, Reliability, Compliance, Privacy, SEO, Accuracy), Test Case Description, REQ / NFR, Priority (P1–P3),

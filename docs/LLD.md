@@ -17,13 +17,15 @@ finance-calculators/
 │   │       │                         tools/page.tsx and tools/[slug]/page.tsx
 │   │       ├── components/           ProProvider, PriceCards, ActivatePro, AdLoader, AdSenseBanner, ThemeToggle,
 │   │       │                         GlassIcon, CalculatorShell, ui.tsx, site/ (header, footer, home), tools/ (planners)
-│   │       └── lib/                  config, ads, pro, checkout, storage, usePersistent, theme, toolCatalog
+│   │       └── lib/                  config, ads, pro, checkout, storage, usePersistent, theme, toolCatalog (re-export)
 │   ├── api/              @finealth/api      Cloudflare Worker (Hono): src/index.ts, routes/, lib/, config/skus.ts
-│   └── mobile/           @finealth/mobile   Capacitor shell + its own Next.js export (android/, ios/)
+│   └── mobile/           @finealth/mobile   Expo SDK 58 Android app: app/ (Expo Router screens), src/lib (pro, licence,
+│                                            billing, store, files), src/components (ui, ProProvider, AdsProvider), __tests__
 ├── packages/
-│   ├── finance-core/     formulas, tax engines, plan limits, licence token (pure TypeScript, no DOM)
+│   ├── finance-core/     formulas, tax engines, plan limits, licence token, calculator catalogue (`/catalog`),
+│   │                     example household, storage schema (pure TypeScript, no DOM)
 │   └── shared-types/     API and token types
-├── tests/                automation/ (Robot Framework), web/ (Playwright), mobile/native (Appium), load/ (k6,
+├── tests/                automation/ (Robot Framework), web/ (Playwright), mobile/flows (Maestro), load/ (k6,
 │                         Lighthouse), cases/, bugs/, testdata/, tools/
 ├── scripts/              test-cases.mjs, docs-export.mjs, manual-screenshots.mjs, gen-licence-keys.mjs,
 │                         make-test-licence.mjs
@@ -53,7 +55,7 @@ All pages are static HTML (`out/<route>/index.html`). Planner and tool pages ren
 | 404 | `app/not-found.tsx` | | same header and footer, `noindex` |
 
 ## 2.1 The 36 catalog tools
-`lib/toolCatalog.ts` holds one `ToolDef` per tool: `slug`, `title`, `summary`, `category`, `region`, optional fixed `currency`, `fields[]` (number, select, toggle or text, with a default and an optional INR default), `compute(values, fmt)` returning result rows and a note, `source`, optional `official` link, `limits` and `statutory`. `tools/[slug]/page.tsx` builds one static page per entry (`generateStaticParams`, `dynamicParams = false`) with its own title, description and canonical URL. Inputs are not saved. A `compute` that throws shows "Check the inputs".
+`packages/finance-core/src/catalog.ts` (re-exported by `lib/toolCatalog.ts`; the Android app imports `@finealth/finance-core/catalog`) holds one `ToolDef` per tool in `TOOLS`: `slug`, `title`, `summary`, `category`, `region`, optional fixed `currency`, `fields[]` (number, select, toggle or text, with a default and an optional INR default), `compute(values, fmt)` returning result rows and a note, `source`, optional `official` link, `limits` and `statutory`. `tools/[slug]/page.tsx` builds one static page per entry (`generateStaticParams`, `dynamicParams = false`) with its own title, description and canonical URL. Inputs are not saved. A `compute` that throws shows "Check the inputs".
 
 | Category | Tools (slug) |
 |---|---|
@@ -141,6 +143,9 @@ All functions are pure and synchronous. Bad numbers count as 0. Money in loops i
 | `world.ts` | `australiaTax`, `canadaTax`, `singaporeTax`, `newZealandTax`, `CA_SALES_TAX`, `WORLD_VAT_RATES`, `RATES_LAST_CHECKED` | country engines (§4.7) |
 | `plan.ts` | `FREE_LIMITS`, `PRO_FEATURES`, `PLAN_PRICES`, `limitFor` | display limits and prices |
 | `csv.ts` | `toCsv(header, rows)`, `csvCell` | RFC 4180 text with the formula guard |
+| `catalog.ts` (`@finealth/finance-core/catalog`) | `TOOLS` (36, the web /tools pages), `APP_EXTRA_TOOLS` (SIP, lump sum, compound interest / FD, EMI, SWP, FIRE: the web has their own pages), `APP_TOOLS`, `TOOL_BY_SLUG`, `APP_TOOL_BY_SLUG`, `CATEGORIES`, `CHECKED_LABEL`, parsers | the calculator catalogue (§2.1) |
+| `examples.ts` | `exampleHealth`, `exampleDebts`, `exampleGoals`, `exampleRetirement`, `TOOL_CURRENCIES` | example household per currency (non-INR = INR ÷ 20) |
+| `schema.ts` | `STORE_PREFIX`, `KEYS`, validators (`isHealthInput` …), `Snapshot`, `Backup`, `parseBackup` | the storage schema shared by web and app (§6) |
 | `licence.ts` | `signLicence`, `verifyLicence`, `verifyLicenceSignature`, `peekLicence`, `licenceKeyHash`, `envMatches`, `importSigningKey`, `importVerifyKey`, `TOKEN_TTL_SECONDS`, `TOKEN_REFRESH_SECONDS` | §7 |
 
 ## 4.1 Health score
@@ -226,7 +231,7 @@ Rates last checked **9 Nov 2026** (`RATES_LAST_CHECKED`, shown on every tax tool
 `limitFor(key, isPro)` returns `FREE_LIMITS[key]` or `Infinity`. Saved rows above the free limit stay in storage, show faded or locked ("Saved, but not planned on the free plan. It comes back with Pro."), are left out of the maths and come back with Pro.
 
 # 6. Storage
-`lib/storage.ts` reads and writes JSON under `finealth.v1.<key>`. Every read is validated and falls back to the example. Write failures (private mode, quota) are ignored, so the page keeps working for the visit. `usePersistent` reads after mount (no hydration mismatch) and saves on every change after the first. A stored `null` means "show the example".
+The keys, shapes, validators and backup format are in `finance-core/schema.ts`, shared by both apps. Web: `lib/storage.ts` reads and writes localStorage JSON under `finealth.v1.<key>`. Android: `src/lib/store.ts` reads every key from AsyncStorage once at start, serves reads from memory and writes in the background; the Pro record is in expo-secure-store (Android Keystore) as `{ src: 'play', kind, productId, purchaseToken, token, lastSeen }` or `{ src: 'razorpay', key, token, lastSeen }`; the app's currency is stored as `finealth.v1.settings`. Every read is validated and falls back to the example. Write failures (private mode, quota) are ignored, so the page keeps working for the visit. `usePersistent` reads after mount (no hydration mismatch) and saves on every change after the first. A stored `null` means "show the example".
 
 | Key | Shape | Validator |
 |---|---|---|
@@ -243,7 +248,7 @@ Rates last checked **9 Nov 2026** (`RATES_LAST_CHECKED`, shown on every tax tool
 
 **CSV files:** `finealth-debt-plan.csv` (Month, Paid, Interest, Balance left), `finealth-goals.csv` (Priority, Goal, Cost today, Years, Future cost, Monthly needed, Allocated), `finealth-progress.csv` (Date, Score, Net worth, Currency and the six pillar scores).
 
-**Not stored:** the currency choice, the debt extra amount and strategy, the goal budget, prepayment inputs, calculator and tool inputs.
+**Not stored:** on the web the currency choice, the debt extra amount and strategy, the goal budget, prepayment inputs, calculator and tool inputs.
 
 # 7. Licence token
 **Format:** `base64url(JSON claims) + "." + base64url(Ed25519 signature over the first part)`, at most 2,000 characters.
@@ -262,6 +267,13 @@ Rates last checked **9 Nov 2026** (`RATES_LAST_CHECKED`, shown on every tax tool
 **Client verification (`lib/pro.ts`):** the signature verifies, the claims have the right shape, `exp` > now, `env` matches `NEXT_PUBLIC_ENV` (when both are known), and the plan is a web plan. Fresh when more than 2 days are left; otherwise refresh with `{ key, token }`. Clock rollback: if now is more than an hour before `lastSeen`, or more than 5 minutes before `iat`, the token is not trusted offline. `peekLicence` reads claims without checking and is only used for display.
 
 **Refresh proof (Worker):** a token counts as proof when its signature is ours, `src` is razorpay, `env` matches, `kh` equals the hash of the key (or its canonical `sub_` key), and `iat` is within 30 days. Otherwise the request counts as a new activation.
+
+## 7.1 On the Android app
+`apps/mobile/src/lib/licence.ts` checks the same token with `@noble/curves` Ed25519 (Hermes has no WebCrypto Ed25519) and the shared `isLicenceClaims`; the environment check is stricter than the web's (a token without `env` is refused when the build sets one); unit tests sign with WebCrypto exactly as the Worker does and verify with noble. `src/lib/pro.ts` mirrors the web rules: Pro only from a token that verifies, is not expired and matches `EXPO_PUBLIC_ENV`; refresh when under 2 days are left, sending the old token as proof; refunded, invalid or expired → record removed with a notice; offline → Pro while the old token is valid, otherwise free and unconfirmed (no Pro, no ads) with a retry every minute and on every return to the foreground; a clock set back more than an hour cannot keep a token alive. A refresh only removes or rewrites the record it checked (a purchase stored meanwhile stays), and an answer the build cannot verify ends with a notice instead of a retry loop. `ProProvider` runs every read and write of the licence one at a time, and drops the answer of a check that was overtaken.
+
+Play flow (`src/lib/billing.ts`, expo-iap): Buy opens the Play sheet (subscription `pro` with the base plan's offer token, or the in-app product `pro_lifetime`); the purchase listener sends `{ purchaseToken, productId, kind }` to `/api/v1/play/verify`; only after the signed answer verifies is the purchase acknowledged (`finishTransaction`, not consumed). The decisions are pure functions in `src/lib/purchases.ts` (unit tested). At start and on every return to the app (at most every 5 minutes) a quiet sync reads `getAvailablePurchases()`: while Pro is active it re-checks only unacknowledged purchases (an interrupted purchase or a failed acknowledgement); with no Pro on the phone it checks every owned purchase, so a subscription that is active again after a hold, or a reinstall, gets Pro back without Restore. Google refunds any purchase never acknowledged within 3 days. Pending payments show "pending with Google Play" (also from Restore). Every licence request gives up after 15 s, so one hung request cannot block the queue. A Play purchase follows the Google account, so the app offers no "Remove Pro" for it (the sync would bring it back); website keys keep the Remove button. Restore runs the same check and shows the real reason (offline, refunded) when it cannot restore; "not found" only when no Finealth product is owned. The subscription offer is the plain base plan (`pickBaseOffer`), never a trial or intro offer. A build without `EXPO_PUBLIC_LICENCE_PUBLIC_KEY` hides Buy, Restore and key entry, and `app.config.ts` stops a production build without the key, the real AdMob ids or an https API base.
+
+Backup and restore are free on both platforms. `finance-core/schema.ts` range-checks every restored value (ages 0–120, years 0–100, percentages −100…100, amounts within ±10 trillion, snapshot scores 0–100), and the retirement and goal maths cap their loops at 120 years / 1,200 months.
 
 # 8. Worker API (`apps/api`)
 Static files are served by Workers Static Assets before the Worker runs (`run_worker_first: ["/api/*"]`, `not_found_handling: "404-page"`). Middleware on `/api/*`, in order: request id (echo a sane `x-request-id` or create one, then one log line), `canonicalHost` (production: 301 to `CANONICAL_HOST`), `securityHeaders`, `cors` (allow-list: same origin, `https://<CANONICAL_HOST>`, `ALLOWED_ORIGINS`, `finealth://app`, and localhost outside production; no credentials), body limit 16 KB (4 KB on errors), `mutationGuard` (foreign Origin → 403, non-JSON POST → 415), rate limits (strict 5/min per IP on licence, play, checkout and confirm; 120/min on the rest).
@@ -310,7 +322,8 @@ Static files are served by Workers Static Assets before the Worker runs (`run_wo
 | Renewal grace | `skus.ts` `RENEWAL_GRACE_SECONDS` | 3 days |
 | Yearly cycles | `skus.ts` `YEARLY_TOTAL_COUNT` | 10 |
 | Activations | Worker `MAX_ACTIVATIONS` | 5 |
-| Play products | Worker vars | package `com.tezech.finealth`, subscription `pro` (base plans `monthly`, `yearly`), product `pro_lifetime` |
+| Play products | Worker vars, `apps/mobile/src/lib/config.ts` `PLAY` | package `com.tezech.finealth`, subscription `pro` (base plans `monthly`, `yearly`), product `pro_lifetime` |
+| App public config | `apps/mobile/.env.example`, `eas.json` profiles | `EXPO_PUBLIC_ENV`, `EXPO_PUBLIC_API_BASE`, `EXPO_PUBLIC_LICENCE_PUBLIC_KEY`, `EXPO_PUBLIC_ADMOB_BANNER_ID`; build-time `ADMOB_ANDROID_APP_ID` (Google test app id when empty), `EAS_PROJECT_ID` |
 | Production host | `lib/config.ts` `PRODUCTION_HOST`, Worker `CANONICAL_HOST` | `finealth.teiqtools.com` |
 
 `plan.ts` and `skus.ts` agree today. A price change means: a new Razorpay plan (never edit an old one), its id in `RAZORPAY_PLAN_ID_YEARLY_*`, the old id added to `RAZORPAY_PLAN_IDS_YEARLY_LEGACY`, `skus.ts`, `plan.ts` and Play Console updated together.
@@ -343,25 +356,25 @@ Static files are served by Workers Static Assets before the Worker runs (`run_wo
 - **Source of truth:** `tests/cases/fragments/<feature>.json` (one file per feature) and `tests/cases/archive.json`. Never edit the workbook by hand.
 - **Build:** `npm run cases` runs `scripts/test-cases.mjs` (validates and writes the workbook) and then `python tests/tools/export_cases.py --check` (every REQ and NFR in `docs/product-brief.md` has cases, every case names a Robot test that exists) and writes `docs/test-cases.md`.
 - **Columns (19):** TC ID, Feature, Platform (Web, Android, API), Test Type (Functional, Non-functional), Scenario (Positive, Negative, Edge, Performance, Load, Security, Accessibility, Compatibility, Reliability, Compliance, Privacy, SEO, Accuracy), Test Case Description, REQ / NFR, Priority (P1-P3), Sanity, Regression, Integration (Y or N), Preconditions, Test Data, Steps, Expected Result, Automatable, Automation Script, Status (Not run, Pass, Fail, Flaky, Blocked, Retired), Remarks / old TC ID.
-- **Rules:** numbered Steps with the same number of numbered Expected Results; ids `TC-W-…` (web), `TC-M-…` (Android), `TC-A-…` (API), `TC-N-…` (non-functional), never reused; Automation Script = `tests/automation/<platform>/<feature>/<file>.robot :: <TC ID>`; Playwright and unit twins go in Remarks; non-functional results state a measurable threshold.
+- **Rules:** numbered Steps with the same number of numbered Expected Results; ids `TC-W-…` (web), `TC-M-…` (Android), `TC-A-…` (API), `TC-N-…` (non-functional), never reused; Automation Script = `tests/automation/<platform>/<feature>/<file>.robot :: <TC ID>` (Android app cases: `tests/mobile/flows/<file>.yaml :: <TC ID>`, the flow names the case in a `# TC-M-…` comment); Playwright and unit twins go in Remarks; non-functional results state a measurable threshold.
 
 ## 11.2 Robot Framework automation (`tests/automation`)
 Python, Robot Framework and SeleniumLibrary (packages pinned in `requirements.txt`). One Robot test per TC ID, named `<TC ID> <title>` and tagged with its suites and priority.
 
-**Layout:** `run.py`; `libraries/` (`FinealthLib.py`, `WebSiteLib.py`, `WebToolsLib.py`, `NonfunctionalLib.py`, `ApiAndroidLib.py`, `LiveProgress.py`, `engine-bridge.mjs`, `api-bridge.mjs`, `bundle.mjs`); `resources/` (`common.resource` and feature resources for planners, site, tools, non-functional and API/Android); suites under `web/<feature>/` (home, health, debt, myplan, pricing, pro, tools, calc, ads, legal, seo, nav, nfr and more), `mobile/<feature>/` (app, calculators, navigation, offline) and `api/<feature>/` (licence, play, checkout, confirm, errors, health, security).
+**Layout:** `run.py`; `libraries/` (`FinealthLib.py`, `WebSiteLib.py`, `WebToolsLib.py`, `NonfunctionalLib.py`, `ApiAndroidLib.py`, `LiveProgress.py`, `engine-bridge.mjs`, `api-bridge.mjs`, `bundle.mjs`); `resources/` (`common.resource` and feature resources for planners, site, tools, non-functional and API/Android); suites under `web/<feature>/` (home, health, debt, myplan, pricing, pro, tools, calc, ads, legal, seo, nav, nfr and more) and `api/<feature>/` (licence, play, checkout, confirm, errors, health, security).
 
 **`run.py` options:**
 
 | Option | Effect |
 |---|---|
 | `--suite sanity \| regression \| integration \| all` | flagged set (default all) |
-| `--platform web \| android \| api \| all` | platform folder |
+| `--platform web \| api \| all` | platform folder (the Android app uses Maestro, §11.3) |
 | `--feature <folder>` | one feature folder |
 | `--test TC-…,TC-…` | chosen test cases |
 | `--exclude <tag>` | leave out a tag |
 | `--env local \| staging \| dev` | target (default `FH_TEST_ENV` or local) |
-| `--base-url`, `--mobile-url`, `--pro-url` | addresses; only local, `*-dev.*.workers.dev` or `*-staging.*.workers.dev` are allowed, never production |
-| `--serve` | start static servers for the builds that exist: web :3100, app :3101, Pro :3102 |
+| `--base-url`, `--pro-url` | addresses; only local, `*-dev.*.workers.dev` or `*-staging.*.workers.dev` are allowed, never production |
+| `--serve` | start static servers for the builds that exist: web :3100, Pro :3102 |
 | `--browser chrome \| firefox \| edge` | browser |
 | `--headless` | no window (CI) |
 | `--slow <seconds>` | pause after each browser action |
@@ -388,10 +401,10 @@ Shortcuts: `npm run robot` (everything, local, `--serve`), `npm run robot:dryrun
 |---|---|---|
 | Engine golden tests (Vitest) | `packages/finance-core/src/*.test.ts`: finance, planning, tools, world, licence | `npm test` |
 | Web unit tests (Vitest) | `apps/web/src/lib/*.test.ts` (storage, pro, checkout, theme, toolCatalog), `apps/web/__tests__/HomePage.test.tsx` | `npm test` |
-| Mobile unit tests | `apps/mobile/__tests__/HomePage.test.tsx` | `npm test` |
+| Mobile unit tests (Vitest, Node) | `apps/mobile/__tests__/`: licence (noble verifier vs the WebCrypto signer), pro (Play and key activation, refresh, refund, offline, clock rollback), store (backup round-trip, delete, calculator list, EMI/SIP goldens) | `npm test` (in CI) |
 | Worker API tests | `apps/api/test/api.test.ts` (faked Razorpay and Play) | `npm test` |
-| Playwright | `tests/web/specs/`: `finealth-web`, `product`, `pro`, `a11y`, `finealth-mobile` specs; projects `web` and `mobile-webview`; local static servers via `tests/web/scripts/serve-static.mjs` | `npm run test:web` |
-| Appium (real device) | `tests/mobile/native/finealth-native.appium.spec.ts`: status-bar inset, haptics, airplane mode | manual, device |
+| Playwright | `tests/web/specs/`: `finealth-web`, `product`, `pro`, `a11y` specs; project `web`; local static servers via `tests/web/scripts/serve-static.mjs` | `npm run test:web` |
+| Maestro (Android app) | `tests/mobile/flows/*.yaml`: health, navigation, calculators, planners, Pro, offline and data; each flow names its TC-M cases | `maestro test tests/mobile/flows/` on an emulator or phone; never in GitHub Actions |
 | k6 load | `tests/load/load.js`, profiles smoke, load, stress, spike, soak; limits in `tests/testdata/shared/load.json` (p95 < 300 ms per NFR-012, errors < 1 %); 429 counts as expected | `tests/tools/perf.mjs`, staging only |
 | Lighthouse CI | `tests/load/lighthouserc.json`: 7 pages × 3 runs, performance, accessibility and best practices ≥ 0.9 | CI or `tests/tools/perf.mjs` |
 | Security | Gitleaks (tree and built bundle), Semgrep CE, OSV-Scanner, forbidden-files check | `.github/workflows/ci.yml`, `npm run security` |
@@ -400,7 +413,7 @@ Shortcuts: `npm run robot` (everything, local, `--serve`), `npm run robot:dryrun
 CLAUDE.md names `npm run perf` and `npm run load`, but the root `package.json` has no such scripts yet; run `node tests/tools/perf.mjs` directly.
 
 ## 11.4 Screenshots for the manual
-`npm run docs:shots` runs `scripts/manual-screenshots.mjs`. It opens the local builds (web :3100, app :3101, Pro :3102) or a dev or staging Worker, blocks the FX call and ad hosts, and writes the 28 pictures in `docs/manual/`. Every number is the built-in example household. The Pro pictures use the throwaway test key.
+`npm run docs:shots` runs `scripts/manual-screenshots.mjs`. It opens the local builds (web :3100, Pro :3102) or a dev or staging Worker, blocks the FX call and ad hosts, and writes the 28 pictures in `docs/manual/`. Every number is the built-in example household. The Pro pictures use the throwaway test key.
 
 ![Figure 1. Pro view of the health check with the print and snapshot buttons](manual/25-pro-health.png)
 
