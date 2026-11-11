@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased — 2026-11-11
+### Added
+- Automatic Cloudflare deploys (`.github/workflows/deploy.yml`): a merge into `development` deploys the `finealth-staging` Worker; a merge into `production` deploys `finealth` (prelaunch until launch), with a health check on the new release and an automatic rollback on production.
+
 ## Unreleased — 2026-11-10
 ### Added
 - New home page: one section rhythm (hero with the example score, proof strip, planner bento, how it works, prices "where they stand", quick calculators, popular calculators, Free vs Pro, privacy promise, FAQ with FAQPage data, closing call to action).

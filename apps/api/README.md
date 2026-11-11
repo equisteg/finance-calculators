@@ -64,7 +64,11 @@ How the store answers are read:
 4. **Rate-limit namespaces**: the `namespace_id`s in `wrangler.jsonc` (4101/4102, 4201/4202, 4301/4302) must be unique in the Cloudflare account. Change them if another Worker already uses them.
 5. **Domain**: set `CANONICAL_HOST` (production) and uncomment the `routes` custom-domain entry once the zone exists.
 6. **Local dev**: create `apps/api/.dev.vars` (git-ignored) with `LICENCE_SIGNING_KEY=…`, `RAZORPAY_KEY_ID=rzp_test_…`, `RAZORPAY_KEY_SECRET=…` (test mode) and optionally `GOOGLE_PLAY_SA_KEY=…` (JSON on one line). Then run `npm run dev` from `apps/api`; it needs `apps/web/out` built first.
-7. **Deploy**: `npx wrangler deploy --env production --var RELEASE:$(git rev-parse --short HEAD)`.
+7. **Deploy**: automatic from GitHub (`.github/workflows/deploy.yml`). A merge into `development` deploys staging and a merge into `production` deploys `finealth`.
+   - In GitHub go to repo Settings → Secrets and variables → Actions. Add the secrets `CLOUDFLARE_API_TOKEN` (Cloudflare → My Profile → API Tokens → *Create Token* → template **Edit Cloudflare Workers**) and `CLOUDFLARE_ACCOUNT_ID` (Cloudflare dashboard → Workers & Pages, right-hand side).
+   - Add the variables `RELEASE_APPROVERS` (your GitHub login), `STAGING_URL` (`https://finealth-staging.<subdomain>.workers.dev`), `PRODUCTION_URL` (`https://finealth.teiqtools.com`) and `LICENCE_PUBLIC_KEY`. `PRODUCTION_WRANGLER_ENV` stays unset (`prelaunch`) until launch. Optional public variables: `RAZORPAY_ENABLED`, `BUSINESS_ADDRESS`, `PLAY_URL`, `KILL_SWITCHES`, `API_BASE`, `ADSENSE_SLOT_TOP/MID/BOTTOM/CALCULATOR`; copy any that were set in Workers Builds' build variables before disconnecting it.
+   - If the Worker is also connected to Git in the Cloudflare dashboard (Workers Builds), disconnect it there (Worker → Settings → Build) so each merge deploys once.
+   - By hand: `npx wrangler deploy --env <staging|prelaunch|production> --var RELEASE:$(git rev-parse --short HEAD)`.
 8. **Check**: `curl https://<domain>/api/v1/health` should show `"signingKey":"ok"` and `"razorpay":"ok"`.
 
 ## What is logged (Workers Logs, 3-day retention)

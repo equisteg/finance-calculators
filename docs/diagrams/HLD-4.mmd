@@ -1,7 +1,8 @@
 flowchart LR
   dev[Developer branch] -->|PR| ci[GitHub Actions CI<br/>lint, typecheck, test, build, security]
-  ci -->|merge| main[main branch]
-  main -.->|manual wrangler deploy --env prelaunch<br/>NEEDS HUMAN, no automatic deploy yet| pre[Worker finealth<br/>test keys, noindex]
-  main -.->|after launch| prod[Worker finealth --env production<br/>finealth.teiqtools.com]
-  pre --> assets[(Static Assets<br/>apps/web/out)]
-  prod --> assets
+  ci -->|merge into development| devb[development branch]
+  ci -->|founder PR| prodb[production branch]
+  devb -->|deploy.yml: wrangler deploy --env staging| stg[Worker finealth-staging<br/>test keys, noindex]
+  prodb -->|deploy.yml: --env prelaunch until launch,<br/>then production; health check + rollback| pre[Worker finealth<br/>finealth.teiqtools.com]
+  stg --> assets[(Static Assets<br/>apps/web/out)]
+  pre --> assets

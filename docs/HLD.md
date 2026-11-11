@@ -189,11 +189,12 @@ The Worker logs one scrubbed JSON line per request: request id, method, path, st
 ```mermaid
 flowchart LR
   dev[Developer branch] -->|PR| ci[GitHub Actions CI<br/>lint, typecheck, test, build, security]
-  ci -->|merge| main[main branch]
-  main -.->|manual wrangler deploy --env prelaunch<br/>NEEDS HUMAN, no automatic deploy yet| pre[Worker finealth<br/>test keys, noindex]
-  main -.->|after launch| prod[Worker finealth --env production<br/>finealth.teiqtools.com]
-  pre --> assets[(Static Assets<br/>apps/web/out)]
-  prod --> assets
+  ci -->|merge into development| devb[development branch]
+  ci -->|founder PR| prodb[production branch]
+  devb -->|deploy.yml: wrangler deploy --env staging| stg[Worker finealth-staging<br/>test keys, noindex]
+  prodb -->|deploy.yml: --env prelaunch until launch,<br/>then production; health check + rollback| pre[Worker finealth<br/>finealth.teiqtools.com]
+  stg --> assets[(Static Assets<br/>apps/web/out)]
+  pre --> assets
 ```
 
 | Environment | Worker | Purpose | Razorpay keys | Token `env` |
@@ -205,7 +206,7 @@ flowchart LR
 
 The Worker refuses a Razorpay key of the wrong mode. Each environment has its own Workers Rate Limiting namespaces: strict 5 requests a minute per IP for licence, Play, checkout and confirm; 120 a minute for other API routes.
 
-**Transition note.** The repository still has one long-lived branch, `main`, and `main` does not deploy by itself. The template's `development → staging → production` branches and the `deploy.yml` workflow are NEEDS HUMAN (`docs/MIGRATION-cloudflare.md` §6). Today the only workflow is `.github/workflows/ci.yml`.
+**Automatic deploys.** `.github/workflows/deploy.yml` runs on every push to `development` (deploys `finealth-staging`) and `production` (deploys `finealth`). It runs `npm run check`, then `wrangler deploy --var RELEASE:<sha>`, then polls `/api/v1/health` until `release` matches the new commit. On production a failed check runs `wrangler rollback`. Production uses the wrangler env in the GitHub variable `PRODUCTION_WRANGLER_ENV` (`prelaunch` until launch) and needs the merger in `RELEASE_APPROVERS`. It needs the GitHub secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`; Worker secrets stay in Cloudflare. A 10-minute canary and an uptime monitor are still open (RSK-019).
 
 **Build-time variables (web, public):** `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_API_BASE`, `NEXT_PUBLIC_LICENCE_PUBLIC_KEY`, `NEXT_PUBLIC_ENV`, `NEXT_PUBLIC_RAZORPAY_ENABLED`, `NEXT_PUBLIC_KILL_SWITCHES`, `NEXT_PUBLIC_NOINDEX`, `NEXT_PUBLIC_CONTACT_EMAIL`, `NEXT_PUBLIC_PLAY_URL`, `NEXT_PUBLIC_BUSINESS_ADDRESS`, `NEXT_PUBLIC_ADSENSE_CLIENT`, `NEXT_PUBLIC_ADSENSE_SLOT_TOP/MID/BOTTOM/CALCULATOR`, `NEXT_PUBLIC_AD_PLACEHOLDERS`. None of these may hold a secret.
 

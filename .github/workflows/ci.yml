@@ -76,14 +76,15 @@ jobs:
         run: docker run --rm -v "$PWD:/src" ghcr.io/google/osv-scanner:latest scan source -r /src
 
   promotion-order:
-    # staging only accepts PRs from development; production only from staging.
+    # staging only accepts PRs from development; production only from development or staging.
     if: github.event_name == 'pull_request' && (github.base_ref == 'staging' || github.base_ref == 'production')
     runs-on: ubuntu-latest
     steps:
       - run: |
           base="$GITHUB_BASE_REF"; head="$GITHUB_HEAD_REF"
           if [ "$base" = "staging" ] && [ "$head" != "development" ]; then echo "staging only accepts PRs from development"; exit 1; fi
-          if [ "$base" = "production" ] && [ "$head" != "staging" ]; then echo "production only accepts PRs from staging"; exit 1; fi
+          # No staging branch yet (founder flow: development -> production); accept either until it exists.
+          if [ "$base" = "production" ] && [ "$head" != "staging" ] && [ "$head" != "development" ]; then echo "production only accepts PRs from development (or staging)"; exit 1; fi
 
   guard:
     # Replaces branch protection (not available on private repos with GitHub Free):
