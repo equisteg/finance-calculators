@@ -1,7 +1,8 @@
 // Finealth — one Worker serves the static web app (apps/web/out) AND the API (/api/v1/*).
 // STATELESS by founder decision: no D1, no KV, no R2, no cron. The store (Razorpay / Google Play) is the only record of a
 // purchase; this Worker only verifies it and signs a short-lived Pro token.
-// Environments: development -> dev, staging -> staging, production -> production (`wrangler deploy --env <name>`).
+// Environments (.github/workflows/deploy.yml): branch development -> env staging; branch production -> env prelaunch until
+// launch, then production (repo variable PRODUCTION_WRANGLER_ENV). The dev env is for manual `wrangler deploy --env dev`.
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "finealth",
@@ -70,8 +71,8 @@
       }
     },
     // Until launch: the dashboard Worker "finealth" runs as a test site (Razorpay TEST keys, hidden from search).
-    // Workers Builds deploy command: npx wrangler deploy -c apps/api/wrangler.jsonc --env prelaunch
-    // At launch switch it to --env production (live keys). deploy.yml never uses prelaunch.
+    // deploy.yml deploys it from the production branch. At launch set the repo variable PRODUCTION_WRANGLER_ENV=production
+    // (live keys). Disconnect Workers Builds in the dashboard so a merge deploys only once.
     "prelaunch": {
       "name": "finealth",
       "ratelimits": [

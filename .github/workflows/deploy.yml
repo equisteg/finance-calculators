@@ -1,0 +1,167 @@
+name: Deploy
+
+# Merging a PR is the deploy trigger (the same flow as ClearFile):
+#   development -> Cloudflare Worker "finealth-staging" (wrangler env "staging", *.workers.dev, hidden from search)
+#   production  -> Cloudflare Worker "finealth" (wrangler env "prelaunch" until launch, then "production")
+# The production branch deploys with the env in the repository variable PRODUCTION_WRANGLER_ENV (default "prelaunch":
+# test keys, hidden from search). A founder sets it to "production" at launch, after the RSK-019 launch gate.
+# Production also needs the merger to be in the repository variable RELEASE_APPROVERS (comma-separated GitHub logins),
+# because GitHub Free cannot require reviewers on private repos.
+#
+# Needs (repo Settings -> Secrets and variables -> Actions):
+#   secrets   CLOUDFLARE_API_TOKEN (template "Edit Cloudflare Workers"), CLOUDFLARE_ACCOUNT_ID
+#   variables RELEASE_APPROVERS, STAGING_URL, PRODUCTION_URL (no trailing slash), LICENCE_PUBLIC_KEY,
+#             optional RAZORPAY_ENABLED (1/0), PRODUCTION_WRANGLER_ENV
+# Worker secrets (LICENCE_SIGNING_KEY, RAZORPAY_KEY_SECRET, GOOGLE_PLAY_SA_KEY) stay in Cloudflare (`wrangler secret put`).
+on:
+  push:
+    branches: [development, production]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'staging (from development) or production (from production)'
+        required: true
+        default: staging
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Pick the environment
+        id: env
+        env:
+          TARGET: ${{ inputs.environment || github.ref_name }}
+          PROD_ENV: ${{ vars.PRODUCTION_WRANGLER_ENV || 'prelaunch' }}
+        run: |
+          case "$TARGET" in
+            staging|development) echo "name=staging" >> "$GITHUB_OUTPUT"; echo "wrangler=staging" >> "$GITHUB_OUTPUT" ;;
+            production)
+              case "$PROD_ENV" in prelaunch|production) ;; *) echo "PRODUCTION_WRANGLER_ENV must be prelaunch or production"; exit 1 ;; esac
+              echo "name=production" >> "$GITHUB_OUTPUT"; echo "wrangler=$PROD_ENV" >> "$GITHUB_OUTPUT" ;;
+            *) echo "unknown environment: $TARGET"; exit 1 ;;
+          esac
+
+      - name: Check branch and approver
+        # Staging deploys only from development and production only from production, even when started by hand.
+        env:
+          ENV_NAME: ${{ steps.env.outputs.name }}
+          REF: ${{ github.ref_name }}
+          ACTOR: ${{ github.actor }}
+          APPROVERS: ${{ vars.RELEASE_APPROVERS }}
+        run: |
+          if [ "$ENV_NAME" = "staging" ] && [ "$REF" != "development" ]; then echo "staging deploys only from development (not $REF)"; exit 1; fi
+          if [ "$ENV_NAME" = "production" ] && [ "$REF" != "production" ]; then echo "production deploys only from production (not $REF)"; exit 1; fi
+          if [ "$ENV_NAME" = "production" ]; then
+            echo ",$APPROVERS," | tr -d ' ' | grep -q ",$ACTOR," || { echo "@$ACTOR is not in RELEASE_APPROVERS"; exit 1; }
+          fi
+
+      - name: Check Cloudflare credentials are set
+        env:
+          HAS_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+          HAS_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+        run: |
+          [ "$HAS_TOKEN" = "true" ] && [ "$HAS_ACCOUNT" = "true" ] && exit 0
+          echo "::error::Add the repository secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID (Settings -> Secrets and variables -> Actions)"
+          exit 1
+
+      - name: Public build settings for the web app
+        # NEXT_PUBLIC_* values are public and baked into the static pages; never a secret here.
+        env:
+          WRANGLER_ENV: ${{ steps.env.outputs.wrangler }}
+          STAGING_URL: ${{ vars.STAGING_URL }}
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL || 'https://finealth.teiqtools.com' }}
+          LICENCE_PUBLIC_KEY: ${{ vars.LICENCE_PUBLIC_KEY }}
+          RAZORPAY_ENABLED: ${{ vars.RAZORPAY_ENABLED || '0' }}
+          # Optional; copy them from Workers Builds' build variables if they were set there.
+          BUSINESS_ADDRESS: ${{ vars.BUSINESS_ADDRESS }}
+          PLAY_URL: ${{ vars.PLAY_URL }}
+          KILL_SWITCHES: ${{ vars.KILL_SWITCHES }}
+          API_BASE: ${{ vars.API_BASE }}
+          ADSENSE_SLOT_TOP: ${{ vars.ADSENSE_SLOT_TOP }}
+          ADSENSE_SLOT_MID: ${{ vars.ADSENSE_SLOT_MID }}
+          ADSENSE_SLOT_BOTTOM: ${{ vars.ADSENSE_SLOT_BOTTOM }}
+          ADSENSE_SLOT_CALCULATOR: ${{ vars.ADSENSE_SLOT_CALCULATOR }}
+        run: |
+          for v in STAGING_URL PRODUCTION_URL LICENCE_PUBLIC_KEY RAZORPAY_ENABLED BUSINESS_ADDRESS PLAY_URL KILL_SWITCHES API_BASE \
+                   ADSENSE_SLOT_TOP ADSENSE_SLOT_MID ADSENSE_SLOT_BOTTOM ADSENSE_SLOT_CALCULATOR; do
+            case "${!v}" in *$'\n'*) echo "::error::repository variable $v contains a line break"; exit 1 ;; esac
+          done
+          [ -z "$LICENCE_PUBLIC_KEY" ] && echo "::warning::LICENCE_PUBLIC_KEY variable is empty, so Pro activation is hidden on this build"
+          {
+            echo "NEXT_PUBLIC_LICENCE_PUBLIC_KEY=$LICENCE_PUBLIC_KEY"
+            echo "NEXT_PUBLIC_RAZORPAY_ENABLED=$RAZORPAY_ENABLED"
+            [ -n "$BUSINESS_ADDRESS" ] && echo "NEXT_PUBLIC_BUSINESS_ADDRESS=$BUSINESS_ADDRESS"
+            echo "NEXT_PUBLIC_PLAY_URL=$PLAY_URL"
+            echo "NEXT_PUBLIC_KILL_SWITCHES=$KILL_SWITCHES"
+            echo "NEXT_PUBLIC_API_BASE=$API_BASE"
+            echo "NEXT_PUBLIC_ADSENSE_SLOT_TOP=$ADSENSE_SLOT_TOP"
+            echo "NEXT_PUBLIC_ADSENSE_SLOT_MID=$ADSENSE_SLOT_MID"
+            echo "NEXT_PUBLIC_ADSENSE_SLOT_BOTTOM=$ADSENSE_SLOT_BOTTOM"
+            echo "NEXT_PUBLIC_ADSENSE_SLOT_CALCULATOR=$ADSENSE_SLOT_CALCULATOR"
+            case "$WRANGLER_ENV" in
+              staging)    echo "NEXT_PUBLIC_ENV=staging";    echo "NEXT_PUBLIC_NOINDEX=1"; echo "NEXT_PUBLIC_SITE_URL=$STAGING_URL" ;;
+              prelaunch)  echo "NEXT_PUBLIC_ENV=staging";    echo "NEXT_PUBLIC_NOINDEX=1"; echo "NEXT_PUBLIC_SITE_URL=$PRODUCTION_URL" ;;
+              production) echo "NEXT_PUBLIC_ENV=production"; echo "NEXT_PUBLIC_NOINDEX=";  echo "NEXT_PUBLIC_SITE_URL=$PRODUCTION_URL" ;;
+            esac
+          } >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: Checks and build (lint, types, unit tests, static export)
+        run: npm run check
+      - name: Secret scan of the built website (Gitleaks)
+        # The shipped pages carry the real public variables; make sure no secret was pasted into one by mistake.
+        run: docker run --rm -v "$PWD/apps/web/out:/out" ghcr.io/gitleaks/gitleaks:latest detect --no-git --source /out --redact --exit-code 1
+
+      - name: Deploy the Worker and the website
+        working-directory: apps/api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        # RELEASE tags every log line with the commit, and the health check uses it to prove the new version is live.
+        run: npx wrangler deploy --env ${{ steps.env.outputs.wrangler }} --var RELEASE:${GITHUB_SHA::7}
+
+      - name: Health check (rolls production back on failure)
+        working-directory: apps/api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ENV_NAME: ${{ steps.env.outputs.name }}
+          WRANGLER_ENV: ${{ steps.env.outputs.wrangler }}
+          PROD_URL: ${{ vars.PRODUCTION_URL || 'https://finealth.teiqtools.com' }}
+          STG_URL: ${{ vars.STAGING_URL }}
+        run: |
+          case "$ENV_NAME" in production) URL="$PROD_URL" ;; *) URL="$STG_URL" ;; esac
+          [ -z "$URL" ] && { echo "::warning::Set the repository variable ${ENV_NAME^^}_URL to turn on the health check"; exit 0; }
+          want="${GITHUB_SHA::7}"
+          for i in $(seq 1 12); do
+            if curl -fsSL --max-time 10 "$URL/api/v1/health" -o h.json && node -e "
+              const h = require('./h.json');
+              process.exit(h.ok === true && h.release === '$want' ? 0 : 1)" 2>/dev/null; then
+              node -e "require('./h.json').checks?.signingKey === 'ok' || console.log('::warning::LICENCE_SIGNING_KEY is not set on this Worker, so Pro cannot activate')"
+              echo "healthy: release $want is live at $URL"; exit 0
+            fi
+            echo "attempt $i: not healthy yet"; sleep 10
+          done
+          if [ "$ENV_NAME" = "production" ]; then
+            if npx wrangler rollback --env "$WRANGLER_ENV" --message "auto-rollback: health check failed for $want" --yes; then
+              echo "::error::Health check failed at $URL, production rolled back to the previous version"
+            else
+              echo "::error::Health check failed at $URL and the automatic rollback failed too: roll back in Cloudflare -> Workers -> finealth -> Deployments"
+            fi
+          else
+            echo "::error::Health check failed at $URL"
+          fi
+          exit 1
