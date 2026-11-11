@@ -80,13 +80,15 @@ export function ProProvider({ children }: { children: ReactNode }) {
   const handlePurchase = useCallback(
     async (p: Purchase, quiet = false): Promise<HandleResult> => {
       if (isOursPending(p)) {
-        if (!quiet) setMessage('Your payment is pending with Google Play. Pro unlocks as soon as it completes.');
-        return { ours: false };
+        const pending = 'Your payment is pending with Google Play. Pro unlocks as soon as it completes.';
+        if (!quiet) setMessage(pending);
+        return { ours: true, result: { ok: false, message: pending, code: 'pending' }, acknowledged: false };
       }
       const r = await serial(() => handle(p, purchaseDeps));
       if (r.ours && r.result.ok) {
         gen.current++;
         show(r.result.status);
+        recheck.current(); // sets the refresh timer for the new token (no network: the token is fresh)
         if (!quiet) setMessage('Pro is active. Thank you for supporting Finealth.');
       } else if (r.ours && !r.result.ok && !quiet) {
         // Not acknowledged: retried at the next sync, and Google refunds it after 3 days if it never verifies.
@@ -186,6 +188,7 @@ export function ProProvider({ children }: { children: ReactNode }) {
           if (r.ok) {
             gen.current++;
             show(r.status);
+            recheck.current();
             setMessage('Pro is active on this phone.');
             return true;
           }

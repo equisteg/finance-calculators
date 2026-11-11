@@ -51,6 +51,13 @@ describe('Pro activation (TC-M-PRO-002..005)', () => {
     expect(r).toMatchObject({ ok: false, code: 'refunded' });
   });
 
+  it('gives up on a licence check that never answers, so later Pro actions are not stuck', async () => {
+    const s = await setup(() => ({ status: 200, json: {} }));
+    const hang = (() => new Promise<Response>(() => undefined)) as unknown as typeof fetch;
+    const r = await activate({ ...s.deps, fetchImpl: hang, timeoutMs: 20 }, PLAY);
+    expect(r).toMatchObject({ ok: false, code: 'network' });
+  });
+
   it('rejects a key that is not a Razorpay id without calling the API', async () => {
     const s = await setup(() => ({ status: 200, json: {} }));
     expect((await activate(s.deps, { src: 'razorpay', key: 'hello' })).ok).toBe(false);

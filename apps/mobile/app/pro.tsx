@@ -35,7 +35,12 @@ export default function ProScreen() {
           </Text>
           <Text style={{ color: p.muted, fontSize: 12 }}>The app re-checks your purchase every few days; it keeps working offline in between.</Text>
           {pro.status.src === 'play' ? <Button title="Manage subscription" kind="secondary" onPress={() => Linking.openURL('https://play.google.com/store/account/subscriptions')} /> : null}
-          <Button title="Remove Pro from this phone" kind="danger" onPress={pro.remove} testID="pro-remove" />
+          {/* A Play purchase belongs to the Google account and comes back by itself (purchase sync), so "remove" would not stick. */}
+          {pro.status.src === 'play' ? (
+            <Text style={{ color: p.muted, fontSize: 12 }}>Pro follows the Google account signed in to Google Play on this phone.</Text>
+          ) : (
+            <Button title="Remove Pro from this phone" kind="danger" onPress={pro.remove} testID="pro-remove" />
+          )}
         </Card>
         {pro.message ? <Notice tone="ok">{pro.message}</Notice> : null}
       </Screen>

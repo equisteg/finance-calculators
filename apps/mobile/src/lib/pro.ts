@@ -39,6 +39,8 @@ export interface ProDeps {
   apiBase: string;
   env?: string;
   fetchImpl?: typeof fetch;
+  /** Give up on the licence check after this long (React Native's fetch never times out by itself). */
+  timeoutMs?: number;
   /** seconds since epoch */
   now?: number;
 }
@@ -139,10 +141,21 @@ export async function requestToken(deps: ProDeps, source: ProSource, opts: { act
           ? { key: normaliseKey(source.key), token: opts.token }
           : { key: normaliseKey(source.key) };
   let res: Response;
+  const ctrl = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    res = await f(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    // A hung request (captive portal, dead connection) must not hold up every later Pro action.
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => {
+        ctrl.abort();
+        reject(new Error('timeout'));
+      }, deps.timeoutMs ?? 15_000);
+    });
+    res = await Promise.race([f(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: ctrl.signal }), timeout]);
   } catch {
     return { ok: false, code: 'network', message: MESSAGES.network };
+  } finally {
+    clearTimeout(timer);
   }
   let json: unknown = null;
   try {
