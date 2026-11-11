@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased — 2026-11-11
+### Fixed
+- Staging and dev no longer overwrite the Razorpay key id and plan ids set in the Cloudflare dashboard with placeholders on every deploy.
 ### Added
 - Automatic Cloudflare deploys (`.github/workflows/deploy.yml`): a merge into `development` deploys the `finealth-staging` Worker; a merge into `production` deploys `finealth` (prelaunch until launch), with a health check on the new release and an automatic rollback on production.
 
