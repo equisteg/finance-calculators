@@ -154,7 +154,10 @@ TC-W-SEO-009 The browser tab shows the Finealth icon, not the Next.js default
     END
     ${svg}=    Fetch OK    /icon.svg
     Should Contain    ${svg}    \#d4683f    icon.svg is not the Finealth mark
-    ${md5}=    Evaluate    hashlib.md5(requests.get($BASE_URL + '/favicon.ico', timeout=30).content).hexdigest()    modules=hashlib,requests
+    ${ico}=    Evaluate    requests.get($BASE_URL + '/favicon.ico', timeout=30)    modules=requests
+    Should Be Equal As Integers    ${ico.status_code}    200    /favicon.ico answered ${ico.status_code}
+    Should Be True    $ico.content[:4] == b'\\x00\\x00\\x01\\x00'    /favicon.ico is not an ICO file
+    ${md5}=    Evaluate    hashlib.md5($ico.content).hexdigest()    modules=hashlib
     Should Not Be Equal    ${md5}    c30c7d42707a47a3f4591831641e50dc    favicon.ico is still the Next.js default
     ${apple}=    Fetch Text    ${BASE_URL}/apple-icon.png
     Should Be Equal As Integers    ${apple}[status]    200
