@@ -405,7 +405,7 @@ Open **More → Get Finealth Pro**. Choose **Monthly**, **Yearly** or **Lifetime
 The app re-checks your purchase every few days. In between it works offline. If it cannot reach the check, Pro features pause (and no ads show) until the phone is online again.
 
 ## 13.2 Your data in the app
-Your numbers are stored only on your phone. With Pro, **More → Back up to a file** saves a backup through Android's share menu (for example to Drive or email), and **Restore from a backup** reads one back. Backups from the website restore in the app, and the other way round. **Delete all my numbers** removes every saved plan from the phone.
+Your numbers are stored only on your phone. On any plan, free or Pro, **More → Back up to a file** saves a backup through Android's share menu (for example to Drive or email), and **Restore from a backup** reads one back. Backups from the website restore in the app, and the other way round. **Delete all my numbers** removes every saved plan from the phone.
 
 Free users see one small advertisement at the end of some screens, below the result. In Europe, the UK and Switzerland the app first asks for your consent with Google's message. Pro users see no ads, and the ad network is never started.
 

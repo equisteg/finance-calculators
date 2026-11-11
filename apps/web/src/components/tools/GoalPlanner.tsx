@@ -8,8 +8,6 @@ import { usePro } from '../ProProvider';
 import { Bar, NumberField, Panel, Stat, ToolPage, useMoney } from '../ui';
 import { AREA_ICON } from '../GlassIcon';
 
-// The example household is shared with the Android app (packages/finance-core/src/examples.ts).
-export { exampleGoals };
 
 const isNullableGoals = (v: unknown): v is Goal[] | null => v === null || isGoalList(v);
 

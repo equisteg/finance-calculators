@@ -52,14 +52,9 @@ export default function MoreScreen() {
       </Card>
       <Card title="Your data">
         <Text style={{ color: p.muted, lineHeight: 20 }}>Your numbers are stored only on this phone. Nothing you type is sent to us, to analytics or to the ad network.</Text>
-        {isPro ? (
-          <>
-            <Button title="Back up to a file" kind="secondary" onPress={backup} testID="backup" />
-            <Button title="Restore from a backup" kind="secondary" onPress={restore} testID="restore" />
-          </>
-        ) : (
-          <Text style={{ color: p.muted, fontSize: 13 }}>Backup and restore files are part of Pro.</Text>
-        )}
+        {/* Free for everyone, as on the website: the app keeps no cloud copy (allowBackup off), so this is the way to move phones. */}
+        <Button title="Back up to a file" kind="secondary" onPress={backup} testID="backup" />
+        <Button title="Restore from a backup" kind="secondary" onPress={restore} testID="restore" />
         <Button title="Delete all my numbers" kind="danger" onPress={clear} testID="clear-data" />
         {msg ? <Notice testID="more-message">{msg}</Notice> : null}
       </Card>

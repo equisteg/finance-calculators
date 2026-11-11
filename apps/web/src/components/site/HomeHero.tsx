@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, type PointerEvent, type ReactNode } from 'react';
-import { financialHealth, FREE_LIMITS, PLAN_PRICES, PRO_FEATURES, WORLD_VAT_RATES } from '@finealth/finance-core';
-import { exampleHealth } from '@finealth/finance-core';
+import { exampleHealth, financialHealth, FREE_LIMITS, PLAN_PRICES, PRO_FEATURES, WORLD_VAT_RATES } from '@finealth/finance-core';
 import { AREA_ICON, GlassIcon, toolIcon, type GlyphName, type Tone } from '../GlassIcon';
 import { TOOLS } from '@/lib/toolCatalog';
 import { ScoreRing, Stat, useMoney } from '../ui';

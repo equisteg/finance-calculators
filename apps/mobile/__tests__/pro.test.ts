@@ -5,7 +5,7 @@ import { fakeFetch, memoryKV, testKeys } from './helpers';
 
 const NOW = 1_800_000_000;
 const DAY = 86_400;
-const base = (over: Partial<LicenceClaims> = {}): LicenceClaims => ({ v: 1, plan: 'pro_yearly', src: 'play', iat: NOW, exp: NOW + 7 * DAY, ...over });
+const base = (over: Partial<LicenceClaims> = {}): LicenceClaims => ({ v: 1, plan: 'pro_yearly', src: 'play', iat: NOW, exp: NOW + 7 * DAY, env: 'staging', ...over });
 const PLAY = { src: 'play' as const, kind: 'subscription' as const, productId: 'pro', purchaseToken: 'tok_abcdefghijkl' };
 
 async function setup(reply: Parameters<typeof fakeFetch>[0]) {
@@ -89,6 +89,31 @@ describe('Pro on app start (TC-M-PRO-006..009)', () => {
     expect(st).toMatchObject({ state: 'free' });
     expect(st.state === 'free' && st.notice).toMatch(/refunded/);
     expect(s.kv.data.has(PRO_KEY)).toBe(false);
+  });
+
+  it('an expired answer for an old record never deletes a purchase stored meanwhile', async () => {
+    const s = await setup(() => ({ status: 403, json: { error: { code: 'expired' } } }));
+    const oldToken = await s.k.sign(base({ exp: NOW + DAY }));
+    const newRecord = JSON.stringify({ ...PLAY, purchaseToken: 'tok_new_purchase_1', token: await s.k.sign(base({ exp: NOW + 7 * DAY })) });
+    s.kv.data.set(PRO_KEY, JSON.stringify({ ...PLAY, token: oldToken }));
+    // The new purchase lands while the refresh of the old one is on the network.
+    const realFetch = s.deps.fetchImpl;
+    s.deps.fetchImpl = (async (...a: Parameters<typeof fetch>) => {
+      s.kv.data.set(PRO_KEY, newRecord);
+      return realFetch(...a);
+    }) as typeof fetch;
+    const st = await resolvePro(s.deps);
+    expect(st.state).toBe('pro');
+    expect(parseStored(s.kv.data.get(PRO_KEY) ?? null)).toMatchObject({ purchaseToken: 'tok_new_purchase_1' });
+  });
+
+  it('an answer this build cannot verify stops retrying and says why', async () => {
+    const s = await setup(() => ({ status: 200, json: { token: 'eyJ2IjoxfQ.AAAA' } }));
+    s.kv.data.set(PRO_KEY, JSON.stringify({ ...PLAY, token: await s.k.sign(base({ exp: NOW - 1 })) }));
+    const st = await resolvePro(s.deps);
+    expect(st).toMatchObject({ state: 'free' });
+    expect(st.state === 'free' && st.unconfirmed).toBeFalsy();
+    expect(st.state === 'free' && st.notice).toMatch(/could not verify/);
   });
 
   it('offline: keeps Pro while the token is valid; once expired → free, unconfirmed (no ads)', async () => {

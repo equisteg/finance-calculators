@@ -10,8 +10,6 @@ import { Bar, NumberField, Panel, ProGate, ScoreRing, Stat, ToolPage, useMoney }
 import { AREA_ICON } from '../GlassIcon';
 
 /** Example household per currency so the first visit shows a real result. */
-// The example household is shared with the Android app (packages/finance-core/src/examples.ts).
-export { exampleHealth };
 
 const isNullableHealth = (v: unknown): v is HealthInput | null => v === null || isHealthInput(v);
 const STATUS_TONE = { good: 'ok', fair: 'warn', poor: 'bad' } as const;

@@ -9,6 +9,20 @@ const env = (k: string) => (process.env[k] ?? '').trim();
 // Google's published AdMob sample app id: shows test ads only. FOUNDER: set ADMOB_ANDROID_APP_ID for release builds.
 const ADMOB_TEST_APP_ID = 'ca-app-pub-3940256099942544~3347511713';
 
+// A store build without these would show test ads and take Play payments it can never verify (Google refunds them
+// after 3 days). Dev and staging builds keep the test fallbacks; a production build stops here instead.
+if (env('EXPO_PUBLIC_ENV') === 'production') {
+  const missing = ['EXPO_PUBLIC_LICENCE_PUBLIC_KEY', 'EXPO_PUBLIC_ADMOB_BANNER_ID', 'ADMOB_ANDROID_APP_ID', 'EXPO_PUBLIC_API_BASE'].filter(
+    (k) => !env(k) || env(k).startsWith('ca-app-pub-3940256099942544')
+  );
+  if (missing.length) throw new Error(`Production build stopped: set ${missing.join(', ')} (real values, not Google's test ids) as EAS environment variables.`);
+  if (!env('EXPO_PUBLIC_API_BASE').startsWith('https://')) throw new Error('Production build stopped: EXPO_PUBLIC_API_BASE must be an https:// address.');
+}
+if (['staging', 'production'].includes(env('EXPO_PUBLIC_ENV')) && !env('EXPO_PUBLIC_LICENCE_PUBLIC_KEY')) {
+  // Staging still builds, but Pro is hidden in it (src/components/ProProvider.tsx PRO_AVAILABLE).
+  console.warn('EXPO_PUBLIC_LICENCE_PUBLIC_KEY is empty: Pro is hidden in this build.');
+}
+
 const config: ExpoConfig = {
   name: 'Finealth',
   slug: 'finealth',

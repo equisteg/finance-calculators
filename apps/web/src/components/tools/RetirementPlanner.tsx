@@ -8,8 +8,6 @@ import { usePro } from '../ProProvider';
 import { NumberField, Panel, ProGate, Stat, ToolPage, useMoney } from '../ui';
 import { AREA_ICON } from '../GlassIcon';
 
-// The example household is shared with the Android app (packages/finance-core/src/examples.ts).
-export { exampleRetirement };
 
 const isNullable = (v: unknown): v is RetirementInput | null => v === null || isRetirementInput(v);
 

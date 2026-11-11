@@ -1,5 +1,6 @@
 # TC-M-OFF-003 with airplane mode on, the health check and a calculator still work
 # TC-M-DAT-001 "Delete all my numbers" removes saved inputs and the example comes back
+# TC-M-DAT-002 a free user can back up and restore (no Pro gate)
 appId: com.tezech.finealth
 name: Offline and data
 tags: [android, regression]
@@ -47,3 +48,14 @@ tags: [android, regression]
 - assertVisible:
     id: health-score
     text: '75'
+# TC-M-DAT-002
+- tapOn:
+    id: tab-more
+- scrollUntilVisible:
+    element:
+      id: backup
+- assertVisible:
+    id: backup
+- assertVisible:
+    id: restore
+- assertNotVisible: 'Backup and restore files are part of Pro.'

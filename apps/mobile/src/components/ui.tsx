@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { radius, space, TOUCH, usePalette } from '@/theme';
 import { config } from '@/lib/config';
+import { clampInput, parseInput } from '@/lib/input';
 import { AdBanner } from './AdBanner';
 
 export type Tone = 'ok' | 'warn' | 'bad';
@@ -54,14 +55,7 @@ export function Card(props: { title?: string; children: ReactNode; style?: ViewS
   );
 }
 
-/** "1,00,000" / "-12.5" → number; null when it is not a number. */
-export function parseInput(s: string): number | null {
-  const t = s.trim().replace(/[,\s_]/g, '');
-  if (t === '') return 0;
-  if (!/^[-+]?\d*\.?\d+$/.test(t)) return null;
-  const n = Number(t);
-  return Number.isFinite(n) ? n : null;
-}
+export { clampInput, parseInput };
 
 /** Number input that keeps what the user is typing and reports a clamped number. */
 export function NumberField(props: { label: string; value: number; onChange: (n: number) => void; suffix?: string; hint?: string; max?: number; min?: number; testID?: string }) {
@@ -79,8 +73,10 @@ export function NumberField(props: { label: string; value: number; onChange: (n:
     const n = parseInput(s);
     if (n === null) return setBad(true);
     setBad(false);
-    const min = props.min ?? 0;
-    props.onChange(Math.max(min, props.max !== undefined ? Math.min(props.max, n) : n));
+    const clamped = clampInput(n, props.min, props.max);
+    // Show the number the plan uses: "1000" in a field that stops at 100 turns into "100" at once.
+    if (clamped !== n) setText(String(clamped));
+    props.onChange(clamped);
   };
   return (
     <View style={{ gap: 4 }}>

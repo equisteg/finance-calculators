@@ -8,8 +8,6 @@ import { usePro } from '../ProProvider';
 import { LineChart, NumberField, Panel, ProGate, Stat, ToolPage, useMoney } from '../ui';
 import { AREA_ICON } from '../GlassIcon';
 
-// The example household is shared with the Android app (packages/finance-core/src/examples.ts).
-export { exampleDebts };
 
 const isNullableDebts = (v: unknown): v is Debt[] | null => v === null || isDebtList(v);
 const months = (m: number | null) => (m === null ? 'never' : m < 12 ? `${m} mo` : `${Math.floor(m / 12)} yr ${m % 12} mo`);

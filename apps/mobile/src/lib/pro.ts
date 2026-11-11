@@ -65,6 +65,10 @@ const MESSAGES: Record<ApiErrorCode, string> = {
   network: 'Could not reach the licence check. Check your connection and try again.',
 };
 export const apiMessage = (code: ApiErrorCode) => MESSAGES[code];
+/** Website-key wording does not fit a Google Play purchase. */
+const playMessage = (code: ApiErrorCode) =>
+  code === 'invalid_key' ? 'Google Play did not confirm this purchase. Tap Restore purchases, or contact support if you were charged.' : MESSAGES[code];
+const UNVERIFIABLE = 'The licence check returned an answer this app could not verify. Please update the app or contact support.';
 const isFinal = (code: ApiErrorCode) => code === 'invalid_key' || code === 'refunded' || code === 'expired';
 const isTemporary = (code: ApiErrorCode) => code === 'network' || code === 'unavailable' || code === 'rate_limited' || code === 'pending';
 
@@ -104,6 +108,11 @@ async function writeStored(kv: AsyncKV, p: StoredPro) {
     /* keystore unavailable: Pro works until the app closes */
   }
 }
+/** True when the stored record is still the one with this token (another activation may have replaced it meanwhile). */
+async function stillStored(kv: AsyncKV, token: string) {
+  return (await readStored(kv))?.token === token;
+}
+
 export async function clearStoredPro(kv: AsyncKV) {
   try {
     await kv.removeItem(PRO_KEY);
@@ -175,12 +184,16 @@ export async function resolvePro(deps: ProDeps): Promise<ProStatus> {
     const fresh = check(res.token, deps, now);
     if (fresh) {
       const next: StoredPro = stored.src === 'razorpay' ? { ...stored, key: res.key ?? stored.key, token: res.token, lastSeen: now } : { ...stored, token: res.token, lastSeen: now };
-      await writeStored(deps.kv, next);
+      if (await stillStored(deps.kv, stored.token)) await writeStored(deps.kv, next);
       return { state: 'pro', claims: fresh, plan: fresh.plan, src: stored.src };
     }
+    // The server answered but this build cannot verify it (wrong key or environment): retrying will not help.
+    if (!claims) return { state: 'free', notice: UNVERIFIABLE };
   } else if (isFinal(res.code)) {
+    // Only remove the record that was checked: a purchase stored meanwhile (resubscribe, plan change) stays.
+    if (!(await stillStored(deps.kv, stored.token))) return resolvePro(deps);
     await clearStoredPro(deps.kv);
-    return { state: 'free', notice: res.message };
+    return { state: 'free', notice: stored.src === 'play' ? playMessage(res.code) : res.message };
   }
   if (claims) return { state: 'pro', claims, plan: claims.plan, src: stored.src };
   if (!res.ok && !isTemporary(res.code)) return { state: 'free', notice: res.message };
@@ -204,10 +217,10 @@ export async function activate(deps: ProDeps, source: ProSource): Promise<Activa
     return { ok: false, message: MESSAGES.invalid_key, code: 'invalid_key' };
   }
   const res = await requestToken(deps, src, { activate: src.src === 'razorpay' });
-  if (!res.ok) return { ok: false, message: res.message, code: res.code };
+  if (!res.ok) return { ok: false, message: src.src === 'play' ? playMessage(res.code) : res.message, code: res.code };
   const now = deps.now ?? nowSeconds();
   const claims = check(res.token, deps, now);
-  if (!claims) return { ok: false, message: 'The licence check returned an answer we could not verify. Please try again later.' };
+  if (!claims) return { ok: false, message: UNVERIFIABLE };
   const stored: StoredPro = src.src === 'razorpay' ? { ...src, key: res.key ?? src.key, token: res.token, lastSeen: now } : { ...src, token: res.token, lastSeen: now };
   await writeStored(deps.kv, stored);
   return { ok: true, status: { state: 'pro', claims, plan: claims.plan, src: src.src } };

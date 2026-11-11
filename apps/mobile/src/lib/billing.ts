@@ -12,6 +12,7 @@ import {
 import type { ProPlan } from '@finealth/shared-types';
 import { PLAY } from './config';
 import type { PlaySource } from './pro';
+import { pickBaseOffer } from './purchases';
 
 /**
  * Google Play Billing (expo-iap). The store result is never trusted by itself: every purchase token goes to apps/api,
@@ -43,6 +44,7 @@ export async function disconnect() {
 interface SubOffer {
   basePlanIdAndroid?: string | null;
   offerTokenAndroid?: string | null;
+  pricingPhasesAndroid?: { pricingPhaseList: unknown[] } | null;
   displayPrice: string;
   id: string;
 }
@@ -57,8 +59,7 @@ export async function loadPrices(): Promise<PlayPrice[]> {
     const offers = subs.find((s) => s.id === PLAY.subscriptionId)?.subscriptionOffers ?? [];
     offerTokens = {};
     for (const plan of ['pro_monthly', 'pro_yearly'] as const) {
-      // The base plan itself (no promotional offer id): the regular price.
-      const base = offers.find((o) => o.basePlanIdAndroid === PLAY.basePlans[plan] && o.offerTokenAndroid);
+      const base = pickBaseOffer(offers, PLAY.basePlans[plan]);
       if (base?.offerTokenAndroid) {
         offerTokens[plan] = base.offerTokenAndroid;
         out.push({ plan, price: base.displayPrice });
@@ -80,6 +81,8 @@ export async function buy(plan: ProPlan): Promise<{ ok: true } | { ok: false; me
     if (plan === 'pro_lifetime') {
       await requestPurchase({ type: 'in-app', request: { google: { skus: [PLAY.lifetimeProductId] } } });
     } else {
+      // Tapped before the prices arrived: fetch them now rather than say the plan is missing.
+      if (!offerTokens[plan]) await loadPrices();
       const offerToken = offerTokens[plan];
       if (!offerToken) return { ok: false, message: 'This plan is not available in your country yet.' };
       await requestPurchase({ type: 'subs', request: { google: { skus: [PLAY.subscriptionId], subscriptionOffers: [{ sku: PLAY.subscriptionId, offerToken }] } } });
@@ -99,9 +102,15 @@ export function toSource(p: Purchase): PlaySource | null {
 }
 
 /** Acknowledge after the server check passed. Never consumed: Pro is not a consumable. */
-export async function acknowledge(p: Purchase) {
-  await finishTransaction({ purchase: p, isConsumable: false }).catch(() => undefined);
+export async function acknowledge(p: Purchase): Promise<boolean> {
+  return finishTransaction({ purchase: p, isConsumable: false })
+    .then(() => true)
+    .catch(() => false); // retried on the next sync (start or return to the app)
 }
+
+/** Pending payments (cash, slow card): Pro unlocks when Google reports them complete. */
+export const isOursPending = (p: Purchase) =>
+  p.purchaseState === 'pending' && (p.productId === PLAY.subscriptionId || p.productId === PLAY.lifetimeProductId);
 
 /** Purchases this Google account owns (for "Restore purchases" and to finish purchases interrupted earlier). */
 export async function owned(): Promise<Purchase[]> {

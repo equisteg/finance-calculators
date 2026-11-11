@@ -21,23 +21,34 @@ export type StoreKey = (typeof KEYS)[keyof typeof KEYS];
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 const isStr = (v: unknown, max = 80): v is string => typeof v === 'string' && v.length <= max;
+// Range limits match the input fields, so a hand-edited or hostile backup cannot make a planner loop for ever.
+const inRange = (lo: number, hi: number) => (v: unknown): v is number => isNum(v) && v >= lo && v <= hi;
+const isMoney = inRange(-1e13, 1e13);
+const isPct = inRange(-100, 100);
+const isAge = inRange(0, 120);
+const isScore = inRange(0, 100);
 
 export const isHealthInput = (v: unknown): v is HealthInput =>
   isObj(v) &&
-  ['monthlyIncome', 'monthlyExpenses', 'monthlyDebtPayments', 'emergencyFund', 'costlyDebt', 'investments', 'age', 'dependents', 'lifeCover'].every((k) => isNum(v[k])) &&
+  ['monthlyIncome', 'monthlyExpenses', 'monthlyDebtPayments', 'emergencyFund', 'costlyDebt', 'investments', 'lifeCover'].every((k) => isMoney(v[k])) &&
+  isAge(v.age) &&
+  inRange(0, 50)(v.dependents) &&
   typeof v.hasHealthCover === 'boolean';
 
 export const isDebt = (v: unknown): v is Debt =>
-  isObj(v) && isStr(v.id) && isStr(v.name) && isNum(v.balance) && isNum(v.aprPct) && isNum(v.minPayment);
+  isObj(v) && isStr(v.id) && isStr(v.name) && isMoney(v.balance) && isPct(v.aprPct) && isMoney(v.minPayment);
 export const isDebtList = (v: unknown): v is Debt[] => Array.isArray(v) && v.length <= 50 && v.every(isDebt);
 
 export const isGoal = (v: unknown): v is Goal =>
-  isObj(v) && isStr(v.id) && isStr(v.name) && ['costToday', 'years', 'inflationPct', 'returnPct', 'currentSavings'].every((k) => isNum(v[k])) && (v.stepUpPct === undefined || isNum(v.stepUpPct));
+  isObj(v) && isStr(v.id) && isStr(v.name) && isMoney(v.costToday) && isMoney(v.currentSavings) && inRange(0, 100)(v.years) &&
+  isPct(v.inflationPct) && isPct(v.returnPct) && (v.stepUpPct === undefined || isPct(v.stepUpPct));
 export const isGoalList = (v: unknown): v is Goal[] => Array.isArray(v) && v.length <= 50 && v.every(isGoal);
 
 export const isRetirementInput = (v: unknown): v is RetirementInput =>
   isObj(v) &&
-  ['currentAge', 'retireAge', 'planToAge', 'currentSavings', 'monthlySaving', 'yearlySpendingToday', 'inflationPct', 'returnPct', 'retiredReturnPct', 'volatilityPct'].every((k) => isNum(v[k]));
+  ['currentAge', 'retireAge', 'planToAge'].every((k) => isAge(v[k])) &&
+  ['currentSavings', 'monthlySaving', 'yearlySpendingToday'].every((k) => isMoney(v[k])) &&
+  ['inflationPct', 'returnPct', 'retiredReturnPct', 'volatilityPct'].every((k) => isPct(v[k]));
 
 /** A saved health-check result (Pro): date, score and the pillar scores, nothing else. */
 export interface Snapshot {
@@ -48,7 +59,8 @@ export interface Snapshot {
   netWorth: number;
 }
 export const isSnapshot = (v: unknown): v is Snapshot =>
-  isObj(v) && isStr(v.at, 40) && isNum(v.score) && isObj(v.pillars) && isStr(v.currency, 3) && isNum(v.netWorth);
+  isObj(v) && isStr(v.at, 40) && isScore(v.score) && isObj(v.pillars) &&
+  Object.keys(v.pillars).length <= 20 && Object.values(v.pillars).every(isScore) && isStr(v.currency, 3) && isMoney(v.netWorth);
 export const isSnapshotList = (v: unknown): v is Snapshot[] => Array.isArray(v) && v.length <= 500 && v.every(isSnapshot);
 
 export const STORE_VALIDATORS: Record<StoreKey, (v: unknown) => boolean> = {

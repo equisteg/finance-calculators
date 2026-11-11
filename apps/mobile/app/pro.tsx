@@ -61,7 +61,7 @@ export default function ProScreen() {
             <Text style={{ color: p.fg, fontWeight: '700', fontSize: 17 }}>{x.label}</Text>
             <Text style={{ color: p.fg, fontSize: 24, fontWeight: '800' }}>{live ?? `${x.inr} / ${x.intl}`}</Text>
             <Text style={{ color: p.muted }}>{x.note}</Text>
-            <Button title={`Buy ${x.label}`} onPress={() => pro.buy(x.plan)} busy={pro.busy} disabled={prices !== null && !live} testID={`buy-${x.plan}`} />
+            {pro.available ? <Button title={`Buy ${x.label}`} onPress={() => pro.buy(x.plan)} busy={pro.busy} disabled={prices !== null && !live} testID={`buy-${x.plan}`} /> : null}
           </Card>
         );
       })}
@@ -78,11 +78,14 @@ export default function ProScreen() {
         , and that Finealth gives estimates, not financial advice.
       </Text>
 
+      {!pro.available ? <Notice testID="pro-unavailable">Pro cannot be bought or activated in this build. Nothing will be charged.</Notice> : null}
+      {pro.available ? (
       <Card title="Already bought?">
         <Button title="Restore Google Play purchase" kind="secondary" onPress={pro.restore} busy={pro.busy} testID="restore-play" />
         <TextField label="Bought on the website? Licence key" value={key} onChange={setKey} hint={KEY_HINT} testID="licence-key" maxLength={60} />
         <Button title="Activate licence key" kind="secondary" onPress={() => pro.activateKey(key)} busy={pro.busy} disabled={!key.trim()} testID="activate-key" />
       </Card>
+      ) : null}
     </Screen>
   );
 }

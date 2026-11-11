@@ -5,7 +5,10 @@
       "developmentClient": true,
       "distribution": "internal",
       "android": { "buildType": "apk" },
-      "env": { "EXPO_PUBLIC_ENV": "dev" }
+      "env": {
+        "EXPO_PUBLIC_ENV": "dev",
+        "EXPO_PUBLIC_API_BASE": "https://finealth-dev.equistegenv.workers.dev"
+      }
     },
     "staging": {
       "distribution": "internal",

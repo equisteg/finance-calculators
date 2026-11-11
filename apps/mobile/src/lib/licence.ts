@@ -1,6 +1,6 @@
 import { ed25519 } from '@noble/curves/ed25519.js';
 import type { LicenceClaims } from '@finealth/shared-types';
-import { b64urlDecode, envMatches, isLicenceClaims } from '@finealth/finance-core';
+import { b64urlDecode, isLicenceClaims } from '@finealth/finance-core';
 
 /**
  * On-device check of a Pro token from apps/api (format in packages/finance-core/src/licence.ts).
@@ -51,5 +51,6 @@ export function verifySignature(token: string, publicKey: string): LicenceClaims
 /** Claims when the token is valid now and was issued by this build's environment; otherwise null. */
 export function verifyToken(token: string, publicKey: string, now: number, env?: string): LicenceClaims | null {
   const c = verifySignature(token, publicKey);
-  return c && c.exp > now && envMatches(c, env) ? c : null;
+  // Stricter than the web: every token the API signs carries env, so a token without it is refused when env is set.
+  return c && c.exp > now && (env ? c.env === env : true) ? c : null;
 }
