@@ -339,9 +339,9 @@ The **Quick calculators** page (`/quick-calculators/`) has more tools for the co
 
 | Plan | India | Elsewhere | Where to buy |
 |---|---|---|---|
-| Yearly | ₹199 a year (about ₹17 a month) | US$7.99 a year | Website |
-| Lifetime | ₹499 once | US$19.99 once | Website |
-| Monthly | ₹29 a month | US$0.99 a month | Android app only, through Google Play (not yet available in the current app) |
+| Yearly | ₹199 a year (about ₹17 a month) | US$7.99 a year | Website or Android app |
+| Lifetime | ₹499 once | US$19.99 once | Website or Android app |
+| Monthly | ₹29 a month | US$0.99 a month | Android app only, through Google Play |
 
 Pro buys software features, not advice.
 
@@ -380,20 +380,34 @@ Finealth checks your purchase with the payment provider about once a week, in th
 - **Android purchases** are managed in the Play Store under Payments & subscriptions.
 
 # 13. The Android app
-![Figure 28. The Finealth Android app today](manual/28-app-dashboard.png)
+The Android app has the same health check, planners and calculators as the website, with the same free limits and the same Pro. It works offline and keeps every number you type on your phone.
 
-The current Android app is a set of calculators. It does not yet have the health check, the planners or Pro. After a short splash screen it shows four tabs at the bottom:
+Four tabs run along the bottom:
 
-| Tab | Calculators (along the top) |
+| Tab | What it holds |
 |---|---|
-| **Wealth** | SIP Engine (with an Annual Step-Up option), Lump Sum, SWP Cashflow, Fixed Deposit |
-| **Income** | In-Hand Salary, Tax: New vs Old, GST Calculator |
-| **Debts** | Loan & EMI, Loan Compare |
-| **Macro** | Purchasing Power, FIRE Freedom |
+| **Health** | The financial health check: your score out of 100, your top priority and the ten questions. With Pro: every action ranked, the six pillars, **Save snapshot** and **Print or save as PDF**. |
+| **Plan** | Debt payoff planner, Goal planner, Retirement planner and Loan prepayment. Each works as on the website (sections 5 to 8). |
+| **Calculators** | Every calculator of the website's tools library plus SIP, lump sum, compound interest / FD, loan EMI, SWP and FIRE. Type in **Search calculators** to find one. Each shows how it is worked out, and tax tools show the date their rates were last checked. |
+| **More** | Finealth Pro, **Currency** (₹, $, €, £), **Your data** (backup, restore, delete), ad privacy choices where they apply, About, Privacy, Terms and Contact. |
 
-Type a number in the box or move the slider. The result card updates at once. In the picture, ₹15,000 a month for 15 years at 12 % gives a maturity balance of ₹75,68,640, of which ₹27,00,000 is what you put in.
+Type a number and the result updates at once. If you type something that is not a number, the box turns red, says **Enter a number.** and the last result stays.
 
-Under every result the app shows the same **Information only** note as the website: the figures are estimates, not advice. The app works offline and saves nothing you type. A new version with the full Finealth website features is being built.
+Under every result the app shows the same **Information only** note as the website: the figures are estimates, not advice.
+
+## 13.1 Pro in the app
+Open **More → Get Finealth Pro**. Choose **Monthly**, **Yearly** or **Lifetime** and pay with Google Play. Pro switches on as soon as Google confirms the payment: ads disappear and every Pro feature unlocks.
+
+- **New phone or reinstalled the app?** Open the Pro screen and tap **Restore Google Play purchase**, signed in with the same Google account.
+- **Bought Pro on the website?** Paste the payment ID (`pay_…`) or subscription ID (`sub_…`) under **Already bought?** and tap **Activate licence key**.
+- **Cancel** a Google Play subscription in the Play Store under Payments & subscriptions. Pro stays on until the end of the period you paid for.
+
+The app re-checks your purchase every few days. In between it works offline. If it cannot reach the check, Pro features pause (and no ads show) until the phone is online again.
+
+## 13.2 Your data in the app
+Your numbers are stored only on your phone. With Pro, **More → Back up to a file** saves a backup through Android's share menu (for example to Drive or email), and **Restore from a backup** reads one back. Backups from the website restore in the app, and the other way round. **Delete all my numbers** removes every saved plan from the phone.
+
+Free users see one small advertisement at the end of some screens, below the result. In Europe, the UK and Switzerland the app first asks for your consent with Google's message. Pro users see no ads, and the ad network is never started.
 
 # 14. Troubleshooting
 | What you see | What to do |

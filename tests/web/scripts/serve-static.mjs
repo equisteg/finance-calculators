@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * Zero-dependency static file server for the apps/mobile export.
+ * Zero-dependency static file server for the apps/web export.
  *
  *   node scripts/serve-static.mjs <root> <port>
  *
- * apps/mobile sets `output: "export"` (next.config.ts), so `next start` refuses
- * to serve it -- the build emits a plain `out/` directory that Capacitor loads
- * from webDir. This serves that same directory over HTTP so Playwright drives
- * byte-for-byte what the APK ships, without pulling in another dependency.
+ * apps/web sets `output: "export"` (next.config.ts), so `next start` refuses
+ * to serve it -- the build emits a plain `out/` directory. This serves that same
+ * directory over HTTP so Playwright and Robot drive byte-for-byte what ships,
+ * without pulling in another dependency.
  *
  * Honours `trailingSlash: true` by resolving /foo/ -> out/foo/index.html.
  */

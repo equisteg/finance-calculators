@@ -15,5 +15,9 @@
   "devDependencies": {
     "typescript": "~5.9.2",
     "vitest": "^4.1.12"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./catalog": "./src/catalog.ts"
   }
 }

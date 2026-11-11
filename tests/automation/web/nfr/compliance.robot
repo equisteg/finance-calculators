@@ -70,16 +70,3 @@ TC-N-CMPL-004 Results are information only: no sign-in, no product names to buy,
     END
     Evidence    Last page checked
 
-TC-N-CMPL-005 Android app: every result screen shows the disclaimer (4 of 4 screens)
-    [Tags]    regression    P1
-    Open Finealth App    /
-    ${missing}=    Create List
-    FOR    ${tab}    IN    Wealth    Income    Debts    Macro
-        Click Element    xpath=(//button[contains(normalize-space(.), "${tab}")])[last()]
-        Sleep    0.4s
-        ${text}=    Get Text    css=body
-        ${ok}=    Evaluate    bool(__import__('re').search(r'information only|not (financial|investment) advice', $text, __import__('re').I))
-        IF    not ${ok}    Append To List    ${missing}    ${tab}
-        Evidence    App screen ${tab}
-    END
-    Should Be Empty    ${missing}    App result screens without a disclaimer: ${missing}

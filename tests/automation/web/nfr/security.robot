@@ -55,9 +55,9 @@ TC-N-SEC-004 Repository secret scan reports 0 findings
     Log    ${r.stdout}\n${r.stderr}
     Should Be Equal As Integers    ${r.rc}    0    Secret scan findings: ${r.stdout} ${r.stderr}
 
-TC-N-SEC-005 The built website and Android bundles contain 0 secret-shaped values
+TC-N-SEC-005 The built website contains 0 secret-shaped values and neither app exposes a secret through a public variable
     [Tags]    regression    P1
-    FOR    ${folder}    IN    apps/web/out    apps/mobile/out
+    FOR    ${folder}    IN    apps/web/out
         ${scan}=    Scan Folder For Secrets    ${ROOT}/${folder}
         Log    ${folder}: ${scan}[files] files scanned
         Should Be True    ${scan}[files] > 20    ${folder} looks empty (${scan}[files] files)
@@ -65,6 +65,8 @@ TC-N-SEC-005 The built website and Android bundles contain 0 secret-shaped value
     END
     ${env}=    Read Repo File    apps/web/.env.example
     Should Not Match Regexp    ${env}    (?m)^NEXT_PUBLIC_\\w*(SECRET|PRIVATE|SIGNING)\\w*=    A secret is exposed through a public NEXT_PUBLIC_ variable
+    ${app_env}=    Read Repo File    apps/mobile/.env.example
+    Should Not Match Regexp    ${app_env}    (?m)^EXPO_PUBLIC_\\w*(SECRET|PRIVATE|SIGNING)\\w*=    A secret is exposed through a public EXPO_PUBLIC_ variable
 
 TC-N-SEC-006 Page security headers are defined for the static site (apps/web/public/_headers)
     [Documentation]    The local static server does not apply _headers, so the file the Cloudflare static assets read is

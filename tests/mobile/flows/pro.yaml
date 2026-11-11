@@ -1,0 +1,41 @@
+# TC-M-PRO-010 the Pro screen lists the three plans, restore and licence-key entry; a bad key is refused locally
+# TC-M-PRO-011 Pro-only planner features stay locked after a refused key (no Pro without a signed token)
+appId: com.tezech.finealth
+name: Pro
+tags: [android, regression]
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: tab-more
+- tapOn:
+    id: open-pro
+# TC-M-PRO-010
+- assertVisible:
+    id: screen-pro
+- scrollUntilVisible:
+    element:
+      id: plan-pro_monthly
+- scrollUntilVisible:
+    element:
+      id: plan-pro_lifetime
+- scrollUntilVisible:
+    element:
+      id: licence-key
+- tapOn:
+    id: licence-key
+- inputText: not-a-key
+- hideKeyboard
+- tapOn:
+    id: activate-key
+- scrollUntilVisible:
+    element:
+      id: pro-message
+    direction: UP
+- assertVisible: '.*pay_.*sub_.*'
+# TC-M-PRO-011
+- back
+- tapOn:
+    id: tab-health
+- scrollUntilVisible:
+    element:
+      id: health-pro-gate

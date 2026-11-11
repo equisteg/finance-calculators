@@ -1,7 +1,9 @@
 // Captures the real screens used in docs/USER_MANUAL.md, docs/HLD.md and docs/LLD.md (docs/manual/*.png).
 // Run: npm run docs:shots   (needs the local builds served, as the Robot suites do:
 //        python tests/automation/run.py --serve ... or node tests/web/scripts/serve-static.mjs apps/web/out 3100,
-//        apps/mobile/out on 3101 and the test-key Pro build tests/automation/.pro-site on 3102)
+//        and the test-key Pro build tests/automation/.pro-site on 3102)
+// The Android app (Expo, native screens) is not a web page: its screenshots come from a phone or emulator
+// (maestro test ... with takeScreenshot), not from this script.
 //      BASE_URL=https://finealth-staging.<account>.workers.dev npm run docs:shots   (website shots only)
 // Only local or *-staging/*-dev workers.dev addresses are allowed: never production.
 // Every number shown is the built-in example household; no real data. The Pro shots use the throwaway test key from
@@ -11,13 +13,12 @@ import { fileURLToPath } from 'node:url';
 import { chromium, devices } from '@playwright/test';
 
 const BASE = (process.env.BASE_URL || 'http://127.0.0.1:3100').replace(/\/$/, '');
-const APP = (process.env.MOBILE_URL || 'http://127.0.0.1:3101').replace(/\/$/, '');
 const PRO = (process.env.PRO_URL || 'http://127.0.0.1:3102').replace(/\/$/, '');
 const allowed = (u) => {
   const h = new URL(u).hostname;
   return ['localhost', '127.0.0.1'].includes(h) || /^[a-z0-9-]+-(staging|dev)\.[a-z0-9-]+\.workers\.dev$/.test(h);
 };
-for (const u of [BASE, APP, PRO]) if (!allowed(u)) { console.error(`Refusing ${u}: local, *-staging or *-dev workers.dev only.`); process.exit(1); }
+for (const u of [BASE, PRO]) if (!allowed(u)) { console.error(`Refusing ${u}: local, *-staging or *-dev workers.dev only.`); process.exit(1); }
 
 const tokenFile = fileURLToPath(new URL('../tests/automation/.pro-site.token', import.meta.url));
 const TOKEN = process.env.PRO_TEST_TOKEN || (existsSync(tokenFile) ? readFileSync(tokenFile, 'utf8').trim() : '');
@@ -112,17 +113,6 @@ for (const [name, p, url, step] of SCREENS) {
     console.error(`  ${name}.png FAILED: ${e.message.split('\n')[0]}`);
     process.exitCode = 1;
   }
-}
-
-// The Android app: its own static export in a phone frame, after the 2.2 s splash.
-try {
-  const app = await page({ ...devices['Pixel 7'] });
-  await app.goto(`${APP}/`, { waitUntil: 'networkidle' });
-  await app.waitForTimeout(2800);
-  await app.screenshot({ path: `${dir}/28-app-dashboard.png` });
-  console.log('  28-app-dashboard.png');
-} catch (e) {
-  console.error(`  28-app-dashboard.png FAILED (is the mobile build served on ${APP}?): ${e.message.split('\n')[0]}`);
 }
 
 await browser.close();

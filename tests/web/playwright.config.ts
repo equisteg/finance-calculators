@@ -3,25 +3,21 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * Finealth end-to-end suite.
  *
- *   project "web"            -> apps/web        (Next.js static export, served from out/)
- *   project "mobile-webview" -> apps/mobile     (Next.js static export wrapped by Capacitor)
+ *   project "web" -> apps/web (Next.js static export, served from out/)
  *
- * apps/mobile ships as `output: "export"` inside an Android WebView, so the DOM the
- * suite drives here is byte-for-byte the DOM the APK renders. The two assertions that
- * genuinely need a device (native status bar, airplane mode at the OS level) live in
- * tests/native/ and run under WebdriverIO + Appium instead -- see README.md.
+ * The Android app (apps/mobile, Expo) has native screens, so it is tested with Maestro flows on a phone or emulator
+ * (tests/mobile/README.md), not here.
  *
- * Point the suite at a deployed environment by exporting WEB_BASE_URL / MOBILE_BASE_URL,
+ * Point the suite at a deployed environment by exporting WEB_BASE_URL,
  * which also suppresses the local dev servers:
  *
  *   WEB_BASE_URL=https://finance-calculators.vercel.app npm run test:web
  */
 
 const WEB_BASE = process.env.WEB_BASE_URL ?? "http://127.0.0.1:3100";
-const MOBILE_BASE = process.env.MOBILE_BASE_URL ?? "http://127.0.0.1:3101";
 
 // Only boot local dev servers when no external target was supplied.
-const useLocalServers = !process.env.WEB_BASE_URL && !process.env.MOBILE_BASE_URL;
+const useLocalServers = !process.env.WEB_BASE_URL;
 
 /**
  * Normally Playwright drives its own pinned Chromium (`playwright install chromium`).
@@ -33,13 +29,11 @@ const channel = process.env.PW_CHANNEL;
 /** Or point at any Chromium binary already on the machine (e.g. PW_EXECUTABLE_PATH=/opt/pw-browsers/chromium). */
 const executablePath = process.env.PW_EXECUTABLE_PATH;
 
-/** Reuse an existing build instead of rebuilding both apps on every run. */
+/** Reuse an existing build instead of rebuilding on every run. */
 const skipBuild = process.env.SKIP_BUILD === "1";
 
 export default defineConfig({
   testDir: "./specs",
-
-  // The WebdriverIO + Appium spec lives in tests/mobile/native.
 
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -78,24 +72,12 @@ export default defineConfig({
         colorScheme: "light",
       },
     },
-    {
-      name: "mobile-webview",
-      testMatch: /finealth-mobile\.spec\.ts/,
-      use: {
-        // Pixel 5 descriptor = Chrome on Android, the same engine backing the
-        // Capacitor WebView. Kept over newer descriptors for version portability.
-        ...devices["Pixel 5"],
-        ...(channel ? { channel } : {}),
-        baseURL: MOBILE_BASE,
-      },
-    },
   ],
 
   /*
    * The suite runs against PRODUCTION BUILDS, not `next dev`, for two reasons:
    *
-   *  1. It is the artifact that actually ships -- apps/mobile in particular is
-   *     only meaningful once exported, since Capacitor loads webDir "out".
+   *  1. It is the artifact that actually ships.
    *  2. `next dev --turbopack` never finishes hydrating when its HMR websocket
    *     cannot connect (locked-down CI networks, proxies). The DOM renders but
    *     no handler attaches, so every interaction assertion fails misleadingly.
@@ -110,18 +92,6 @@ export default defineConfig({
             : "npm run build && node ../../tests/web/scripts/serve-static.mjs out 3100",
           cwd: "../../apps/web",
           url: WEB_BASE,
-          reuseExistingServer: !process.env.CI,
-          timeout: 420_000,
-          stdout: "pipe",
-          stderr: "pipe",
-        },
-        {
-          // `output: "export"` means there is no server to start -- serve out/.
-          command: skipBuild
-            ? "node ../../tests/web/scripts/serve-static.mjs out 3101"
-            : "npm run build && node ../../tests/web/scripts/serve-static.mjs out 3101",
-          cwd: "../../apps/mobile",
-          url: MOBILE_BASE,
           reuseExistingServer: !process.env.CI,
           timeout: 420_000,
           stdout: "pipe",

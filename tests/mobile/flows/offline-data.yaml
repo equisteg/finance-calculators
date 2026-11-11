@@ -1,0 +1,49 @@
+# TC-M-OFF-003 with airplane mode on, the health check and a calculator still work
+# TC-M-DAT-001 "Delete all my numbers" removes saved inputs and the example comes back
+appId: com.tezech.finealth
+name: Offline and data
+tags: [android, regression]
+---
+- runFlow: _launch.yaml
+# TC-M-OFF-003
+- setAirplaneMode: enabled
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: health-score
+    timeout: 20000
+- tapOn:
+    id: tab-tools
+- tapOn:
+    id: tools-search
+- inputText: EMI
+- hideKeyboard
+- tapOn:
+    id: tool-emi-calculator
+- assertVisible:
+    id: tool-primary
+    text: '₹22,093'
+- back
+- setAirplaneMode: disabled
+# TC-M-DAT-001
+- tapOn:
+    id: tab-health
+- tapOn:
+    id: in-income
+- eraseText: 12
+- inputText: '200000'
+- hideKeyboard
+- tapOn:
+    id: tab-more
+- scrollUntilVisible:
+    element:
+      id: clear-data
+- tapOn:
+    id: clear-data
+- tapOn: Delete
+- tapOn:
+    id: tab-health
+- assertVisible:
+    id: health-score
+    text: '75'

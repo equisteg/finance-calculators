@@ -33,7 +33,7 @@ Display prices live in `packages/finance-core/src/plan.ts`. Charged prices live 
 | D5 | Production on `finealth.teiqtools.com`, a subdomain of TEIQTools.com (founder decision 9 Nov 2026, RSK-010) | No separate domain to buy. The Worker 301s other hosts on `/api/*` |
 | D6 | No-signup Pro with a stateless licence Worker, same protocol as InvoiceKit | No accounts and no database. Razorpay and Google Play are the only purchase records |
 | D7 | Pro gating on the client, unlocked only by an Ed25519-signed token valid at most 7 days | Pro features are local maths. Tampering unlocks only the attacker's own screen (accepted risk RSK-001) |
-| D8 | Android stays a Capacitor shell around its own static export for now | Package `com.tezech.finealth` may already be on Play. The Expo port is RSK-002 |
+| D8 | Android is an Expo (React Native) app on the shared engine, built on EAS (11 Nov 2026, closes RSK-002) | Native screens, Google Play Billing and AdMob need native code. Package `com.tezech.finealth` is kept so the build updates the existing Play listing. No Android build runs in GitHub Actions (founder decision: Actions minutes) |
 | D9 | Rules of thumb with sources, never product advice | Personalised investment advice is regulated. Finance-category red line |
 | D10 | Interim licence routes in Finealth's own Worker | The company platform Worker does not exist yet. The routes move there when it ships (RSK-108) |
 
@@ -41,10 +41,12 @@ Display prices live in `packages/finance-core/src/plan.ts`. Charged prices live 
 ```mermaid
 flowchart LR
   user([Person]) -->|types numbers| web[Finealth website<br/>static pages + browser maths]
-  user --> app[Finealth Android<br/>Capacitor WebView]
+  user --> app[Finealth Android<br/>Expo app + on-device maths]
   web -->|pages, scripts, styles| cf[(Cloudflare Worker<br/>Static Assets)]
   web -->|licence key only| api[Licence API<br/>same Worker, /api/v1/*]
-  app -.->|planned: Play token| api
+  app -->|Play purchase token or licence key only| api
+  app -->|purchase sheet| gpb[Google Play Billing]
+  app -->|banner after consent, free users only| admob[AdMob + UMP]
   api -->|check purchase| rzp[Razorpay API]
   api -->|check purchase| play[Google Play Developer API]
   web -->|Pro checkout modal| rzpjs[Razorpay Checkout]
@@ -63,10 +65,10 @@ No financial number reaches any Finealth server. Three kinds of request leave th
 |---|---|---|
 | `packages/finance-core` | Pure TypeScript engines: health score, debt payoff, goals, retirement projection and Monte Carlo, prepayment, statutory calculators, country tax engines, universal tools, plan limits and prices, CSV, number formatting, licence token sign and verify | `shared-types` |
 | `packages/shared-types` | Licence claims, plan names, API request and response types | none |
-| `apps/web` | Next.js App Router site: home (`/`), product pages under `app/(product)`, 36 catalog tools under `/tools/[slug]`, Pro provider, Razorpay checkout client, AdSense loader | `finance-core`, `shared-types` |
+| `apps/web` | Next.js App Router site: home (`/`), product pages under `app/(product)`, 36 catalog tools under `/tools/[slug]` (catalogue in `finance-core/catalog`), Pro provider, Razorpay checkout client, AdSense loader | `finance-core`, `shared-types` |
 | `apps/api` | Cloudflare Worker (Hono). Serves `apps/web/out` through the `ASSETS` binding and runs code only for `/api/*`: health, checkout, confirm, licence verify, Play verify, error reports | `finance-core/licence`, `shared-types` |
-| `apps/mobile` | Capacitor Android (and iOS) shell around its own Next.js static export | `finance-core` |
-| `tests/` | Robot Framework suites, Playwright specs, Appium spec, k6 load script, Lighthouse config, test-case workbook, bug log, guard tools | everything above |
+| `apps/mobile` | Expo SDK 58 Android app (Expo Router): Health, Plan, Calculators and More tabs; Pro via expo-iap (Play Billing) or a website key; AdMob with UMP consent | `finance-core` (engine, catalogue, examples, storage schema), `shared-types` |
+| `tests/` | Robot Framework suites, Playwright specs, Maestro flows for the Android app, k6 load script, Lighthouse config, test-case workbook, bug log, guard tools | everything above |
 | `scripts/` | Test-case builder, docs exporter, manual screenshots, licence key tools | |
 
 ```mermaid
@@ -124,9 +126,14 @@ Colours are CSS variables: light "Paper" and dark "Espresso". The page follows t
 `packages/finance-core` holds every formula. It is pure, synchronous TypeScript with no DOM access, so the website, the Android app, the Worker and the Robot Framework engine bridge run the same code. Money inside loops is held in integer minor units (paise or cents) and rounded only at the end. Bad input (negative, `NaN`, infinite) counts as 0. Plans that cannot work return `feasible: false` with a plain-English reason instead of throwing. Every formula has a published source and golden unit tests. Details: LLD §4.
 
 # 7. Android app
-`apps/mobile` is a separate Next.js static export loaded by Capacitor (`appId com.tezech.finealth`, `webDir out`). It shows a splash, then four tabs (Wealth, Income, Debts, Macro) with 11 calculators: SIP, lump sum, SWP, fixed deposit, in-hand salary, India tax old vs new, GST, loan and EMI, loan compare, purchasing power and FIRE. It uses `finance-core` for formatting and formulas, sets the status bar and uses haptics.
+`apps/mobile` is an Expo (React Native) app, built as an Android development or release build on EAS (not Expo Go: AdMob and Play Billing need native code). It keeps `com.tezech.finealth` so it updates the existing Play listing; the native `android/` folder is generated by `expo prebuild` and never committed.
 
-It does **not** yet have the health check, the planners, Pro, Google Play Billing or AdMob. The Worker's `/api/v1/play/verify` route is ready for when it does. Porting the app to Expo with the full product is RSK-002.
+- **Screens.** Four tabs: **Health** (the health check), **Plan** (debt payoff, goals, retirement, prepayment), **Calculators** (the 36-tool catalogue the website uses plus SIP, lump sum, compound interest / FD, EMI, SWP and FIRE, with search) and **More** (Pro, currency, backup, restore, delete, legal links). The Warm Editorial colours follow the phone's light or dark setting.
+- **One engine.** Formulas, the calculator catalogue (`finance-core/catalog`), the example household (`examples.ts`) and the storage schema and validators (`schema.ts`) all come from `packages/finance-core`, so a web backup restores in the app.
+- **Local-first.** Inputs live in AsyncStorage under `finealth.v1.*`; the Pro record lives in the Android Keystore (expo-secure-store). App backup to Google is off (`allowBackup: false`).
+- **Pro.** Google Play Billing (expo-iap): subscription `pro` with base plans `monthly` and `yearly`, and one-time product `pro_lifetime`. The purchase token goes to `/api/v1/play/verify`; a website key goes to `/api/v1/licence/verify`. Pro turns on only when the returned token's Ed25519 signature verifies on the phone (`@noble/curves`, because Hermes has no WebCrypto Ed25519). The purchase is acknowledged only after that, so Google refunds anything that never verifies (§8).
+- **Ads.** AdMob banners for free users only, one at the end of a screen below the result and disclaimer. Google's UMP consent message runs first; the SDK starts only if it allows ads. Pro users, and users whose licence is still being checked, never start the SDK.
+- **Testing.** Unit tests in `apps/mobile/__tests__` run in CI (no Android). Maestro flows in `tests/mobile/flows` run on an emulator or phone, never in GitHub Actions.
 
 # 8. Pro and licensing
 ## 8.1 Principles
@@ -332,7 +339,7 @@ Details of the tools and files: LLD §11.
 | ID | Risk | How we tackle it | Residual |
 |---|---|---|---|
 | RSK-001 | Pro gating is client-side | Accepted: features are local maths; tokens are signed and short-lived | A determined user unlocks only their own screen |
-| RSK-002 | Android is Capacitor, not Expo, and lacks the planners, Pro and AdMob | Port to Expo reusing `finance-core` | Android app is a calculator set only |
+| RSK-002 | Android was Capacitor, not Expo | **Closed 11 Nov 2026:** Expo app on `finance-core` with planners, Pro and AdMob | Play Billing and AdMob need a first device test (RSK-023) |
 | RSK-003 | Rules of thumb read as advice | Disclaimer on every result, sources shown, no product names | Low |
 | RSK-005 | Statutory rates change yearly | Last-checked date on every tax tool, yearly re-check | Low |
 | RSK-007 | Activation counter is best effort (two activations at once can both pass) | Accepted as in InvoiceKit | Low |

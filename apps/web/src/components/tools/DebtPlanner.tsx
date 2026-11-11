@@ -1,22 +1,15 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { compareDebtStrategies, FREE_LIMITS, limitFor, planDebtPayoff, toCsv, type Debt, type DebtStrategy } from '@finealth/finance-core';
+import { compareDebtStrategies, FREE_LIMITS, limitFor, planDebtPayoff, toCsv, type Debt, type DebtStrategy, exampleDebts } from '@finealth/finance-core';
 import { download, isDebtList, KEYS, newId } from '@/lib/storage';
 import { usePersistent } from '@/lib/usePersistent';
 import { usePro } from '../ProProvider';
-import { LineChart, NumberField, Panel, ProGate, Stat, ToolPage, useMoney, type ToolCurrency } from '../ui';
+import { LineChart, NumberField, Panel, ProGate, Stat, ToolPage, useMoney } from '../ui';
 import { AREA_ICON } from '../GlassIcon';
 
-export function exampleDebts(currency: ToolCurrency): Debt[] {
-  const k = currency === 'INR' ? 1 : 1 / 20;
-  const r = (n: number) => Math.round(n * k);
-  return [
-    { id: 'card', name: 'Credit card', balance: r(80_000), aprPct: 42, minPayment: r(4_000) },
-    { id: 'personal', name: 'Personal loan', balance: r(250_000), aprPct: 14, minPayment: r(8_500) },
-    { id: 'phone', name: 'Phone EMI', balance: r(30_000), aprPct: 16, minPayment: r(3_000) },
-  ];
-}
+// The example household is shared with the Android app (packages/finance-core/src/examples.ts).
+export { exampleDebts };
 
 const isNullableDebts = (v: unknown): v is Debt[] | null => v === null || isDebtList(v);
 const months = (m: number | null) => (m === null ? 'never' : m < 12 ? `${m} mo` : `${Math.floor(m / 12)} yr ${m % 12} mo`);

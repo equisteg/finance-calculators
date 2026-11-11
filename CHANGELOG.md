@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased — 2026-11-11
+### Added
+- **Android app rebuilt in Expo** (REQ-027, closes RSK-002 and RSK-011). `apps/mobile` is now an Expo SDK 58 / React Native app instead of the Capacitor web view: Health, Plan, Calculators and More tabs; the health check, debt, goal, retirement and prepayment planners with the same free limits as the website; all 36 catalogue calculators plus SIP, lump sum, compound interest / FD, EMI, SWP and FIRE; the Warm Editorial colours in light and dark. Pro through Google Play Billing (Monthly, Yearly, Lifetime) or a website licence key, checked by the Worker and unlocked only by a signed token verified on the phone. AdMob banners for free users only, after Google's consent message. Same package `com.tezech.finealth`, versionCode 2. Builds run on EAS, never in GitHub Actions.
+- Shared engine: the calculator catalogue (`@finealth/finance-core/catalog`), the example household (`examples.ts`) and the storage schema with backup parsing (`schema.ts`) moved out of the website so the app uses the same copy. A website backup restores in the app.
+- Tests: 23 unit tests for the app (licence check against the Worker's signer, Pro activation and refresh, storage, calculator goldens), 16 Android test cases (TC-M-HLT/NAV/CLC/DBT/GOL/RET/PRE/PRO/OFF/DAT) with Maestro flows in `tests/mobile/flows`. The 16 Capacitor cases and two Android non-functional cases are retired; the Capacitor Playwright, Appium and Robot suites are removed.
 ### Changed
 - Dedicated home page: `/` is now a landing page only (hero, planners, how it works, popular calculators, a quick calculators card, Free vs Pro, privacy, FAQ, call to action), server-rendered with its own canonical. Each chip on the quick calculators card opens its own calculator (for example `#ctc`). The market reference values and the regional quick calculators moved to their own page, `/quick-calculators/` (REQ-026), linked from the home page, All tools, the footer and the sitemap. Tests: TC-W-HOM-006/007/008/009/014/015 rewritten, new TC-W-QCK-001…007.
 ### Fixed

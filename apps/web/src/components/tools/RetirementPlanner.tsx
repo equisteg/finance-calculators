@@ -1,29 +1,15 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { projectRetirement, retirementOdds, type RetirementInput } from '@finealth/finance-core';
+import { projectRetirement, retirementOdds, type RetirementInput, exampleRetirement } from '@finealth/finance-core';
 import { isRetirementInput, KEYS } from '@/lib/storage';
 import { usePersistent } from '@/lib/usePersistent';
 import { usePro } from '../ProProvider';
-import { NumberField, Panel, ProGate, Stat, ToolPage, useMoney, type ToolCurrency } from '../ui';
+import { NumberField, Panel, ProGate, Stat, ToolPage, useMoney } from '../ui';
 import { AREA_ICON } from '../GlassIcon';
 
-export function exampleRetirement(currency: ToolCurrency): RetirementInput {
-  const inr = currency === 'INR';
-  const k = inr ? 1 : 1 / 20;
-  return {
-    currentAge: 32,
-    retireAge: 60,
-    planToAge: 85,
-    currentSavings: Math.round(800_000 * k),
-    monthlySaving: Math.round(25_000 * k),
-    yearlySpendingToday: Math.round(720_000 * k),
-    inflationPct: inr ? 6 : 3,
-    returnPct: inr ? 11 : 7,
-    retiredReturnPct: inr ? 7 : 4.5,
-    volatilityPct: 15,
-  };
-}
+// The example household is shared with the Android app (packages/finance-core/src/examples.ts).
+export { exampleRetirement };
 
 const isNullable = (v: unknown): v is RetirementInput | null => v === null || isRetirementInput(v);
 

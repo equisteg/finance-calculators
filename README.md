@@ -10,7 +10,7 @@ Built on the Equisteg monorepo template v4 (same layout as InvoiceKit).
 apps/
   web/        Next.js 16 static export (calculators + product pages + Pro)     @finealth/web
   api/        Cloudflare Worker (Hono): Razorpay/Play licence checks, serves web @finealth/api
-  mobile/     Capacitor Android/iOS shell (Expo port planned, RSK-002)          @finealth/mobile
+  mobile/     Android app: Expo (React Native) on the shared engine              @finealth/mobile
 packages/
   finance-core/  all formulas, health score, planners, plan limits, licence tokens
   shared-types/  API and token types

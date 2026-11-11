@@ -1,7 +1,7 @@
 # Finealth test automation — Robot Framework (Python) + Selenium
 
 Every case in `tests/cases/test-cases.xlsx` (sheet **Test Cases**) names its Robot test in the column
-*Automation Script*: `tests/automation/<web|mobile|api>/<feature>/<file>.robot :: <TC ID>`. The Robot test has
+*Automation Script*: `tests/automation/<web|api>/<feature>/<file>.robot :: <TC ID>` (Android app cases: a Maestro flow, `tests/mobile/flows/<file>.yaml :: <TC ID>`). The Robot test has
 **the TC ID at the start of its name**, so results, the sheet and the bug log line up. Same framework and format as
 ClearFile (founder decision, 10 Nov 2026). The older Playwright specs (`tests/web/specs/`) and Vitest unit tests stay
 as twins and are named in the sheet's *Remarks*.
@@ -21,7 +21,7 @@ tests/automation/
   tools/build-pro-site.mjs  a web build that trusts a throwaway test key, plus a matching Pro token (never a real key)
   web/<feature>/*.robot     website suites (home, health, debt, goals, retirement, prepay, myplan, pricing, pro, tools,
                             calc, tax, ads, legal, seo, nav, nfr …)
-  mobile/<feature>/*.robot  the Android app's screens (the static export the Capacitor app ships) in a phone window
+  (Android app: Maestro flows in tests/mobile/flows, run on a phone or emulator; see tests/mobile/README.md)
   api/<feature>/*.robot     Worker API cases (licence, Play, health, headers)
   results/<date-time>/      evidence of each run (git-ignored)
 ```
@@ -41,7 +41,6 @@ tests/automation/
 3. Build what the suites open:
    ```
    npm run build -w @finealth/web          # apps/web/out    (website)
-   npm run build -w @finealth/mobile       # apps/mobile/out (Android app screens)
    npm run robot:pro-site                  # tests/automation/.pro-site + .pro-site.token (Pro cases)
    ```
    `robot:pro-site` makes a fresh throwaway Ed25519 key, signs a 6-day Pro token with it, builds the site trusting
@@ -57,7 +56,7 @@ Use the virtual environment's Python. `--serve` starts a static server for each 
 | Everything, locally, browser visible | `python tests/automation/run.py --env local --serve` (`npm run robot`) |
 | Sanity set | add `--suite sanity` |
 | Regression / integration | `--suite regression` / `--suite integration` |
-| One platform | `--platform web`, `--platform android` or `--platform api` (API needs no browser or server) |
+| One platform | `--platform web` or `--platform api` (API needs no browser or server) |
 | One feature folder | `--feature health` (any folder under the platform) |
 | Some test cases | `--test TC-W-HOM-001,TC-W-HLT-002` |
 | Leave out a tag | `--exclude slow` |
