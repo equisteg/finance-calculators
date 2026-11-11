@@ -7,6 +7,10 @@ import type { ExpoConfig } from 'expo/config';
 const env = (k: string) => (process.env[k] ?? '').trim();
 
 // Google's published AdMob sample app id: shows test ads only. FOUNDER: set ADMOB_ANDROID_APP_ID for release builds.
+// The Expo project on EAS (public identifiers, not secrets).
+const EAS_OWNER = 'equisteg-com';
+const EAS_PROJECT_ID = 'e953fcbf-f566-4dc5-ad43-cec748785ec6';
+
 const ADMOB_TEST_APP_ID = 'ca-app-pub-3940256099942544~3347511713';
 
 // A store build without these would show test ads and take Play payments it can never verify (Google refunds them
@@ -27,7 +31,7 @@ const config: ExpoConfig = {
   name: 'Finealth',
   slug: 'finealth',
   platforms: ['android'],
-  owner: env('EXPO_OWNER') || undefined,
+  owner: env('EXPO_OWNER') || EAS_OWNER,
   scheme: 'finealth',
   version: '2.0.0',
   orientation: 'portrait',
@@ -80,7 +84,7 @@ const config: ExpoConfig = {
   ],
   experiments: { typedRoutes: true },
   extra: {
-    eas: env('EAS_PROJECT_ID') ? { projectId: env('EAS_PROJECT_ID') } : undefined,
+    eas: { projectId: env('EAS_PROJECT_ID') || EAS_PROJECT_ID },
   },
 };
 
