@@ -41,7 +41,7 @@ TC-N-PERF-003 Home page at 412 px loads with CLS below 0.1
     Go To Page    /
     ${w}=    Execute Javascript    return window.innerWidth
     Should Be Equal As Integers    ${w}    412
-    Wait Until Element Is Visible    css=[data-testid="engine-badge"]
+    Wait Until Element Is Visible    css=[data-testid="hero-card"]
     ${cls}=    Get Layout Shift    1.5
     Evidence    Home at 412 px, CLS ${cls}
     Should Be True    ${cls} < 0.1    Layout shift ${cls} on / (budget 0.1)

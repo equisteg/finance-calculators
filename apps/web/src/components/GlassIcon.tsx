@@ -121,6 +121,7 @@ export const AREA_ICON: Record<string, { name: GlyphName; tone: Tone }> = {
   '/loan-prepayment/': { name: 'prepay', tone: 'sky' },
   '/my-plan/': { name: 'plan', tone: 'teal' },
   '/': { name: 'calculator', tone: 'cyan' },
+  '/quick-calculators/': { name: 'calculator', tone: 'cyan' },
   '/tools/': { name: 'grid', tone: 'teal' },
   '/pricing/': { name: 'gem', tone: 'amber' },
   '/pro/': { name: 'key', tone: 'amber' },

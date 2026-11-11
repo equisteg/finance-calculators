@@ -279,18 +279,18 @@ export function ScoreRing({ score, label }: { score: number; label: string }) {
   const s = Math.max(0, Math.min(100, score));
   const colour = s >= 80 ? '#5f8552' : s >= 60 ? '#7d8a32' : s >= 40 ? '#b8862a' : '#c0503d';
   return (
-    <figure className="relative w-40 h-40 shrink-0" role="img" aria-label={`Score ${s} out of 100, ${label}`}>
+    <div className="relative w-40 h-40 shrink-0" role="img" aria-label={`Score ${s} out of 100, ${label}`}>
       <svg className="w-full h-full -rotate-90" viewBox="0 0 140 140" aria-hidden="true">
         <circle cx="70" cy="70" r={r} className="stroke-zinc-800" strokeWidth="14" fill="none" />
         <circle cx="70" cy="70" r={r} stroke={colour} strokeWidth="14" fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - (s / 100) * c} />
       </svg>
-      <figcaption className="absolute inset-0 flex flex-col items-center justify-center">
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-4xl font-black font-serif tabular-nums text-white" data-testid="health-score">
           {s}
         </span>
         <span className="text-xs uppercase tracking-wider text-zinc-400">{label}</span>
-      </figcaption>
-    </figure>
+      </div>
+    </div>
   );
 }
 

@@ -1,7 +1,7 @@
 *** Settings ***
-Documentation     Home page (feature: Home, REQ-025 with REQ-022 to REQ-024): hero with the live example score, proof strip,
-...               planners, how it works, market reference values, quick calculators, popular calculators, Free vs Pro,
-...               privacy promise, questions and the final call to action.
+Documentation     Home page (feature: Home, REQ-025 with REQ-022 to REQ-024): a landing page only. Hero with the live
+...               example score, proof strip, planners, how it works, popular calculators, the quick calculators card, Free vs
+...               Pro, privacy promise, questions and the final call to action. Markets and quick calculators: ../quick/.
 ...               Test cases: tests/cases/test-cases.xlsx, sheet "Test Cases" (fragment tests/cases/fragments/web-home.json).
 Resource          ../../resources/common.resource
 Test Teardown     Close Finealth
@@ -10,6 +10,7 @@ Test Tags         web    home
 *** Variables ***
 ${HERO}           css=[data-testid="home-hero"]
 ${BENTO}          css=[data-testid="planner-bento"]
+@{HOME_SECTIONS}    home-hero    proof-strip    planners-title    how-it-works    popular-tools    quick-answers    free-vs-pro    privacy-promise    home-faq    final-cta
 
 *** Test Cases ***
 TC-W-HOM-001 Hero shows the promise, two actions and a live example score from the engine
@@ -22,7 +23,7 @@ TC-W-HOM-001 Hero shows the promise, two actions and a live example score from t
     Element Text Should Be    css=[data-testid="hero-tools"]    See all calculators
     Evidence    Headline and the two actions
     Element Should Contain    css=[data-testid="hero-card"] figcaption    EXAMPLE HOUSEHOLD
-    Element Attribute Value Should Be    css=[data-testid="hero-card"] figure[role="img"]    aria-label    Score 75 out of 100, Good
+    Element Attribute Value Should Be    css=[data-testid="hero-card"] [role="img"][aria-label^="Score"]    aria-label    Score 75 out of 100, Good
     Test Id Text Should Be    hero-grade    Good
     Element Should Contain    css=[data-testid="hero-card"]    ₹25,000
     Element Should Contain    css=.hero-stats    25 %
@@ -110,65 +111,64 @@ TC-W-HOM-005 How it works shows three numbered steps from numbers to a plan
     Element Should Contain    css=[data-testid="how-it-works"] li:nth-child(3)    Follow the plan
     Evidence    Three steps
 
-TC-W-HOM-006 Market values are labelled as stored reference values, with units, change and a history
-    [Tags]    regression    P2
-    Open Finealth    /
-    Scroll Element Into View    css=[data-testid="markets"]
-    Heading Should Contain    Where prices stand    level=2
-    Element Should Contain    css=\#markets-title    in Mumbai
-    Test Id Text Should Be    engine-badge    REFERENCE VALUES · NOT LIVE
-    Element Should Contain    css=[data-testid="markets"]    not live prices
-    ${cards}=    Get Element Count    css=[data-testid="asset-card"]
-    Should Be Equal As Integers    ${cards}    5
-    Element Should Contain    css=[data-testid="asset-card"]:nth-child(1)    Gold (24K Pure)
-    Element Should Contain    css=[data-testid="asset-card"]:nth-child(1)    10 grams
-    Element Should Contain    css=[data-testid="asset-card"]:nth-child(1)    ₹1,52,890
-    Element Should Contain    css=[data-testid="asset-card"]:nth-child(1)    vs reference date
-    Element Should Contain    css=[data-testid="asset-card"]:nth-child(4)    NIFTY 50
-    Element Should Contain    css=[data-testid="asset-card"]:nth-child(4)    pts
-    Evidence    Five India reference cards
-    Heading Should Contain    How prices moved over the decades    level=3
-    Element Should Contain    css=[data-testid="markets"]    Past prices do not predict future returns.
-    Element Should Contain    css=[data-testid="markets"]    Source: India Bullion and Jewellers Association (IBJA)
-    Evidence    Price history with its source
-
-TC-W-HOM-007 Changing the city changes the market heading and keeps the values in rupees
-    [Tags]    regression    P3
-    Open Finealth    /
-    Scroll Element Into View    css=[data-testid="markets"]
-    Select From List By Value    css=select[aria-label="City"]    Delhi
-    Wait Until Element Contains    css=\#markets-title    in Delhi
-    Element Should Contain    css=[data-testid="asset-card"]:nth-child(1)    ₹
-    Evidence    Market heading follows the city
-
-TC-W-HOM-008 Switching the header currency to GBP rebases markets and quick calculators to the United Kingdom
-    [Tags]    regression    P2
-    Open Finealth    /
-    Select From List By Value    css=header select[aria-label="Currency"]    GBP
-    Wait Until Element Contains    css=\#markets-title    in United Kingdom
-    Wait Until Element Contains    css=\#quick-title    for United Kingdom
-    Element Should Contain    css=[data-testid="quick-calcs"]    Stamp Duty (SDLT)
-    Element Should Not Contain    css=[data-testid="quick-calcs"]    GST (CGST + SGST Split)
-    Element Should Contain    css=[data-testid="quick-calcs"]    £
-    Element Should Contain    css=[data-testid="markets"]    FTSE 100
-    Evidence    UK markets and calculators
-    Element Should Contain    css=[data-testid="plan-pro-price"]    US$7.99
-    ${selects}=    Get Element Count    css=select[aria-label="Currency"]
-    Should Be Equal As Integers    ${selects}    1    There is one region control (the header Currency)
-
-TC-W-HOM-009 Quick EMI calculator gives the exact instalment and follows the sliders
+TC-W-HOM-006 The home page is a landing page only: no calculator inputs, market cards or quick calculators on it
+    [Documentation]    Founder request 11 Nov 2026: a dedicated home page. The markets and quick calculators moved to
+    ...    /quick-calculators/ (feature Quick calculators, TC-W-QCK-*).
     [Tags]    sanity    regression    P1
     Open Finealth    /
-    Scroll Element Into View    css=[data-testid="quick-calcs"]
-    Element Attribute Value Should Be    xpath=//button[normalize-space(.)="Loan EMI & Amortization"]    aria-pressed    true
-    Element Should Contain    css=[data-testid="quick-calcs"]    ₹35,00,000
-    Element Should Contain    css=[data-testid="quick-calcs"]    ₹30,374
-    Element Should Contain    css=[data-testid="quick-calcs"]    +₹37,89,760
-    Evidence    ₹35,00,000 at 8.5 % for 20 years = ₹30,374 a month
-    Set Range    Repayment Tenure    10
-    Wait Until Element Contains    css=[data-testid="quick-calcs"]    10 Years
-    Wait Until Element Contains    css=[data-testid="quick-calcs"]    ₹43,395
-    Evidence    10 years = ₹43,395 a month
+    FOR    ${css}    IN    [data-testid="markets"]    [data-testid="quick-calcs"]    [data-testid="asset-card"]    main input    main select    main input[type="range"]
+        Page Should Not Contain Element    css=${css}
+    END
+    ${sections}=    Execute Javascript    return [...document.querySelectorAll('main section[data-testid], main section[aria-labelledby]')].map(s => s.dataset.testid || s.getAttribute('aria-labelledby'))
+    Should Be Equal    ${sections}    ${HOME_SECTIONS}    The home sections changed order: ${sections}
+    Evidence    Landing sections only, in the expected order
+
+TC-W-HOM-007 The quick calculators card lists what is on that page and opens it
+    [Tags]    regression    P2
+    Open Finealth    /
+    Scroll Element Into View    css=[data-testid="quick-answers"]
+    Heading Should Contain    Quick calculators    level=2
+    ${items}=    Get Element Count    css=[data-testid="quick-answers"] li
+    Should Be Equal As Integers    ${items}    6
+    ${links}=    Get Element Count    css=[data-testid="quick-answers"] li a[href^="/quick-calculators/#"]
+    Should Be Equal As Integers    ${links}    6    Each item should link to its section on the quick calculators page
+    FOR    ${t}    IN    Loan EMI and mortgage    SIP and savings growth    Income tax and take-home pay    GST, VAT and sales tax    Gold, silver and index prices
+        Element Should Contain    css=[data-testid="quick-answers"]    ${t}
+    END
+    Evidence    Quick calculators card
+    Click Element    css=[data-testid="quick-answers-link"]
+    Wait Until Location Contains    /quick-calculators/
+    Wait Until Element Is Visible    css=[data-testid="quick-calcs"]
+    Heading Should Contain    Quick calculators    level=1
+    Evidence    Opened /quick-calculators/
+    # Each chip opens its own calculator, not just the first tab.
+    Go To Page    /
+    Execute Javascript    document.querySelector('[data-testid="quick-answers"] a[href$="#ctc"]').scrollIntoView({block: 'center', behavior: 'instant'})
+    Click Element    css=[data-testid="quick-answers"] a[href$="#ctc"]
+    Wait Until Location Contains    /quick-calculators/#ctc
+    Wait Until Page Contains Element    xpath=//button[@aria-pressed="true"][normalize-space()="CTC to In-Hand Salary"]
+    Evidence    The Salary (CTC) chip opened the CTC calculator
+
+TC-W-HOM-008 Switching the header currency to GBP changes the Pro price on the home page and keeps one region control
+    [Tags]    regression    P2
+    Open Finealth    /
+    Element Should Contain    css=[data-testid="plan-pro-price"]    ₹199
+    Select From List By Value    css=header select[aria-label="Currency"]    GBP
+    Wait Until Element Contains    css=[data-testid="plan-pro-price"]    US$7.99
+    ${selects}=    Get Element Count    css=select[aria-label="Currency"]
+    Should Be Equal As Integers    ${selects}    1    There is one region control (the header Currency)
+    Evidence    Pro price follows the currency
+
+TC-W-HOM-009 The home page has a title, description and its own canonical in the pre-rendered HTML
+    [Tags]    sanity    regression    P2
+    ${html}=    Fetch Text    ${BASE_URL}/
+    Should Be Equal As Integers    ${html}[status]    200
+    Should Contain    ${html}[text]    <title>Finealth: free financial health check, debt and goal planner</title>
+    Should Match Regexp    ${html}[text]    <link rel="canonical" href="https://[^"]+/"/>
+    Should Match Regexp    ${html}[text]    <meta name="description" content="Check your financial health
+    ${count}=    Evaluate    $html['text'].count('rel="canonical"')
+    Should Be Equal As Integers    ${count}    1    The home page should carry exactly one canonical
+    Evidence    Title, description and one canonical in the static HTML
 
 TC-W-HOM-010 Popular calculators lists the three calculator pages first, six library tools and a link to all tools
     [Tags]    regression    P2
@@ -234,7 +234,7 @@ TC-W-HOM-013 The page ends with one call to action and the disclaimer, and never
     Element Should Contain    css=footer    A product by
     Element Should Contain    css=footer    Equisteg
 
-TC-W-HOM-014 Phone widths 320 and 360 px: no sideways scroll, the example figures fit, markets scroll in one row
+TC-W-HOM-014 Phone widths 320 and 360 px: no sideways scroll and the example figures fit
     [Tags]    regression    P3
     Open Finealth    /    width=360
     FOR    ${w}    IN    320    360
@@ -245,26 +245,32 @@ TC-W-HOM-014 Phone widths 320 and 360 px: no sideways scroll, the example figure
         Elements Should Fit Their Boxes    .hero-stats .stat span
         Evidence    ${w} px
     END
-    Scroll Element Into View    css=.asset-rail
-    ${display}=    Get Computed Style    .asset-rail    display
-    Should Be Equal    ${display}    flex
-    ${scrolls}=    Execute Javascript    const r = document.querySelector('.asset-rail'); return r.scrollWidth > r.clientWidth
-    Should Be True    ${scrolls}    The market cards should scroll sideways in one row on a phone
-    Evidence    Market rail on a phone
 
-TC-W-HOM-015 Keyboard: the market row takes focus and scrolls with the arrow keys
+TC-W-HOM-015 Keyboard: Tab reaches the hero actions, every planner and the quick calculators link with a visible focus ring
     [Tags]    regression    P3
-    Open Finealth    /    width=390
-    Set Window Width    390    800
-    Reload Page
-    Wait For Page Rendered
-    Scroll Element Into View    css=.asset-rail
-    Execute Javascript    document.querySelector('.asset-rail').focus()
-    Press Keys    None    ARROW_RIGHT    ARROW_RIGHT    ARROW_RIGHT
-    Sleep    0.6s    reason=keyboard scrolling is smooth
-    ${x}=    Execute Javascript    return document.querySelector('.asset-rail').scrollLeft
-    Should Be True    ${x} > 0    Arrow keys did not scroll the market row
-    Evidence    Market row scrolled with the keyboard
+    Open Finealth    /
+    Execute Javascript    window.__tabbed = []; window.__ring = null; document.activeElement && document.activeElement.blur(); window.scrollTo(0, 0)
+    # Press Tab one stop at a time and record where focus lands, plus the focus style on the quick calculators link.
+    FOR    ${n}    IN RANGE    80
+        Press Keys    None    TAB
+        ${done}=    Execute Javascript
+        ...    const a = document.activeElement; const id = a && a.dataset ? a.dataset.testid : null;
+        ...    window.__tabbed.push(id || (a && a.closest('[data-testid="planner-bento"]') ? 'planner:' + a.getAttribute('href') : ''));
+        ...    if (id === 'quick-answers-link') { const s = getComputedStyle(a); window.__ring = s.outlineStyle + '|' + s.outlineWidth + '|' + s.boxShadow; }
+        ...    return id === 'quick-answers-link';
+        IF    ${done}    BREAK
+    END
+    ${reached}=    Execute Javascript    return window.__tabbed.filter(Boolean).join(',')
+    FOR    ${id}    IN    hero-start    hero-tools    quick-answers-link
+        Should Contain    ${reached}    ${id}    Tab never reached ${id}: ${reached}
+    END
+    ${planners}=    Execute Javascript    return new Set(window.__tabbed.filter(t => t.startsWith('planner:'))).size
+    Should Be Equal As Integers    ${planners}    6    Tab should reach all six planners: ${reached}
+    # The style while focused by keyboard must differ from the same link at rest.
+    ${rest}=    Execute Javascript    document.activeElement.blur(); const s = getComputedStyle(document.querySelector('[data-testid="quick-answers-link"]')); return s.outlineStyle + '|' + s.outlineWidth + '|' + s.boxShadow
+    ${ring}=    Execute Javascript    return window.__ring
+    Should Not Be Equal    ${ring}    ${rest}    The focused link looks the same as at rest (no focus ring)
+    Evidence    Tab order reached: ${reached}
 
 TC-W-HOM-016 Dark mode: espresso ground, readable headings and the same sections
     [Tags]    regression    P2
@@ -275,7 +281,7 @@ TC-W-HOM-016 Dark mode: espresso ground, readable headings and the same sections
     ${ratio}=    Contrast Ratio    ${fg}    ${bg}
     Should Be True    ${ratio} >= 4.5    Section heading contrast ${ratio}:1 is below 4.5:1
     ${h2}=    Get Element Count    css=main h2
-    Should Be Equal As Integers    ${h2}    9
+    Should Be Equal As Integers    ${h2}    8
     Evidence    Home in dark mode
 
 TC-W-HOM-017 Sections are never left transparent while scrolling (no faded or hidden content)

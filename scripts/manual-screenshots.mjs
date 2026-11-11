@@ -68,7 +68,7 @@ const around = (sel) => async (p) => {
 const SCREENS = [
   ['01-home', desktop, `${BASE}/`],
   ['02-home-planners', desktop, `${BASE}/`, section('#planners, [data-testid="planner-bento"]')],
-  ['03-home-markets', desktop, `${BASE}/`, section('[data-testid="markets"]')],
+  ['03-quick-calculators', desktop, `${BASE}/quick-calculators/`],
   ['04-home-plans', desktop, `${BASE}/`, section('[data-testid="free-vs-pro"]')],
   ['05-home-faq', desktop, `${BASE}/`, section('[data-testid="home-faq"]')],
   ['06-health-check', desktop, `${BASE}/health-check/`],

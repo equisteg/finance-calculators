@@ -26,7 +26,7 @@ Every page has the same bar at the top.
 |---|---|
 | **Finealth** logo | Goes back to the home page |
 | Moon or sun button | Switches between light and dark mode (section 2.2) |
-| **Currency** menu (₹ INR, $ USD, € EUR, £ GBP) | Changes the currency symbol and number style, the example numbers, and the regional calculators on the home page |
+| **Currency** menu (₹ INR, $ USD, € EUR, £ GBP) | Changes the currency symbol and number style, the example numbers, and the country of the quick calculators and market prices |
 | **Go Pro** button | Opens Pricing. When Pro is active it becomes a gold **Pro** badge that opens your Pro page |
 | Tabs: Health Check, Debt Planner, Goals, Retirement, Prepayment, All tools | Open each part of Finealth. The tab you are on is highlighted |
 
@@ -47,29 +47,30 @@ Everything works on a phone. Cards stack in one column and the tabs scroll sidew
 ![Figure 3. The home page on a phone](manual/23-phone-home.png)
 
 # 3. The home page
-The home page explains Finealth and leads you to the right tool. From top to bottom:
+The home page explains Finealth and leads you to the right tool. It has no calculators of its own: every tool opens on its own page. From top to bottom:
 
 1. **Know your money's health in two minutes.** Press **Start free health check** to begin, or **See all calculators**. The card on the right is a live example: the same engine scores an example household (75, Good) and shows its top priority.
 2. **Finealth in numbers:** 6 planners, 36+ calculators, 0 numbers sent to a server, 2 minutes to your first score.
 3. **Six planners, one calm picture.** One card per planner. Each card says whether it is free, and the free limit.
 4. **How it works:** type ten numbers, get your score, follow the plan.
-5. **Markets at a glance** (section 3.2).
-6. **Quick calculators** for your currency's country (section 11.4).
-7. **The ones people use most:** shortcuts to the SIP, EMI and compound-interest calculators and six popular tools.
-8. **Free to start, Pro when you plan:** the free and Pro plans side by side.
-9. **Your money stays yours:** the privacy promise.
-10. **Before you start:** five common questions.
-11. A last **Start free health check** button and the disclaimer.
+5. **The ones people use most:** shortcuts to the SIP, EMI and compound-interest calculators and six popular tools.
+6. **Quick calculators for your country:** what the quick calculators page holds, and **Open quick calculators →** (section 3.2).
+7. **Free to start, Pro when you plan:** the free and Pro plans side by side.
+8. **Your money stays yours:** the privacy promise.
+9. **Before you start:** five common questions.
+10. A last **Start free health check** button and the disclaimer.
 
 ## 3.1 The planner cards
 ![Figure 4. The six planner cards](manual/02-home-planners.png)
 
 Press **Open →** on a card to go to that planner. The tags mean: **Free** (everything free), **Free · 3 debts** or **Free · 1 goal** (free up to that limit), **Free + Pro** (the basics are free, extras need Pro).
 
-## 3.2 Markets at a glance
-![Figure 5. Markets at a glance, with reference values for India](manual/03-home-markets.png)
+## 3.2 Quick calculators and market prices
+![Figure 5. The quick calculators page, with reference values for India](manual/03-quick-calculators.png)
 
-This section shows reference prices for your currency's country: for India, gold 24K and 22K, silver, NIFTY 50 and BSE SENSEX. With ₹ INR you can pick a **City**, which adds the local gold and silver premium. With $ USD you can pick a **State**.
+Open it from the **Quick calculators** card on the home page, from **All tools**, from the footer, or at `/quick-calculators/`. The page has two parts: **Markets at a glance** and the **Quick calculators** for your currency's country (section 11.4).
+
+**Markets at a glance** shows reference prices for your currency's country: for India, gold 24K and 22K, silver, NIFTY 50 and BSE SENSEX. With ₹ INR you can pick a **City**, which adds the local gold and silver premium. With $ USD you can pick a **State**.
 
 These are **reference values stored in the app, not live prices.** The green or red percentage is the change against the reference date. The bar charts show how prices moved over the decades, with the source. Past prices do not predict future returns. Check live quotes before you buy or sell anything.
 
@@ -321,7 +322,7 @@ These three calculators have their own pages, linked from the home page. Move a 
 
 **Compound interest:** choose the **Initial principal**, **Annual addition** (added at the end of each year), **Interest rate**, **Horizon** and **Compounding frequency** (annually, quarterly or monthly). The result shows the future balance, what you deposited and the interest earned.
 
-The **Quick calculators** section on the home page has more tools for the country of your currency: for ₹ INR, loan EMI, SIP with step-up, income tax new vs old, GST split, bank FD and post-office RD, and CTC to in-hand salary; for $ USD, mortgage, 401(k) and Roth IRA, paycheck and sales tax; for £ GBP, mortgage, ISA, PAYE and stamp duty; for € EUR, Euribor mortgage, compound growth and VAT by country.
+The **Quick calculators** page (`/quick-calculators/`) has more tools for the country of your currency: for ₹ INR, loan EMI, SIP with step-up, income tax new vs old, GST split, bank FD and post-office RD, and CTC to in-hand salary; for $ USD, mortgage, 401(k) and Roth IRA, paycheck and sales tax; for £ GBP, mortgage, ISA, PAYE and stamp duty; for € EUR, Euribor mortgage, compound growth and VAT by country.
 
 # 12. Finealth Pro
 ## 12.1 Free and Pro

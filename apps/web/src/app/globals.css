@@ -571,6 +571,8 @@ img, svg, video, canvas { max-width: 100%; }
   @media (min-width: 768px) { .home-stack > * + * { margin-top: 6rem; } }
   .home-stack > .proof-strip { margin-top: 1.5rem; }
   .home-stack > .final-cta + .notice { margin-top: 2.5rem; }
+  .home-stack > [data-testid='popular-tools'] + [data-testid='quick-answers'] { margin-top: 1.5rem; }
+  .quick-answers { background: radial-gradient(70% 140% at 0% 0%, var(--glow-a), transparent 65%), var(--card-strong); }
   .section-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 2rem; margin-bottom: 1.75rem; }
   .section-title { margin: 0.6rem 0 0; font-family: var(--font-display), Georgia, serif; font-weight: 500; font-variation-settings: 'opsz' 144; color: var(--fg); letter-spacing: -0.02em; font-size: clamp(1.9rem, 1.35rem + 2vw, 2.75rem); line-height: 1.08; text-wrap: balance; }
   .section-lede { margin: 0.75rem 0 0; max-width: 42rem; font-size: 1rem; line-height: 1.6; color: rgb(var(--c-zinc-400)); }

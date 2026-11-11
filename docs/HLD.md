@@ -6,7 +6,7 @@ date: "2026-11-10"
 ---
 
 # 1. Purpose and scope
-Finealth turns a few numbers a person already knows into a picture of their financial health and a plan. The numbers are income, spending, loan payments, savings, costly debt, investments, age, dependants and insurance. The result is a score out of 100, the one change that lifts it most, and planners for debts, goals, retirement and loan prepayment. Around the planners sit 36 free calculators (tax for 7 countries, VAT for 66 countries, loans, savings, everyday and business maths) plus the SIP, EMI and compound-interest pages and the regional quick calculators on the home page. These bring search traffic.
+Finealth turns a few numbers a person already knows into a picture of their financial health and a plan. The numbers are income, spending, loan payments, savings, costly debt, investments, age, dependants and insurance. The result is a score out of 100, the one change that lifts it most, and planners for debts, goals, retirement and loan prepayment. Around the planners sit 36 free calculators (tax for 7 countries, VAT for 66 countries, loans, savings, everyday and business maths) plus the SIP, EMI and compound-interest pages and the regional quick calculators page. These bring search traffic.
 
 Finealth is an Equisteg product. Production lives at `https://finealth.teiqtools.com`.
 
@@ -82,21 +82,21 @@ flowchart TB
 
 # 5. The website
 ## 5.1 Pages
-Every page is pre-rendered HTML with a trailing slash. The static export holds 55 pages: the home page, 17 product and legal pages, 36 tool pages and the 404 page.
+Every page is pre-rendered HTML with a trailing slash. The static export holds 56 pages: the home page, 18 product and legal pages, 36 tool pages and the 404 page.
 
 | Area | Routes |
 |---|---|
 | Home | `/` |
 | Planners | `/health-check/`, `/debt-payoff/`, `/goal-planner/`, `/retirement-planner/`, `/loan-prepayment/`, `/my-plan/` |
-| Calculators | `/sip-calculator/`, `/emi-calculator/`, `/compound-interest/`, `/tools/` (index), `/tools/<slug>/` (36 tools) |
+| Calculators | `/quick-calculators/` (quick calculators and market prices), `/sip-calculator/`, `/emi-calculator/`, `/compound-interest/`, `/tools/` (index), `/tools/<slug>/` (36 tools) |
 | Pro | `/pricing/`, `/pro/` (Restore Pro) |
 | Company and legal | `/about/`, `/privacy/`, `/terms/`, `/refund/`, `/contact/` |
-| Machine files | `/robots.txt`, `/sitemap.xml` (52 URLs: everything except `/pro/` and `/my-plan/`), `/ads.txt` |
+| Machine files | `/robots.txt`, `/sitemap.xml` (53 URLs: everything except `/pro/` and `/my-plan/`), `/ads.txt` |
 
 Every page shares one frame: a "Skip to content" link, the floating `SiteHeader` (logo, light/dark toggle, currency menu, Go Pro or Pro badge, and a tab rail with Health Check, Debt Planner, Goals, Retirement, Prepayment and All tools), `<main id="main">`, and the `SiteFooter` with "A product by Equisteg" and the legal links.
 
 ## 5.2 Home page structure
-The home page (v11 layout in the v10 "Warm Editorial" identity) is one vertical stack. Every section uses the same heading style (`SectionHead`) and spacing.
+The home page (v12, 11 Nov 2026) is a landing page only: it explains Finealth and sends people to the planners and calculators, and holds no calculator of its own. It is a server component (`app/page.tsx`) with its own canonical; the site title and description come from the root layout, and all three are in the static HTML. Every section uses the same heading style (`SectionHead`) and spacing. The market reference values and the regional quick calculators that used to sit on it are on `/quick-calculators/` (`app/(product)/quick-calculators/page.tsx`, REQ-026).
 
 ![Figure 1. The home page hero with the live example score](manual/01-home.png)
 
@@ -107,15 +107,15 @@ The home page (v11 layout in the v10 "Warm Editorial" identity) is one vertical 
 | 3 | Six planners as a bento grid | `PlannerCards` | `planner-bento` |
 | 4 | How it works in three steps | `HowItWorks` | `how-it-works` |
 | | Ad slot `top` (free plan only, between sections) | `AdSenseBanner` | |
-| 5 | Markets at a glance: reference values, labelled "not live" | `app/page.tsx` | `markets` |
-| 6 | Quick calculators for the chosen currency's country | `app/page.tsx` | `quick-calcs` |
+| 5 | Popular calculators (3 stand-alone pages + 6 library tools) | `PopularTools` | `popular-tools` |
+| 6 | Quick calculators card: six chips and a link to `/quick-calculators/` | `QuickAnswers` | `quick-answers` |
 | | Ad slot `mid` | `AdSenseBanner` | |
-| 7 | Popular calculators (3 stand-alone pages + 6 library tools) | `PopularTools` | `popular-tools` |
-| 8 | Free vs Pro with prices from `plan.ts` | `FreeVsPro` | `free-vs-pro` |
-| 9 | Privacy promise | `PrivacyPromise` | `privacy-promise` |
-| 10 | Five questions, with FAQPage JSON-LD | `HomeFaq` | `home-faq` |
-| 11 | Final call to action | `FinalCta` | `final-cta` |
-| | Disclaimer, then ad slot `bottom` | | `disclaimer` |
+| 7 | Free vs Pro with prices from `plan.ts` | `FreeVsPro` | `free-vs-pro` |
+| 8 | Privacy promise | `PrivacyPromise` | `privacy-promise` |
+| | Ad slot `bottom` | `AdSenseBanner` | |
+| 9 | Five questions, with FAQPage JSON-LD | `HomeFaq` | `home-faq` |
+| 10 | Final call to action | `FinalCta` | `final-cta` |
+| | Disclaimer | | `disclaimer` |
 
 ## 5.3 Look and feel
 Colours are CSS variables: light "Paper" and dark "Espresso". The page follows the device setting until the person picks a mode with the toggle; the choice is stored in `finealth.theme`. Fonts are Inter (text) and Fraunces (headings). Motion switches off under reduced motion. On phones under 640 px the bento grid becomes two columns and the market cards become a sideways rail.
@@ -295,6 +295,7 @@ Every requirement in `docs/product-brief.md` §4 and where this HLD and the LLD 
 | REQ-023 | Warm Editorial look, light and dark | §5.3 | §3.1 |
 | REQ-024 | One header and footer, skip link, stable layout | §5.1, §5.3 | §3.1 |
 | REQ-025 | Home page | §5.2 | §3.2 |
+| REQ-026 | Quick calculators page | §5.2 | §3.2a |
 
 # 16. QA architecture
 Testing follows the company standard `docs/standards/qa-architecture.md`, adopted from ClearFile on 10 Nov 2026. The main Claude session builds and fixes. Read-only reviewer agents in `.claude/agents/` plan, check and report with a fresh context. No agent edits files.

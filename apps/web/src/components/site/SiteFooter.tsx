@@ -28,6 +28,7 @@ export function SiteFooter() {
           <Link href="/goal-planner/">Goal Planner</Link>
           <Link href="/retirement-planner/">Retirement Planner</Link>
           <Link href="/tools/">All money tools</Link>
+          <Link href="/quick-calculators/">Quick calculators</Link>
           <Link href="/pricing/">Pricing</Link>
         </nav>
         <nav aria-label="Company" className="grid gap-2 content-start [&>a]:transition [&>a:hover]:text-white">
