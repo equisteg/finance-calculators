@@ -41,7 +41,8 @@ Every REQ has test cases in `tests/cases/test-cases.xlsx` (sheet Test Cases; rea
 | REQ-022 | Gap-free tool layouts with key figures in the heading |
 | REQ-023 | Warm Editorial look: light and dark modes, floating glass nav, bento planners, calm motion |
 | REQ-024 | One header and footer on every page, skip link, compact phone home, stable planner layout, honest market labels |
-| REQ-025 | Home page: hero with a live score card, planners, how it works, honest market reference values, quick calculators, popular calculators, Free vs Pro, privacy promise, questions and a final call to action |
+| REQ-025 | Home page, a landing page only (no calculator inputs): hero with a live score card, planners, how it works, popular calculators, a quick calculators card, Free vs Pro, privacy promise, questions and a final call to action |
+| REQ-026 | Quick calculators page (/quick-calculators/): honest market reference values with their history and the quick calculators for the visitor's country (moved off the home page, founder request 11 Nov 2026) |
 
 ## 4b. Non-functional requirements
 Every NFR has a measurable threshold and at least one non-functional test case.

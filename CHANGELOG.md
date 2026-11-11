@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased — 2026-11-11
+### Changed
+- Dedicated home page: `/` is now a landing page only (hero, planners, how it works, popular calculators, a quick calculators card, Free vs Pro, privacy, FAQ, call to action), server-rendered with its own canonical. Each chip on the quick calculators card opens its own calculator (for example `#ctc`). The market reference values and the regional quick calculators moved to their own page, `/quick-calculators/` (REQ-026), linked from the home page, All tools, the footer and the sitemap. Tests: TC-W-HOM-006/007/008/009/014/015 rewritten, new TC-W-QCK-001…007.
 ### Fixed
 - The browser tab and home-screen shortcut now show the Finealth icon (terracotta square with a white spark) instead of the Next.js default triangle: `app/favicon.ico`, `app/icon.svg`, `app/apple-icon.png` (web and the Android app's web view). Test TC-W-SEO-009.
 - Staging and dev no longer overwrite the Razorpay key id and plan ids set in the Cloudflare dashboard with placeholders on every deploy.

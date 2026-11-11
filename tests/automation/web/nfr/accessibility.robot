@@ -56,7 +56,7 @@ TC-N-ACC-004 Keyboard only: skip link, the main action and a planner input are r
 TC-N-ACC-005 Every money input on the planners has an accessible name and the score ring has a text alternative
     [Tags]    regression    P2
     Open Finealth    /health-check/
-    Element Attribute Value Should Be    css=main figure[role="img"]    aria-label    Score 75 out of 100, Good
+    Element Attribute Value Should Be    css=main [role="img"][aria-label^="Score"]    aria-label    Score 75 out of 100, Good
     ${all}=    Create Dictionary
     FOR    ${path}    IN    @{PLANNERS}    @{CALCULATORS}
         Open Key Page    ${path}

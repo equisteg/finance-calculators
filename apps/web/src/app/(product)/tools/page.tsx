@@ -18,7 +18,7 @@ const PLANNERS = [
   { href: '/goal-planner/', title: 'Goal Planner', summary: 'Monthly saving for each goal and what fits.' },
   { href: '/retirement-planner/', title: 'Retirement Planner', summary: 'Projection and Monte Carlo odds.' },
   { href: '/loan-prepayment/', title: 'Loan Prepayment', summary: 'Reduce EMI or reduce tenure?' },
-  { href: '/', title: 'Regional calculators', summary: 'EMI, SIP, mortgage, GST, PAYE, CTC and more.' },
+  { href: '/quick-calculators/', title: 'Quick calculators', summary: 'EMI, SIP, mortgage, GST, PAYE, CTC and market prices.' },
 ];
 
 const slug = (c: string) => c.toLowerCase().replace(/[^a-z]+/g, '-');

@@ -28,7 +28,7 @@ test.describe("FN-W :: Finealth Web Application", () => {
     page,
   }, testInfo) => {
     const { pageErrors, firstParty } = collectPageProblems(page);
-    await page.goto("/");
+    await page.goto("/quick-calculators/");
 
     // --- Warm paper ground -------------------------------------------------
     // globals.css sets --bg: #f5f1ea (light "Paper", the default when the device has no dark preference).
@@ -85,7 +85,7 @@ test.describe("FN-W :: Finealth Web Application", () => {
   test("FN-W02 renders gold and silver benchmark cards with units, GST tags and city spread", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/quick-calculators/");
 
     // NB exact:true throughout -- the trajectory section below repeats each
     // asset as "<name> (<unit>)", so a substring match is ambiguous.
@@ -151,7 +151,7 @@ test.describe("FN-W :: Finealth Web Application", () => {
   test("FN-W03 renders NIFTY 50 and BSE SENSEX with signed change pills and CGT indicators", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/quick-calculators/");
 
     for (const index of ["NIFTY 50", "BSE SENSEX"]) {
       const card = page.getByTestId("asset-card").filter({ hasText: index }).first();
@@ -199,7 +199,7 @@ test.describe("FN-W :: Finealth Web Application", () => {
   test("FN-W04 switching jurisdiction re-symbols the UI and rebases the calculators", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/quick-calculators/");
     const currency = page.locator("header select");
 
     // --- Baseline: India ---------------------------------------------------

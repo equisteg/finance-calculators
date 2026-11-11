@@ -10,7 +10,8 @@ import { ScoreRing, Stat, useMoney } from '../ui';
 
 /*
  * Home page sections (v11 "Warm Editorial" home). Every section heading uses <SectionHead>, every section is a sibling
- * in the `.home-stack` of app/page.tsx, so spacing and heading style are the same all the way down the page.
+ * in the `.home-stack` of app/page.tsx, so spacing and heading style are the same all the way down the page. The
+ * quick calculators and market prices live on their own page (/quick-calculators/); QuickAnswers links to it.
  */
 
 /** One heading style for every home section: terracotta eyebrow, Fraunces title with one italic accent, short lede. */
@@ -251,6 +252,48 @@ export function PopularTools() {
           );
         })}
       </nav>
+    </section>
+  );
+}
+
+const QUICK: Array<{ icon: GlyphName; tone: Tone; label: string; at: string }> = [
+  { icon: 'debt', tone: 'rose', label: 'Loan EMI and mortgage', at: 'loan' },
+  { icon: 'coins', tone: 'emerald', label: 'SIP and savings growth', at: 'growth' },
+  { icon: 'calculator', tone: 'cyan', label: 'Income tax and take-home pay', at: 'tax' },
+  { icon: 'globe', tone: 'sky', label: 'GST, VAT and sales tax', at: 'indirect' },
+  { icon: 'wallet', tone: 'teal', label: 'Salary (CTC) to in-hand (India)', at: 'ctc' },
+  { icon: 'gem', tone: 'amber', label: 'Gold, silver and index prices', at: 'markets' },
+];
+
+/** One card that sends people to the quick calculators and market prices, which have their own page. */
+export function QuickAnswers() {
+  return (
+    <section aria-labelledby="quick-answers-title" data-testid="quick-answers">
+      <div className="card quick-answers grid gap-6 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-center">
+        <div className="grid gap-3 min-w-0">
+          <span className="eyebrow">Need one number fast?</span>
+          <h2 id="quick-answers-title" className="section-title !m-0">
+            Quick calculators <span className="gradient-text">for your country</span>
+          </h2>
+          <p className="section-lede !m-0">
+            Loan instalments and investment growth for India, the US, the UK and Europe, income tax for India, the US and the
+            UK, and GST, sales tax or VAT, with the reference prices people check most. All on one page.
+          </p>
+          <Link href="/quick-calculators/" className="btn btn-primary justify-self-start" data-testid="quick-answers-link">
+            Open quick calculators →
+          </Link>
+        </div>
+        <ul className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-2.5 m-0 p-0 list-none" aria-label="On the quick calculators page">
+          {QUICK.map((q) => (
+            <li key={q.label} className="flex">
+              <Link href={`/quick-calculators/#${q.at}`} className="trust-chip lift w-full min-h-12">
+                <GlassIcon name={q.icon} tone={q.tone} size={28} />
+                <span>{q.label}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }

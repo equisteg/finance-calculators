@@ -13,7 +13,7 @@ finance-calculators/
 │   │   └── src/
 │   │       ├── app/                  layout.tsx, page.tsx (home), not-found.tsx, robots.ts, sitemap.ts,
 │   │       │                         globals.css, context/CurrencyContext.tsx
-│   │       ├── app/(product)/        layout.tsx, template.tsx and the 17 product, calculator and legal pages,
+│   │       ├── app/(product)/        layout.tsx, template.tsx and the 18 product, calculator and legal pages,
 │   │       │                         tools/page.tsx and tools/[slug]/page.tsx
 │   │       ├── components/           ProProvider, PriceCards, ActivatePro, AdLoader, AdSenseBanner, ThemeToggle,
 │   │       │                         GlassIcon, CalculatorShell, ui.tsx, site/ (header, footer, home), tools/ (planners)
@@ -64,7 +64,7 @@ All pages are static HTML (`out/<route>/index.html`). Planner and tool pages ren
 | Everyday (6) | `budget-50-30-20-calculator`, `emergency-fund-calculator`, `net-worth-calculator`, `percentage-calculator`, `discount-calculator`, `tip-calculator` |
 | Business (5) | `world-vat-gst-calculator`, `canada-sales-tax-calculator` (Canada), `npv-irr-calculator`, `margin-markup-calculator`, `break-even-calculator` |
 
-Every tool page shows the result, then "How it is worked out" (the source), "Rates last checked: 9 November 2026" with the official link for statutory tools, "Not covered", and "Found a mistake? Tell us". The tools index heading counts 42 tools: the 36 catalog tools plus 6 planner cards (five planners and the regional calculators on the home page).
+Every tool page shows the result, then "How it is worked out" (the source), "Rates last checked: 9 November 2026" with the official link for statutory tools, "Not covered", and "Found a mistake? Tell us". The tools index heading counts 42 tools: the 36 catalog tools plus 6 planner cards (five planners and the quick calculators page).
 
 # 3. Web components
 ## 3.1 Site frame
@@ -78,20 +78,29 @@ Every tool page shows the result, then "How it is worked out" (the source), "Rat
 | `(product)/template.tsx` | Fade-in on client navigation only |
 
 ## 3.2 Home page (`site/HomeHero.tsx` and `app/page.tsx`)
+`app/page.tsx` is a server component: it exports `metadata` (canonical `/`; title and description from the root layout) and renders the sections below inside `FitArea`. It holds no state and no calculator.
 | Section | Export | Test ids and content |
 |---|---|---|
 | Hero | `HomeHero` | `home-hero`; `hero-start` → `/health-check/`; `hero-tools` → `/tools/`; `hero-trust` (No login, no bank link · 36+ free calculators · Tax for 7 countries, VAT for N (N = entries in `WORLD_VAT_RATES`, 66 today) · Pro from ₹17 a month, or "Pro US$7.99 a year" outside INR); `hero-card` with `ScoreRing`, `hero-grade`, three stats and `hero-top-action`, all from `financialHealth(exampleHealth(currency))` |
 | Proof strip | `ProofStrip` | `proof-strip`: 6 planners, `${TOOLS.length}+` calculators, 0 numbers sent, 2 min |
 | Planners | `PlannerCards` | `planner-bento`: Health Check (large cell, six rule chips), Debt Payoff (Free · 3 debts), Goal Planner (Free · 1 goal), Loan Prepayment, Retirement (Free + Pro), My Plan (Free + Pro). Limits come from `FREE_LIMITS` |
 | How it works | `HowItWorks` | `how-it-works`: type ten numbers, get your score, follow the plan |
-| Markets | `app/page.tsx` | `markets`, `engine-badge` ("Reference values · not live"), City select (INR) or US state select (USD), `asset-card` ×n, history bars for the first two assets |
-| Quick calculators | `app/page.tsx` | `quick-calcs`: a tab per regional tool. INR: EMI, SIP and step-up, income tax new vs old, GST split, FD and RD, CTC to in-hand. USD: mortgage PITI, 401(k) and Roth IRA, paycheck, sales tax. GBP: repayment mortgage, ISA, PAYE and NI, SDLT. EUR: Euribor mortgage, compound growth, VAT by country. Region defaults reset when the currency changes |
 | Popular | `PopularTools` | `popular-tools`, `all-tools-link` ("All 36 tools →"): SIP, EMI, compound interest, then India regime, World VAT, XIRR, rent vs buy, 50/30/20, PPF |
+| Quick calculators card | `QuickAnswers` | `quick-answers`, six chips, `quick-answers-link` → `/quick-calculators/` |
 | Free vs Pro | `FreeVsPro` | `free-vs-pro`, `plan-free`, `plan-pro`, `plan-pro-price`, `plans-pricing`; Pro list = `PRO_FEATURES` |
 | Privacy | `PrivacyPromise` | `privacy-promise`: stays on this device; no bank link, no login; sourced rules, not advice |
 | FAQ | `HomeFaq` | `home-faq`: five `<details>` items plus FAQPage JSON-LD |
 | Final call | `FinalCta` | `final-cta` |
 | Disclaimer | `app/page.tsx` | `disclaimer` |
+
+## 3.2a Quick calculators page (`app/(product)/quick-calculators/`)
+Client page inside the product layout; `layout.tsx` holds its metadata (title "Quick calculators: EMI, SIP, income tax, GST/VAT and market prices", canonical `/quick-calculators/`). Test id `quick-page`; one `h1`.
+
+| Section | Test ids and content |
+|---|---|
+| Markets | `markets`, `engine-badge` ("Reference values · not live"), City select (INR) or US state select (USD), `asset-card` ×n, history bars for the first two assets |
+| Quick calculators | `quick-calcs`: a tab per regional tool. INR: EMI, SIP and step-up, income tax new vs old, GST split, FD and RD, CTC to in-hand. USD: mortgage PITI, 401(k) and Roth IRA, paycheck, sales tax. GBP: repayment mortgage, ISA, PAYE and NI, SDLT. EUR: Euribor mortgage, compound growth, VAT by country. Region defaults reset when the currency changes |
+| Disclaimer | `disclaimer`; ad slots `top` (between the two sections) and `bottom` |
 
 ## 3.3 Shared UI (`components/ui.tsx`)
 | Export | Behaviour |

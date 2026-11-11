@@ -191,7 +191,7 @@ test.describe('FH :: global tools library and disclaimers', () => {
       }).observe({ type: 'layout-shift', buffered: true });
     });
     await page.setViewportSize({ width: 412, height: 915 });
-    for (const [path, ready] of [['/debt-payoff/', 'debt-pro-gate'], ['/', 'engine-badge']] as const) {
+    for (const [path, ready] of [['/debt-payoff/', 'debt-pro-gate'], ['/', 'hero-card'], ['/quick-calculators/', 'engine-badge']] as const) {
       await page.goto(path);
       await expect(page.getByTestId(ready)).toBeVisible();
       await page.waitForTimeout(800);
