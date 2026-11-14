@@ -5,6 +5,8 @@
 - One-click GitHub Action **Create licence keys** (`.github/workflows/licence-keys.yml`): creates the Pro token key pair inside GitHub, stores the private key as the Worker secret `LICENCE_SIGNING_KEY` without printing it, and shows the public key to copy into `LICENCE_PUBLIC_KEY_STAGING` or `LICENCE_PUBLIC_KEY_PRODUCTION` (deploy reads one per environment, falling back to the old `LICENCE_PUBLIC_KEY`). Refuses to replace an existing key unless "replace" is ticked (production also needs a typed confirmation and a release approver), stops if the Worker cannot be read, and installs only wrangler without install scripts.
 ### Changed
 - Deploy warns by name when `RAZORPAY_ENABLED=1` but `LICENCE_PUBLIC_KEY` is empty (the reason the pricing page showed "Coming soon" with Razorpay configured).
+### Security
+- Worker framework Hono 4.13.14 → 4.13.16 (five medium/low advisories found by OSV-Scanner).
 
 ## Unreleased — 2026-11-11
 ### Added
