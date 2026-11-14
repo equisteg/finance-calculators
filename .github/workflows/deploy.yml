@@ -10,7 +10,8 @@ name: Deploy
 #
 # Needs (repo Settings -> Secrets and variables -> Actions):
 #   secrets   CLOUDFLARE_API_TOKEN (template "Edit Cloudflare Workers"), CLOUDFLARE_ACCOUNT_ID
-#   variables RELEASE_APPROVERS, STAGING_URL, PRODUCTION_URL (no trailing slash), LICENCE_PUBLIC_KEY,
+#   variables RELEASE_APPROVERS, STAGING_URL, PRODUCTION_URL (no trailing slash), LICENCE_PUBLIC_KEY_STAGING /
+#             LICENCE_PUBLIC_KEY_PRODUCTION (from Actions -> Create licence keys; LICENCE_PUBLIC_KEY is the old shared fallback),
 #             optional RAZORPAY_ENABLED (1/0), PRODUCTION_WRANGLER_ENV
 # Worker secrets (LICENCE_SIGNING_KEY, RAZORPAY_KEY_SECRET, GOOGLE_PLAY_SA_KEY) stay in Cloudflare (`wrangler secret put`).
 on:
@@ -54,7 +55,7 @@ jobs:
         env:
           ENV_NAME: ${{ steps.env.outputs.name }}
           REF: ${{ github.ref_name }}
-          ACTOR: ${{ github.actor }}
+          ACTOR: ${{ github.triggering_actor }}
           APPROVERS: ${{ vars.RELEASE_APPROVERS }}
         run: |
           if [ "$ENV_NAME" = "staging" ] && [ "$REF" != "development" ]; then echo "staging deploys only from development (not $REF)"; exit 1; fi
@@ -78,7 +79,10 @@ jobs:
           WRANGLER_ENV: ${{ steps.env.outputs.wrangler }}
           STAGING_URL: ${{ vars.STAGING_URL }}
           PRODUCTION_URL: ${{ vars.PRODUCTION_URL || 'https://finealth.teiqtools.com' }}
-          LICENCE_PUBLIC_KEY: ${{ vars.LICENCE_PUBLIC_KEY }}
+          # Each environment has its own key pair (Actions -> Create licence keys); LICENCE_PUBLIC_KEY is the old shared name.
+          KEY_STAGING: ${{ vars.LICENCE_PUBLIC_KEY_STAGING }}
+          KEY_PRODUCTION: ${{ vars.LICENCE_PUBLIC_KEY_PRODUCTION }}
+          KEY_SHARED: ${{ vars.LICENCE_PUBLIC_KEY }}
           RAZORPAY_ENABLED: ${{ vars.RAZORPAY_ENABLED || '0' }}
           # Optional; copy them from Workers Builds' build variables if they were set there.
           BUSINESS_ADDRESS: ${{ vars.BUSINESS_ADDRESS }}
@@ -90,11 +94,20 @@ jobs:
           ADSENSE_SLOT_BOTTOM: ${{ vars.ADSENSE_SLOT_BOTTOM }}
           ADSENSE_SLOT_CALCULATOR: ${{ vars.ADSENSE_SLOT_CALCULATOR }}
         run: |
+          # Never give one environment another's key: production never falls back to the staging variable.
+          case "$WRANGLER_ENV" in
+            staging) LICENCE_PUBLIC_KEY="${KEY_STAGING:-$KEY_SHARED}" ;;
+            *)       LICENCE_PUBLIC_KEY="${KEY_PRODUCTION:-$KEY_SHARED}"
+                     [ -z "$KEY_PRODUCTION" ] && [ -n "$KEY_SHARED" ] && echo "::warning::Production uses the old shared LICENCE_PUBLIC_KEY; set LICENCE_PUBLIC_KEY_PRODUCTION from Actions -> Create licence keys" ;;
+          esac
           for v in STAGING_URL PRODUCTION_URL LICENCE_PUBLIC_KEY RAZORPAY_ENABLED BUSINESS_ADDRESS PLAY_URL KILL_SWITCHES API_BASE \
                    ADSENSE_SLOT_TOP ADSENSE_SLOT_MID ADSENSE_SLOT_BOTTOM ADSENSE_SLOT_CALCULATOR; do
             case "${!v}" in *$'\n'*) echo "::error::repository variable $v contains a line break"; exit 1 ;; esac
           done
-          [ -z "$LICENCE_PUBLIC_KEY" ] && echo "::warning::LICENCE_PUBLIC_KEY variable is empty, so Pro activation is hidden on this build"
+          if [ -z "$LICENCE_PUBLIC_KEY" ]; then
+            echo "::warning::The licence public key variable (LICENCE_PUBLIC_KEY_STAGING / _PRODUCTION) is empty, so Pro activation is hidden on this build"
+            [ "$RAZORPAY_ENABLED" = "1" ] && echo "::warning::RAZORPAY_ENABLED is 1 but LICENCE_PUBLIC_KEY is empty, so the pricing page shows \"Coming soon\". Run Actions -> Create licence keys, put the public key in the variable it names and deploy again"
+          fi
           {
             echo "NEXT_PUBLIC_LICENCE_PUBLIC_KEY=$LICENCE_PUBLIC_KEY"
             echo "NEXT_PUBLIC_RAZORPAY_ENABLED=$RAZORPAY_ENABLED"

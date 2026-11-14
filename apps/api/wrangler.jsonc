@@ -114,7 +114,7 @@
     }
   }
   // Secrets (never in this file): npx wrangler secret put <NAME> --env <dev|staging|production>
-  //   LICENCE_SIGNING_KEY  Ed25519 private key, PKCS#8, base64url — created by `node scripts/gen-licence-keys.mjs`
+  //   LICENCE_SIGNING_KEY  Ed25519 private key, PKCS#8, base64url — set by Actions -> Create licence keys (or `npm run licence:keys`)
   //   GOOGLE_PLAY_SA_KEY   Google service-account JSON key (whole file contents)
   //   RAZORPAY_KEY_SECRET  Razorpay key secret paired with RAZORPAY_KEY_ID (test secret for dev/staging, live for production)
   // Local development: copy .dev.vars.example to .dev.vars (git-ignored) and fill it in.
