@@ -94,7 +94,10 @@ jobs:
                    ADSENSE_SLOT_TOP ADSENSE_SLOT_MID ADSENSE_SLOT_BOTTOM ADSENSE_SLOT_CALCULATOR; do
             case "${!v}" in *$'\n'*) echo "::error::repository variable $v contains a line break"; exit 1 ;; esac
           done
-          [ -z "$LICENCE_PUBLIC_KEY" ] && echo "::warning::LICENCE_PUBLIC_KEY variable is empty, so Pro activation is hidden on this build"
+          if [ -z "$LICENCE_PUBLIC_KEY" ]; then
+            echo "::warning::LICENCE_PUBLIC_KEY variable is empty, so Pro activation is hidden on this build"
+            [ "$RAZORPAY_ENABLED" = "1" ] && echo "::warning::RAZORPAY_ENABLED is 1 but LICENCE_PUBLIC_KEY is empty, so the pricing page shows \"Coming soon\". Run Actions -> Create licence keys, put the public key in LICENCE_PUBLIC_KEY and deploy again"
+          fi
           {
             echo "NEXT_PUBLIC_LICENCE_PUBLIC_KEY=$LICENCE_PUBLIC_KEY"
             echo "NEXT_PUBLIC_RAZORPAY_ENABLED=$RAZORPAY_ENABLED"

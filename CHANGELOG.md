@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — 2026-11-14
+### Added
+- One-click GitHub Action **Create licence keys** (`.github/workflows/licence-keys.yml`): creates the Pro token key pair inside GitHub, stores the private key as the Worker secret `LICENCE_SIGNING_KEY` without printing it, and shows the public key to copy into `LICENCE_PUBLIC_KEY`. Keeps an existing key unless "replace" is ticked; production needs a release approver.
+### Changed
+- Deploy warns by name when `RAZORPAY_ENABLED=1` but `LICENCE_PUBLIC_KEY` is empty (the reason the pricing page showed "Coming soon" with Razorpay configured).
+
 ## Unreleased — 2026-11-11
 ### Added
 - **Android app rebuilt in Expo** (REQ-027, closes RSK-002 and RSK-011). `apps/mobile` is now an Expo SDK 58 / React Native app instead of the Capacitor web view: Health, Plan, Calculators and More tabs; the health check, debt, goal, retirement and prepayment planners with the same free limits as the website; all 36 catalogue calculators plus SIP, lump sum, compound interest / FD, EMI, SWP and FIRE; the Warm Editorial colours in light and dark. Pro through Google Play Billing (Monthly, Yearly, Lifetime) or a website licence key, checked by the Worker and unlocked only by a signed token verified on the phone. AdMob banners for free users only, after Google's consent message. Same package `com.tezech.finealth`, versionCode 2. Builds run on EAS, never in GitHub Actions.
