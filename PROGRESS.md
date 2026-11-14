@@ -18,7 +18,7 @@
 ## NEEDS HUMAN
 1. Create `development`, `staging`, `production` branches and make `development` the default (repo has only `main`).
 2. Razorpay: live keys, yearly plans (₹199 / US$7.99), website review (Terms, Privacy, Refund, Contact are live on the site), international payments for USD.
-3. Licence key pair: GitHub → Actions → **Create licence keys** → Run workflow (environment `staging`, later `prelaunch`/`production`). It sets the Worker secret `LICENCE_SIGNING_KEY`; copy the public key from the run summary into the repository variable `LICENCE_PUBLIC_KEY`, then run **Deploy**. Without it the pricing page shows "Coming soon" even with Razorpay configured.
+3. Licence key pair: GitHub → Actions → **Create licence keys** → Run workflow (environment `staging`, later `production`). It sets the Worker secret `LICENCE_SIGNING_KEY`; copy the public key from the run summary into the repository variable it names (`LICENCE_PUBLIC_KEY_STAGING` or `LICENCE_PUBLIC_KEY_PRODUCTION`), then run **Deploy**. Without it the pricing page shows "Coming soon" even with Razorpay configured.
 4. Domain is `finealth.teiqtools.com` (code already uses it). In Cloudflare: Workers & Pages → finealth → Settings → Domains & Routes → Add → Custom domain → `finealth.teiqtools.com` (the teiqtools.com zone must be in the same account). Then add `google.com, pub-1503863859594756, DIRECT, f08c47fec0942fa0` to `https://teiqtools.com/ads.txt` (AdSense checks the root domain) and add `teiqtools.com` under AdSense → Sites.
 5. Set `NEXT_PUBLIC_BUSINESS_ADDRESS` and confirm the support email.
 6. GST invoicing for web sales (Razorpay is not a merchant of record).
