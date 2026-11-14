@@ -96,7 +96,7 @@ jobs:
           CONFIRM: ${{ inputs.confirm }}
         # Lists secret NAMES only; Cloudflare never returns secret values. Any error stops the run (fail closed).
         run: |
-          if ! names="$(npx wrangler secret list --env "$WRANGLER_ENV" --format json)"; then
+          if ! names="$(npx --no-install wrangler secret list --env "$WRANGLER_ENV" --format json)"; then
             echo "::error::Could not read the secrets of the $TARGET Worker. If it was never deployed, run Deploy first; otherwise check the Cloudflare token and try again."
             exit 1
           fi
@@ -136,7 +136,7 @@ jobs:
               fs.writeFileSync(process.argv[2], b64url(await crypto.subtle.exportKey('raw', kp.publicKey)));
             })();" "$key_file" "$pub_file"
           echo "::add-mask::$(cat "$key_file")"
-          npx wrangler secret put LICENCE_SIGNING_KEY --env "$WRANGLER_ENV" < "$key_file"
+          npx --no-install wrangler secret put LICENCE_SIGNING_KEY --env "$WRANGLER_ENV" < "$key_file"
           pub="$(cat "$pub_file")"
           {
             echo "## Licence keys created for \`$TARGET\`"

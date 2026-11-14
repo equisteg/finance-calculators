@@ -55,7 +55,7 @@ jobs:
         env:
           ENV_NAME: ${{ steps.env.outputs.name }}
           REF: ${{ github.ref_name }}
-          ACTOR: ${{ github.actor }}
+          ACTOR: ${{ github.triggering_actor }}
           APPROVERS: ${{ vars.RELEASE_APPROVERS }}
         run: |
           if [ "$ENV_NAME" = "staging" ] && [ "$REF" != "development" ]; then echo "staging deploys only from development (not $REF)"; exit 1; fi
@@ -80,7 +80,9 @@ jobs:
           STAGING_URL: ${{ vars.STAGING_URL }}
           PRODUCTION_URL: ${{ vars.PRODUCTION_URL || 'https://finealth.teiqtools.com' }}
           # Each environment has its own key pair (Actions -> Create licence keys); LICENCE_PUBLIC_KEY is the old shared name.
-          LICENCE_PUBLIC_KEY: ${{ steps.env.outputs.name == 'production' && (vars.LICENCE_PUBLIC_KEY_PRODUCTION || vars.LICENCE_PUBLIC_KEY) || (vars.LICENCE_PUBLIC_KEY_STAGING || vars.LICENCE_PUBLIC_KEY) }}
+          KEY_STAGING: ${{ vars.LICENCE_PUBLIC_KEY_STAGING }}
+          KEY_PRODUCTION: ${{ vars.LICENCE_PUBLIC_KEY_PRODUCTION }}
+          KEY_SHARED: ${{ vars.LICENCE_PUBLIC_KEY }}
           RAZORPAY_ENABLED: ${{ vars.RAZORPAY_ENABLED || '0' }}
           # Optional; copy them from Workers Builds' build variables if they were set there.
           BUSINESS_ADDRESS: ${{ vars.BUSINESS_ADDRESS }}
@@ -92,6 +94,12 @@ jobs:
           ADSENSE_SLOT_BOTTOM: ${{ vars.ADSENSE_SLOT_BOTTOM }}
           ADSENSE_SLOT_CALCULATOR: ${{ vars.ADSENSE_SLOT_CALCULATOR }}
         run: |
+          # Never give one environment another's key: production never falls back to the staging variable.
+          case "$WRANGLER_ENV" in
+            staging) LICENCE_PUBLIC_KEY="${KEY_STAGING:-$KEY_SHARED}" ;;
+            *)       LICENCE_PUBLIC_KEY="${KEY_PRODUCTION:-$KEY_SHARED}"
+                     [ -z "$KEY_PRODUCTION" ] && [ -n "$KEY_SHARED" ] && echo "::warning::Production uses the old shared LICENCE_PUBLIC_KEY; set LICENCE_PUBLIC_KEY_PRODUCTION from Actions -> Create licence keys" ;;
+          esac
           for v in STAGING_URL PRODUCTION_URL LICENCE_PUBLIC_KEY RAZORPAY_ENABLED BUSINESS_ADDRESS PLAY_URL KILL_SWITCHES API_BASE \
                    ADSENSE_SLOT_TOP ADSENSE_SLOT_MID ADSENSE_SLOT_BOTTOM ADSENSE_SLOT_CALCULATOR; do
             case "${!v}" in *$'\n'*) echo "::error::repository variable $v contains a line break"; exit 1 ;; esac
